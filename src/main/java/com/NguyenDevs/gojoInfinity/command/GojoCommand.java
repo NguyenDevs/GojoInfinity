@@ -1,6 +1,7 @@
 package com.NguyenDevs.gojoInfinity.command;
 
 import com.NguyenDevs.gojoInfinity.GojoInfinity;
+import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
 import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -16,11 +17,13 @@ public class GojoCommand implements CommandExecutor {
     private final GojoInfinity plugin;
     private final ConfigManager configManager;
     private final Set<UUID> infinityUsers;
+    private final GojoGUI gojoGUI;
 
-    public GojoCommand(GojoInfinity plugin, ConfigManager configManager, Set<UUID> infinityUsers) {
+    public GojoCommand(GojoInfinity plugin, ConfigManager configManager, Set<UUID> infinityUsers, GojoGUI gojoGUI) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.infinityUsers = infinityUsers;
+        this.gojoGUI = gojoGUI;
     }
 
     @Override
@@ -50,15 +53,31 @@ public class GojoCommand implements CommandExecutor {
                     return true;
                 }
 
+                if (!configManager.isWorldEnabled(player.getWorld().getName())) {
+                    player.sendMessage(configManager.getMessage("world-disabled"));
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                    return true;
+                }
+
+                if (args.length > 0 && args[0].equalsIgnoreCase("gui")) {
+                    if (infinityUsers.contains(player.getUniqueId())) {
+                        gojoGUI.openGUI(player);
+                    } else {
+                        player.sendMessage(configManager.getMessage("infinity-disabled"));
+                    }
+                    return true;
+                }
+
                 if (infinityUsers.contains(player.getUniqueId())) {
                     infinityUsers.remove(player.getUniqueId());
                     player.sendMessage(configManager.getMessage("infinity-disabled"));
-                    // Command success sound for toggling off as well
-                    player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.5f);
+                    player.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 0.5f);
                 } else {
                     infinityUsers.add(player.getUniqueId());
                     player.sendMessage(configManager.getMessage("infinity-enabled"));
                     player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.5f);
+
+                    gojoGUI.openGUI(player);
                 }
                 return true;
             } else {

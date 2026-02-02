@@ -10,8 +10,13 @@ prefix: "&#00FFFF[&b&lGojoInfinity&#00FFFF] &r"
 reload-success: "&aConfiguration reloaded successfully!"
 no-permission: "&cYou do not have permission to use this command."
 only-players: "&cOnly players can use this command."
+world-disabled: "&cGojo's abilities are disabled in this world."
 
-infinity-enabled: "<gradient:#00FFFF:#0000FF>Gojo Limitless Mode Enabled</gradient>."
-infinity-disabled: "<gradient:#FF0000:#8B0000>Gojo Limitless Mode Disabled</gradient>."
+# Infinity
+infinity-enabled: "&aInfinity mode enabled!"
+infinity-disabled: "&cInfinity mode disabled!"
 
-cooldown: "&cYou must wait before using this ability again."
+# Cooldown messages
+cooldown-red: "&cRed is on cooldown! Wait %time%s"
+cooldown-blue: "&cBlue is on cooldown! Wait %time%s"
+cooldown-purple: "&cPurple is on cooldown! Wait %time%s"

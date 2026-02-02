@@ -1,0 +1,57 @@
+# ==============================================================================
+#                        GojoInfinity GUI Configuration
+# ==============================================================================
+
+gui-title: "&8Gojo Satoru Abilities"
+gui-size: 9
+
+# Item configuration
+# Placeholders: %status% (Enabled/Disabled)
+items:
+  red:
+    slot: 1
+    material: RED_DYE
+    name: "&cRed (Aka)"
+    lore:
+      - "&7Cursed Technique Reversal"
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+  
+  purple:
+    slot: 3
+    material: PURPLE_DYE
+    name: "&5Hollow Purple (Murasaki)"
+    lore:
+      - "&7Hollow Technique"
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+
+  blue:
+    slot: 5
+    material: BLUE_DYE
+    name: "&9Blue (Ao)"
+    lore:
+      - "&7Cursed Technique Lapse"
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+
+  mugen:
+    slot: 7
+    material: NETHER_STAR
+    name: "&fMugen (Infinity)"
+    lore:
+      - "&7Neutral Limitless"
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+
+# Text for status placeholder
+status-enabled: "&aEnabled"
+status-disabled: "&cDisabled"

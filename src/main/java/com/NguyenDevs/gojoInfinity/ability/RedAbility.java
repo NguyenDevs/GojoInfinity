@@ -20,8 +20,7 @@ public class RedAbility {
     private final GojoInfinity plugin;
     private final ConfigManager configManager;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
-    
-    // Double shift detection
+
     private final Map<UUID, Long> lastShiftTime = new HashMap<>();
     private final Map<UUID, BukkitRunnable> activePushTasks = new HashMap<>();
 
@@ -33,67 +32,82 @@ public class RedAbility {
     public void handleSneak(Player player, boolean isSneaking) {
         if (isSneaking) {
             long now = System.currentTimeMillis();
-            
-            // Check for Double Shift (AOE Push)
+
             if (lastShiftTime.containsKey(player.getUniqueId())) {
-                if (now - lastShiftTime.get(player.getUniqueId()) < 500) { // 500ms window for double tap
+                if (now - lastShiftTime.get(player.getUniqueId()) < 500) {
                     activateAOEPush(player);
-                    lastShiftTime.remove(player.getUniqueId()); // Reset
+                    lastShiftTime.remove(player.getUniqueId());
                     return;
                 }
             }
             lastShiftTime.put(player.getUniqueId(), now);
 
-            // Check for Single Shift Hold (Target Push)
-            // We start a task that runs as long as they are sneaking and looking at a target
             startTargetPush(player);
         } else {
-            // Stop pushing if they stop sneaking
             stopTargetPush(player);
         }
     }
 
-    private void activateAOEPush(Player player) {
-        if (isOnCooldown(player)) return;
+    public void activateAOEPush(Player player) {
+        if (isOnCooldown(player)) {
+            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getRedCooldown()) - System.currentTimeMillis();
+            player.sendMessage(configManager.getMessage("cooldown-red").replace("%time%", String.format("%.1f", timeLeft / 1000.0)));
+            return;
+        }
 
         double pushStrength = configManager.getRedPushStrength();
         double pushDistance = configManager.getRedPushDistance();
 
-        // Visuals: Expanding Red Rings
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 2.0f);
+        for (Entity entity : player.getNearbyEntities(pushDistance, pushDistance, pushDistance)) {
+            if (entity instanceof LivingEntity && entity != player) {
+                pushEntityAway(player, entity, pushStrength * 1.5);
+            }
+        }
+
         new BukkitRunnable() {
-            double r = 0.5;
+            double radius = 0.5;
+            int ticks = 0;
+            final int maxTicks = 40;
+
             @Override
             public void run() {
-                if (r > pushDistance) {
+                if (ticks >= maxTicks || radius > pushDistance) {
                     this.cancel();
                     return;
                 }
-                
-                // Create a circle
-                for (int i = 0; i < 360; i += 10) {
-                    double angle = Math.toRadians(i);
-                    double x = r * Math.cos(angle);
-                    double z = r * Math.sin(angle);
-                    player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(x, 1, z), 1, 0, 0, 0, new Particle.DustOptions(Color.RED, 1));
+
+                radius += pushDistance / maxTicks;
+
+                int particleCount = Math.max(32, (int)(radius * 8));
+                for (int i = 0; i < particleCount; i++) {
+                    double angle = (2 * Math.PI * i) / particleCount;
+                    double x = radius * Math.cos(angle);
+                    double z = radius * Math.sin(angle);
+
+                    for (double y = 0; y <= 2; y += 0.5) {
+                        player.getWorld().spawnParticle(
+                                Particle.DUST,
+                                player.getLocation().add(x, y, z),
+                                1,
+                                0, 0, 0,
+                                new Particle.DustOptions(Color.RED, 1.2f)
+                        );
+                    }
                 }
-                r += 1.0;
-            }
-        }.runTaskTimer(plugin, 0L, 2L);
 
-        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 2.0f);
+                if (ticks % 5 == 0) {
+                    player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
+                }
 
-        // Logic: Push all nearby entities
-        for (Entity entity : player.getNearbyEntities(pushDistance, pushDistance, pushDistance)) {
-            if (entity instanceof LivingEntity && entity != player) {
-                pushEntityAway(player, entity, pushStrength * 1.5); // Stronger push for AOE
+                ticks++;
             }
-        }
-        
+        }.runTaskTimer(plugin, 0L, 1L);
+
         setCooldown(player);
     }
 
     private void startTargetPush(Player player) {
-        // If already pushing, don't start another task
         if (activePushTasks.containsKey(player.getUniqueId())) return;
 
         double pushDistance = configManager.getRedPushDistance();
@@ -110,22 +124,16 @@ public class RedAbility {
 
                 Entity target = getTargetEntity(player, (int) pushDistance);
                 if (target != null && target instanceof LivingEntity) {
-                    // Push logic
                     pushEntityAway(player, target, pushStrength);
-                    
-                    // Visuals: Red particles around the target
+
                     target.getWorld().spawnParticle(Particle.DUST, target.getLocation().add(0, 1, 0), 10, 0.5, 1, 0.5, new Particle.DustOptions(Color.RED, 1.5f));
                     if (player.getTicksLived() % 5 == 0) {
-                         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 0.5f, 2.0f);
+                        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 0.5f, 2.0f);
                     }
-                } else {
-                    // If looking at nothing, maybe stop? Or keep running until unsneak?
-                    // Requirement says: "until no longer looking at player (target?) or time runs out"
-                    // Here we just keep checking every tick. If they look away, it pauses pushing but task continues until unsneak.
                 }
             }
         };
-        
+
         task.runTaskTimer(plugin, 0L, 1L);
         activePushTasks.put(player.getUniqueId(), task);
     }

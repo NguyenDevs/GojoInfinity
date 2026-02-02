@@ -14,7 +14,6 @@ public class ColorUtils {
     public static String colorize(String message) {
         if (message == null) return "";
 
-        // Handle Gradients first
         Matcher gradientMatcher = GRADIENT_PATTERN.matcher(message);
         StringBuffer sb = new StringBuffer();
         while (gradientMatcher.find()) {
@@ -26,7 +25,6 @@ public class ColorUtils {
         gradientMatcher.appendTail(sb);
         message = sb.toString();
 
-        // Handle Hex colors
         Matcher hexMatcher = HEX_PATTERN.matcher(message);
         sb = new StringBuffer();
         while (hexMatcher.find()) {
@@ -36,7 +34,6 @@ public class ColorUtils {
         hexMatcher.appendTail(sb);
         message = sb.toString();
 
-        // Handle standard legacy colors
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 

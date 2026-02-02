@@ -8,70 +8,54 @@
 # ------------------------------------------------------------------------------
 # World Settings
 # ------------------------------------------------------------------------------
-# List of worlds where Gojo's abilities are active.
-enabled-worlds:
-  - world
-  - world_nether
-  - world_the_end
+# List of worlds where Gojo's abilities are DISABLED.
+disabled-worlds:
+  - example
+  - example_nether
+  - example_the_end
 
 # ------------------------------------------------------------------------------
 # Mugen (Infinity) - Passive Defense
 # ------------------------------------------------------------------------------
 # The "Limitless" barrier that slows down incoming entities.
 mugen:
-  # The radius around the player where the slowing effect begins.
-  radius: 10.0
-  # The minimum speed multiplier (0.0 = full stop, 1.0 = no slow).
+  radius: 6.0
   min-speed-multiplier: 0.0
-  # The absolute minimum distance an entity can reach before being completely stopped.
-  min-distance: 2.5
+  min-distance: 2.0
 
 # ------------------------------------------------------------------------------
 # Red (Aka) - Repulsion Technique
 # ------------------------------------------------------------------------------
-# Reversal of the Limitless, creating a powerful repulsive force.
 red:
-  # Maximum distance the push effect reaches.
+  # Trigger options: 
+  # LEFT_CLICK, RIGHT_CLICK, SHIFT_LEFT_CLICK, SHIFT_RIGHT_CLICK
+  # SHIFT (Hold/Toggle), DOUBLE_SHIFT (Double Tap Shift)
+  trigger: SHIFT
   push-distance: 20.0
-  # Strength of the knockback force.
-  push-strength: 0.8
-  # Cooldown in milliseconds.
+  push-strength: 1.5
   cooldown: 1000
 
 # ------------------------------------------------------------------------------
 # Blue (Ao) - Attraction Technique
 # ------------------------------------------------------------------------------
-# Amplification of the Limitless, creating a magnetic attractive force.
 blue:
-  # Maximum casting range.
-  range: 30.0
-  # Radius of the attraction field.
-  radius: 8.0
-  # Strength of the pulling force.
-  pull-strength: 0.8
-  # Damage dealt per tick to entities caught in the field.
-  damage: 2.0
-  # Duration of the singularity in ticks (20 ticks = 1 second).
+  trigger: LEFT_CLICK
+  range: 40.0
+  radius: 10.0
+  pull-strength: 1.2
+  damage: 4.0
   duration: 100
-  # Cooldown in milliseconds.
-  cooldown: 5000
+  cooldown: 3000
 
 # ------------------------------------------------------------------------------
 # Hollow Purple (Murasaki) - Destruction Technique
 # ------------------------------------------------------------------------------
-# Fusion of Red and Blue, erasing everything in its path.
 purple:
-  # Time in ticks to charge the fusion before firing.
+  trigger: SHIFT_LEFT_CLICK
   charge-time: 30
-  # Travel speed of the projectile.
-  speed: 2.5
-  # Radius of the destruction sphere.
-  radius: 4.5
-  # Maximum travel distance.
-  range: 80.0
-  # Damage dealt to entities on contact.
-  damage: 20.0
-  # Whether the technique should break blocks.
+  speed: 2.0
+  radius: 5.0
+  range: 100.0
+  damage: 50.0
   break-blocks: true
-  # Cooldown in milliseconds.
-  cooldown: 10000
+  cooldown: 15000
