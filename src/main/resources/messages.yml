@@ -1,0 +1,17 @@
+# ==============================================================================
+#                        GojoInfinity Messages
+# ==============================================================================
+# Customize the chat messages sent by the plugin.
+# Supports legacy color codes (&a, &b) and Hex colors (&#RRGGBB).
+# ==============================================================================
+
+prefix: "&#00FFFF[&b&lGojoInfinity&#00FFFF] &r"
+
+reload-success: "&aConfiguration reloaded successfully!"
+no-permission: "&cYou do not have permission to use this command."
+only-players: "&cOnly players can use this command."
+
+infinity-enabled: "<gradient:#00FFFF:#0000FF>Gojo Limitless Mode Enabled</gradient>."
+infinity-disabled: "<gradient:#FF0000:#8B0000>Gojo Limitless Mode Disabled</gradient>."
+
+cooldown: "&cYou must wait before using this ability again."

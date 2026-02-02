@@ -1,0 +1,21 @@
+name: GojoInfinity
+version: '1.0.0'
+main: com.NguyenDevs.gojoInfinity.GojoInfinity
+api-version: '1.21'
+authors: [NguyenDevs]
+description: A plugin that adds Gojo Satoru's Infinity ability.
+
+commands:
+  gojoinfinity:
+    description: Main command for GojoInfinity
+    aliases: [gi]
+    usage: /<command> [reload]
+    permission: gojoinfinity.admin
+
+permissions:
+  gojoinfinity.use:
+    description: Allows usage of Infinity ability
+    default: op
+  gojoinfinity.admin:
+    description: Allows administration of the plugin
+    default: op
