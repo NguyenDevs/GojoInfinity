@@ -81,18 +81,15 @@ public class ConfigManager {
         return !disabledWorlds.contains(worldName);
     }
 
-    // --- Mugen ---
     public double getMugenRadius() { return plugin.getConfig().getDouble("mugen.radius", 6.0); }
     public double getMugenMinSpeed() { return plugin.getConfig().getDouble("mugen.min-speed-multiplier", 0.0); }
     public double getMugenMinDistance() { return plugin.getConfig().getDouble("mugen.min-distance", 2.0); }
 
-    // --- Red ---
     public String getRedTrigger() { return plugin.getConfig().getString("red.trigger", "SHIFT"); }
     public double getRedPushDistance() { return plugin.getConfig().getDouble("red.push-distance", 20.0); }
     public double getRedPushStrength() { return plugin.getConfig().getDouble("red.push-strength", 1.5); }
     public long getRedCooldown() { return plugin.getConfig().getLong("red.cooldown", 1000); }
 
-    // --- Blue ---
     public String getBlueTrigger() { return plugin.getConfig().getString("blue.trigger", "LEFT_CLICK"); }
     public double getBlueRange() { return plugin.getConfig().getDouble("blue.range", 40.0); }
     public double getBlueRadius() { return plugin.getConfig().getDouble("blue.radius", 10.0); }
@@ -101,7 +98,6 @@ public class ConfigManager {
     public int getBlueDuration() { return plugin.getConfig().getInt("blue.duration", 100); }
     public long getBlueCooldown() { return plugin.getConfig().getLong("blue.cooldown", 3000); }
 
-    // --- Purple ---
     public String getPurpleTrigger() { return plugin.getConfig().getString("purple.trigger", "SHIFT_LEFT_CLICK"); }
     public int getPurpleChargeTime() { return plugin.getConfig().getInt("purple.charge-time", 30); }
     public double getPurpleSpeed() { return plugin.getConfig().getDouble("purple.speed", 2.0); }

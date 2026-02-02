@@ -49,7 +49,6 @@ public class AbilityToggleManager {
                             playerToggles.put(uuid, abilities);
                         }
                     } catch (IllegalArgumentException e) {
-                        // Invalid UUID in data file, ignore
                     }
                 }
             }
@@ -59,7 +58,6 @@ public class AbilityToggleManager {
     public void saveData() {
         if (dataConfig == null || dataFile == null) return;
 
-        // Clear old data
         dataConfig.set("players", null);
 
         for (Map.Entry<UUID, Map<String, Boolean>> entry : playerToggles.entrySet()) {
@@ -77,7 +75,6 @@ public class AbilityToggleManager {
     }
 
     public boolean isAbilityEnabled(UUID uuid, String ability) {
-        // Default all abilities to true nếu chưa có trong data (lần đầu enable)
         return playerToggles.computeIfAbsent(uuid, k -> new HashMap<>()).getOrDefault(ability, true);
     }
 
@@ -93,16 +90,12 @@ public class AbilityToggleManager {
         saveData();
     }
 
-    /**
-     * Kiểm tra xem player có bất kỳ ability nào được bật không
-     */
     public boolean hasAnyAbilityEnabled(UUID uuid) {
         if (!playerToggles.containsKey(uuid)) {
             return false;
         }
 
         Map<String, Boolean> abilities = playerToggles.get(uuid);
-        // Kiểm tra xem có ít nhất 1 ability được bật
         for (Boolean enabled : abilities.values()) {
             if (enabled) {
                 return true;
@@ -111,9 +104,6 @@ public class AbilityToggleManager {
         return false;
     }
 
-    /**
-     * Lấy tất cả abilities của player
-     */
     public Map<String, Boolean> getPlayerAbilities(UUID uuid) {
         return new HashMap<>(playerToggles.getOrDefault(uuid, new HashMap<>()));
     }

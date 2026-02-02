@@ -35,7 +35,6 @@ public class GuiListener implements Listener {
 
         String abilityToToggle = null;
         
-        // Check slots from config
         if (slot == configManager.getGuiConfig().getInt("items.red.slot", 0)) abilityToToggle = "red";
         else if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 2)) abilityToToggle = "purple";
         else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 4)) abilityToToggle = "blue";
@@ -44,7 +43,6 @@ public class GuiListener implements Listener {
         if (abilityToToggle != null) {
             toggleManager.toggleAbility(player.getUniqueId(), abilityToToggle);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-            // Refresh GUI
             gojoGUI.openGUI(player);
         }
     }

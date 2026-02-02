@@ -31,13 +31,9 @@ public class GojoGUI {
 
         Inventory inv = Bukkit.createInventory(null, size, title);
 
-        // Red
         inv.setItem(guiConfig.getInt("items.red.slot", 0), createItem(player, "red", "items.red"));
-        // Purple
         inv.setItem(guiConfig.getInt("items.purple.slot", 2), createItem(player, "purple", "items.purple"));
-        // Blue
         inv.setItem(guiConfig.getInt("items.blue.slot", 4), createItem(player, "blue", "items.blue"));
-        // Mugen
         inv.setItem(guiConfig.getInt("items.mugen.slot", 6), createItem(player, "mugen", "items.mugen"));
 
         player.openInventory(inv);

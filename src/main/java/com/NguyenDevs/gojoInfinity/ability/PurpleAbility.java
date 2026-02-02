@@ -43,13 +43,17 @@ public class PurpleAbility {
         final Location eyeLoc = player.getEyeLocation();
         final Vector direction = eyeLoc.getDirection().normalize();
 
-        final Location mergeLocation = eyeLoc.clone().add(direction.clone().multiply(2));
+        // Vị trí tụ năng lượng (cách mắt 2.5 block để dễ nhìn hơn)
+        final Location mergeLocation = eyeLoc.clone().add(direction.clone().multiply(2.5));
 
+        // Vector hướng sang phải (vuông góc với hướng nhìn)
         Vector rightVector = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
 
-        final int chargeDuration = configManager.getPurpleChargeTime();
+        final int mergeDuration = configManager.getPurpleChargeTime();
+        final int holdDuration = 40; // Giữ khối cầu tím trong 1 giây (20 ticks) trước khi bắn
+        final int totalDuration = mergeDuration + holdDuration;
 
-        if (chargeDuration <= 0) {
+        if (mergeDuration <= 0) {
             launchProjectile(player, mergeLocation, direction);
             setCooldown(player);
             return;
@@ -57,34 +61,53 @@ public class PurpleAbility {
 
         new BukkitRunnable() {
             int ticks = 0;
-            double currentRadius = 1.5;
 
             @Override
             public void run() {
-                if (ticks >= chargeDuration) {
-                    launchProjectile(player, mergeLocation, direction);
+                Location currentTarget = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+
+                if (ticks >= totalDuration) {
+                    launchProjectile(player, currentTarget, player.getEyeLocation().getDirection().normalize());
                     this.cancel();
                     return;
                 }
 
-                double progress = (double) ticks / chargeDuration;
-                currentRadius = 1.5 * (1 - progress);
+                if (ticks < mergeDuration) {
+                    double progress = (double) ticks / mergeDuration;
 
-                double angle = progress * (Math.PI * 6);
+                    double currentRadius = 3.0 * (1 - progress);
 
-                Vector offset = rightVector.clone().multiply(currentRadius).rotateAroundAxis(direction, angle);
+                    double angle = Math.pow(progress, 2) * (Math.PI * 6);
 
-                Location redLoc = mergeLocation.clone().add(offset);
-                Location blueLoc = mergeLocation.clone().subtract(offset);
+                    Vector offset = rightVector.clone().multiply(currentRadius).rotateAroundAxis(direction, angle);
 
-                mergeLocation.getWorld().spawnParticle(Particle.DUST, redLoc, 5, 0.1, 0.1, 0.1, new Particle.DustOptions(Color.RED, 1.5f));
-                mergeLocation.getWorld().spawnParticle(Particle.DUST, blueLoc, 5, 0.1, 0.1, 0.1, new Particle.DustOptions(Color.BLUE, 1.5f));
+                    Location redLoc = currentTarget.clone().add(offset);
+                    Location blueLoc = currentTarget.clone().subtract(offset);
 
-                if (ticks == 0) {
-                    mergeLocation.getWorld().playSound(mergeLocation, Sound.BLOCK_BEACON_ACTIVATE, 2.0f, 0.5f);
+                    int rRed = (int) (255 - (127 * progress));
+                    int bRed = (int) (0 + (128 * progress));
+                    Color currentRedColor = Color.fromRGB(rRed, 0, bRed);
+
+                    int rBlue = (int) (0 + (128 * progress));
+                    int bBlue = (int) (255 - (127 * progress));
+                    Color currentBlueColor = Color.fromRGB(rBlue, 0, bBlue);
+
+                    spawnDenseSphere(redLoc, 0.4, currentRedColor);
+                    spawnDenseSphere(blueLoc, 0.4, currentBlueColor);
+
+                    if (ticks % 5 == 0) {
+                        currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f, 0.5f + (float)progress);
+                    }
                 }
-                if (ticks % 5 == 0) {
-                    mergeLocation.getWorld().playSound(mergeLocation, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f, 1.5f + (float)progress);
+                else {
+                    spawnDenseSphere(currentTarget, 0.6, Color.PURPLE);
+
+                    currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 5, 0.5, 0.5, 0.5, 0.1);
+                    
+                    if (ticks == mergeDuration) {
+                        currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
+                        currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
+                    }
                 }
 
                 ticks++;
@@ -122,6 +145,10 @@ public class PurpleAbility {
                 distanceTraveled += speed;
                 time += 0.1;
 
+                // 1. Vẽ lõi đặc ở trung tâm (Solid Core)
+                spawnDenseSphere(currentLoc, radius * 0.4, Color.PURPLE);
+
+                // 2. Vẽ lớp vỏ gợn sóng (Irregular Sphere - Aura)
                 for (SpherePoint point : spherePoints) {
                     double wave = Math.sin(time * 3 + point.theta * 2) * 0.15;
                     double currentPointRadius = radius * point.radiusMultiplier * (1 + wave);
@@ -148,34 +175,20 @@ public class PurpleAbility {
                     );
                 }
 
-                currentLoc.getWorld().spawnParticle(
-                        Particle.DUST,
-                        currentLoc,
-                        15,
-                        radius/3, radius/3, radius/3,
-                        new Particle.DustOptions(Color.PURPLE, 2.0f)
-                );
-
+                // Particle bổ sung
                 currentLoc.getWorld().spawnParticle(
                         Particle.WITCH,
                         currentLoc,
-                        8,
+                        10,
                         radius/2, radius/2, radius/2,
                         0.05
-                );
-
-                currentLoc.getWorld().spawnParticle(
-                        Particle.DRAGON_BREATH,
-                        currentLoc,
-                        5,
-                        radius/3, radius/3, radius/3,
-                        0.02
                 );
 
                 if (time % 0.5 < 0.1) {
                     currentLoc.getWorld().playSound(currentLoc, Sound.ENTITY_PHANTOM_FLAP, 0.3f, 0.5f);
                 }
 
+                // Xử lý va chạm
                 for (Entity entity : currentLoc.getWorld().getNearbyEntities(currentLoc, radius, radius, radius)) {
                     if (entity instanceof LivingEntity && entity != player) {
                         ((LivingEntity) entity).damage(damage, player);
@@ -192,6 +205,7 @@ public class PurpleAbility {
                     }
                 }
 
+                // Phá block
                 if (breakBlocks) {
                     int r = (int) Math.ceil(radius);
                     for (int x = -r; x <= r; x++) {
@@ -211,6 +225,27 @@ public class PurpleAbility {
                 }
             }
         }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void spawnDenseSphere(Location center, double radius, Color color) {
+        int particles = 20;
+        for (int i = 0; i < particles; i++) {
+            double r = radius * Math.cbrt(random.nextDouble());
+            double theta = Math.acos(1 - 2 * random.nextDouble());
+            double phi = 2 * Math.PI * random.nextDouble();
+
+            double x = r * Math.sin(theta) * Math.cos(phi);
+            double y = r * Math.sin(theta) * Math.sin(phi);
+            double z = r * Math.cos(theta);
+
+            center.getWorld().spawnParticle(
+                    Particle.DUST,
+                    center.clone().add(x, y, z),
+                    1,
+                    0, 0, 0,
+                    new Particle.DustOptions(color, 1.5f)
+            );
+        }
     }
 
     private List<SpherePoint> generateIrregularSphere(int pointCount) {

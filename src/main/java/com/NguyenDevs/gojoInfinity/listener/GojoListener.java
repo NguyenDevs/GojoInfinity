@@ -48,18 +48,16 @@ public class GojoListener implements Listener {
 
         boolean isSneaking = event.isSneaking();
 
-        // Handle SHIFT (Hold/Toggle) cho Red
         if (configManager.getRedTrigger().equalsIgnoreCase("SHIFT")) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")) {
                 redAbility.handleSneak(player, isSneaking);
             }
         }
 
-        // Handle DOUBLE_SHIFT
         if (isSneaking) {
             long now = System.currentTimeMillis();
             if (lastShiftTime.containsKey(player.getUniqueId())) {
-                if (now - lastShiftTime.get(player.getUniqueId()) < 300) { // 300ms for double tap
+                if (now - lastShiftTime.get(player.getUniqueId()) < 300) {
                     checkAndActivate(player, "DOUBLE_SHIFT");
                     lastShiftTime.remove(player.getUniqueId());
                     return;
@@ -75,7 +73,6 @@ public class GojoListener implements Listener {
         if (!isGojo(player)) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
 
-        // Only allow abilities with empty hand
         if (player.getInventory().getItemInMainHand().getType() != Material.AIR) return;
 
         Action action = event.getAction();
@@ -94,7 +91,6 @@ public class GojoListener implements Listener {
     }
 
     private void checkAndActivate(Player player, String trigger) {
-        // Check Blue
         if (configManager.getBlueTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "blue")) {
                 blueAbility.activate(player);
@@ -102,7 +98,6 @@ public class GojoListener implements Listener {
             }
         }
 
-        // Check Purple
         if (configManager.getPurpleTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")) {
                 purpleAbility.activate(player);
@@ -110,7 +105,6 @@ public class GojoListener implements Listener {
             }
         }
 
-        // Check Red (AOE push)
         if (configManager.getRedTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")) {
                 redAbility.activateAOEPush(player);
@@ -128,7 +122,6 @@ public class GojoListener implements Listener {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             if (isGojo(player)) {
-                // Check if Mugen is enabled for passive protection
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "mugen")) {
                     if (event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION ||
                             event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION ||

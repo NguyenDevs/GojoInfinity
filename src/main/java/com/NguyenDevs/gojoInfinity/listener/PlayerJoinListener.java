@@ -24,9 +24,7 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        // Kiểm tra xem player có bất kỳ ability nào được bật không
         if (toggleManager.hasAnyAbilityEnabled(uuid)) {
-            // Tự động enable infinity mode cho player
             infinityUsers.add(uuid);
         }
     }
