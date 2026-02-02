@@ -42,15 +42,12 @@ public class PurpleAbility {
 
         final Location eyeLoc = player.getEyeLocation();
         final Vector direction = eyeLoc.getDirection().normalize();
-
-        // Vị trí tụ năng lượng (cách mắt 2.5 block để dễ nhìn hơn)
         final Location mergeLocation = eyeLoc.clone().add(direction.clone().multiply(2.5));
 
-        // Vector hướng sang phải (vuông góc với hướng nhìn)
         Vector rightVector = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
 
         final int mergeDuration = configManager.getPurpleChargeTime();
-        final int holdDuration = 40; // Giữ khối cầu tím trong 1 giây (20 ticks) trước khi bắn
+        final int holdDuration = 60; // Giữ khối cầu tím trong n giây
         final int totalDuration = mergeDuration + holdDuration;
 
         if (mergeDuration <= 0) {
@@ -92,17 +89,17 @@ public class PurpleAbility {
                     int bBlue = (int) (255 - (127 * progress));
                     Color currentBlueColor = Color.fromRGB(rBlue, 0, bBlue);
 
-                    spawnDenseSphere(redLoc, 0.4, currentRedColor);
-                    spawnDenseSphere(blueLoc, 0.4, currentBlueColor);
+                    spawnDenseSphere(redLoc, 0.4, currentRedColor, 20);
+                    spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
 
                     if (ticks % 5 == 0) {
                         currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f, 0.5f + (float)progress);
                     }
                 }
                 else {
-                    spawnDenseSphere(currentTarget, 0.6, Color.PURPLE);
+                    spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
 
-                    currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 5, 0.5, 0.5, 0.5, 0.1);
+                    currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 2, 0.5, 0.5, 0.5, 0.1);
                     
                     if (ticks == mergeDuration) {
                         currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
@@ -145,10 +142,8 @@ public class PurpleAbility {
                 distanceTraveled += speed;
                 time += 0.1;
 
-                // 1. Vẽ lõi đặc ở trung tâm (Solid Core)
-                spawnDenseSphere(currentLoc, radius * 0.4, Color.PURPLE);
+                spawnDenseSphere(currentLoc, radius * 0.5, Color.PURPLE, 100);
 
-                // 2. Vẽ lớp vỏ gợn sóng (Irregular Sphere - Aura)
                 for (SpherePoint point : spherePoints) {
                     double wave = Math.sin(time * 3 + point.theta * 2) * 0.15;
                     double currentPointRadius = radius * point.radiusMultiplier * (1 + wave);
@@ -227,8 +222,8 @@ public class PurpleAbility {
         }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    private void spawnDenseSphere(Location center, double radius, Color color) {
-        int particles = 20;
+    private void spawnDenseSphere(Location center, double radius, Color color, int particles) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.5f);
         for (int i = 0; i < particles; i++) {
             double r = radius * Math.cbrt(random.nextDouble());
             double theta = Math.acos(1 - 2 * random.nextDouble());
@@ -243,7 +238,7 @@ public class PurpleAbility {
                     center.clone().add(x, y, z),
                     1,
                     0, 0, 0,
-                    new Particle.DustOptions(color, 1.5f)
+                    dustOptions
             );
         }
     }

@@ -68,7 +68,7 @@ public class RedAbility {
         new BukkitRunnable() {
             double radius = 0.5;
             int ticks = 0;
-            final int maxTicks = 40;
+            final int maxTicks = 15;
 
             @Override
             public void run() {
@@ -79,24 +79,26 @@ public class RedAbility {
 
                 radius += pushDistance / maxTicks;
 
-                int particleCount = Math.max(32, (int)(radius * 8));
+                int particleCount = (int) (50 * radius);
                 for (int i = 0; i < particleCount; i++) {
-                    double angle = (2 * Math.PI * i) / particleCount;
-                    double x = radius * Math.cos(angle);
-                    double z = radius * Math.sin(angle);
+                    double phi = Math.acos(1 - 2.0 * (i + 0.5) / particleCount);
+                    double theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
 
-                    for (double y = 0; y <= 2; y += 0.5) {
-                        player.getWorld().spawnParticle(
-                                Particle.DUST,
-                                player.getLocation().add(x, y, z),
-                                1,
-                                0, 0, 0,
-                                new Particle.DustOptions(Color.RED, 1.2f)
-                        );
-                    }
+                    double x = radius * Math.sin(phi) * Math.cos(theta);
+                    double y = radius * Math.sin(phi) * Math.sin(theta);
+                    double z = radius * Math.cos(phi);
+
+                    float size = 1.5f * (1.0f - ((float) ticks / maxTicks));
+                    player.getWorld().spawnParticle(
+                            Particle.DUST,
+                            player.getLocation().add(x, y + 1, z),
+                            1,
+                            0, 0, 0,
+                            new Particle.DustOptions(Color.RED, Math.max(0.1f, size))
+                    );
                 }
 
-                if (ticks % 5 == 0) {
+                if (ticks % 3 == 0) {
                     player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 0.5f);
                 }
 
