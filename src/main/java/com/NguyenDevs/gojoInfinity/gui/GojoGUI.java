@@ -31,12 +31,7 @@ public class GojoGUI {
 
         Inventory inv = Bukkit.createInventory(null, size, title);
 
-        inv.setItem(guiConfig.getInt("items.red.slot", 0), createItem(player, "red", "items.red"));
-        inv.setItem(guiConfig.getInt("items.purple.slot", 2), createItem(player, "purple", "items.purple"));
-        inv.setItem(guiConfig.getInt("items.blue.slot", 4), createItem(player, "blue", "items.blue"));
-        inv.setItem(guiConfig.getInt("items.infinity.slot", 6), createItem(player, "infinity", "items.infinity"));
-        inv.setItem(guiConfig.getInt("items.unlimitedvoid.slot", 8),
-                createItem(player, "unlimitedvoid", "items.unlimitedvoid"));
+        inv.setItem(guiConfig.getInt("items.purple.slot", 4), createItem(player, "purple", "items.purple"));
 
         player.openInventory(inv);
     }

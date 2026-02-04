@@ -38,16 +38,8 @@ public class GuiListener implements Listener {
 
         String abilityToToggle = null;
 
-        if (slot == configManager.getGuiConfig().getInt("items.red.slot", 0))
-            abilityToToggle = "red";
-        else if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 2))
+        if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 4))
             abilityToToggle = "purple";
-        else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 4))
-            abilityToToggle = "blue";
-        else if (slot == configManager.getGuiConfig().getInt("items.infinity.slot", 6))
-            abilityToToggle = "infinity";
-        else if (slot == configManager.getGuiConfig().getInt("items.unlimitedvoid.slot", 8))
-            abilityToToggle = "unlimitedvoid";
 
         if (abilityToToggle != null) {
             toggleManager.toggleAbility(player.getUniqueId(), abilityToToggle);

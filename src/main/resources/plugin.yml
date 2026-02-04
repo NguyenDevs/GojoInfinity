@@ -4,7 +4,6 @@ main: com.NguyenDevs.gojoInfinity.GojoInfinity
 api-version: '1.21'
 authors: [NguyenDevs]
 description: A plugin that adds Gojo Satoru's Infinity ability.
-softdepend: [ProtocolLib]
 
 commands:
   gojoinfinity:
@@ -18,25 +17,9 @@ permissions:
     description: Allows usage of all Infinity abilities
     default: op
     children:
-      gojoinfinity.use.red: true
-      gojoinfinity.use.blue: true
       gojoinfinity.use.purple: true
-      gojoinfinity.use.infinity: true
-      gojoinfinity.use.unlimitedvoid: true
-  gojoinfinity.use.red:
-    description: Allows usage of Red ability
-    default: op
-  gojoinfinity.use.blue:
-    description: Allows usage of Blue ability
-    default: op
   gojoinfinity.use.purple:
     description: Allows usage of Purple ability
-    default: op
-  gojoinfinity.use.infinity:
-    description: Allows usage of Infinity (passive) ability
-    default: op
-  gojoinfinity.use.unlimitedvoid:
-    description: Allows usage of Unlimited Void ability
     default: op
   gojoinfinity.admin:
     description: Allows administration of the plugin
