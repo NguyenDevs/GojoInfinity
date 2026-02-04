@@ -24,21 +24,30 @@ public class GuiListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = ColorUtils.colorize(configManager.getGuiConfig().getString("gui-title", "&8Gojo Satoru Abilities"));
-        if (!event.getView().getTitle().equals(title)) return;
+        String title = ColorUtils
+                .colorize(configManager.getGuiConfig().getString("gui-title", "&8Gojo Satoru Abilities"));
+        if (!event.getView().getTitle().equals(title))
+            return;
 
         event.setCancelled(true);
 
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player))
+            return;
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
         String abilityToToggle = null;
-        
-        if (slot == configManager.getGuiConfig().getInt("items.red.slot", 0)) abilityToToggle = "red";
-        else if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 2)) abilityToToggle = "purple";
-        else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 4)) abilityToToggle = "blue";
-        else if (slot == configManager.getGuiConfig().getInt("items.mugen.slot", 6)) abilityToToggle = "mugen";
+
+        if (slot == configManager.getGuiConfig().getInt("items.red.slot", 0))
+            abilityToToggle = "red";
+        else if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 2))
+            abilityToToggle = "purple";
+        else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 4))
+            abilityToToggle = "blue";
+        else if (slot == configManager.getGuiConfig().getInt("items.infinity.slot", 6))
+            abilityToToggle = "infinity";
+        else if (slot == configManager.getGuiConfig().getInt("items.unlimitedvoid.slot", 8))
+            abilityToToggle = "unlimitedvoid";
 
         if (abilityToToggle != null) {
             toggleManager.toggleAbility(player.getUniqueId(), abilityToToggle);

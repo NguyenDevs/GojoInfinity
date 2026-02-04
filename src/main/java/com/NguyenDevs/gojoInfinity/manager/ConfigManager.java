@@ -72,7 +72,8 @@ public class ConfigManager {
     public String getMessage(String key) {
         String prefix = messagesConfig.getString("prefix", "&8[&bGojoInfinity&8] &r");
         String msg = messagesConfig.getString(key);
-        if (msg == null) return key;
+        if (msg == null)
+            return key;
         return ColorUtils.colorize(prefix + msg);
     }
 
@@ -81,29 +82,147 @@ public class ConfigManager {
         return !disabledWorlds.contains(worldName);
     }
 
-    public double getMugenRadius() { return plugin.getConfig().getDouble("mugen.radius", 6.0); }
-    public double getMugenMinSpeed() { return plugin.getConfig().getDouble("mugen.min-speed-multiplier", 0.0); }
-    public double getMugenMinDistance() { return plugin.getConfig().getDouble("mugen.min-distance", 2.0); }
+    public double getInfinityRadius() {
+        return plugin.getConfig().getDouble("infinity.radius", 6.0);
+    }
 
-    public String getRedTrigger() { return plugin.getConfig().getString("red.trigger", "SHIFT"); }
-    public double getRedPushDistance() { return plugin.getConfig().getDouble("red.push-distance", 20.0); }
-    public double getRedPushStrength() { return plugin.getConfig().getDouble("red.push-strength", 1.5); }
-    public long getRedCooldown() { return plugin.getConfig().getLong("red.cooldown", 1000); }
+    public double getInfinityMinSpeed() {
+        return plugin.getConfig().getDouble("infinity.min-speed-multiplier", 0.0);
+    }
 
-    public String getBlueTrigger() { return plugin.getConfig().getString("blue.trigger", "LEFT_CLICK"); }
-    public double getBlueRange() { return plugin.getConfig().getDouble("blue.range", 40.0); }
-    public double getBlueRadius() { return plugin.getConfig().getDouble("blue.radius", 10.0); }
-    public double getBluePullStrength() { return plugin.getConfig().getDouble("blue.pull-strength", 1.2); }
-    public double getBlueDamage() { return plugin.getConfig().getDouble("blue.damage", 4.0); }
-    public int getBlueDuration() { return plugin.getConfig().getInt("blue.duration", 100); }
-    public long getBlueCooldown() { return plugin.getConfig().getLong("blue.cooldown", 3000); }
+    public double getInfinityMinDistance() {
+        return plugin.getConfig().getDouble("infinity.min-distance", 2.0);
+    }
 
-    public String getPurpleTrigger() { return plugin.getConfig().getString("purple.trigger", "SHIFT_LEFT_CLICK"); }
-    public int getPurpleChargeTime() { return plugin.getConfig().getInt("purple.charge-time", 30); }
-    public double getPurpleSpeed() { return plugin.getConfig().getDouble("purple.speed", 2.0); }
-    public double getPurpleRadius() { return plugin.getConfig().getDouble("purple.radius", 5.0); }
-    public double getPurpleRange() { return plugin.getConfig().getDouble("purple.range", 100.0); }
-    public double getPurpleDamage() { return plugin.getConfig().getDouble("purple.damage", 50.0); }
-    public boolean isPurpleBreakBlocks() { return plugin.getConfig().getBoolean("purple.break-blocks", true); }
-    public long getPurpleCooldown() { return plugin.getConfig().getLong("purple.cooldown", 15000); }
+    public String getRedTrigger() {
+        return plugin.getConfig().getString("red.trigger", "RIGHT_CLICK");
+    }
+
+    public double getRedPushDistance() {
+        return plugin.getConfig().getDouble("red.push-distance", 20.0);
+    }
+
+    public double getRedPushStrength() {
+        return plugin.getConfig().getDouble("red.push-strength", 1.5);
+    }
+
+    public long getRedCooldown() {
+        return (long) (plugin.getConfig().getDouble("red.cooldown", 1.0) * 1000);
+    }
+
+    public String getBlueTrigger() {
+        return plugin.getConfig().getString("blue.trigger", "LEFT_CLICK");
+    }
+
+    public double getBlueRange() {
+        return plugin.getConfig().getDouble("blue.range", 40.0);
+    }
+
+    public double getBlueRadius() {
+        return plugin.getConfig().getDouble("blue.radius", 10.0);
+    }
+
+    public double getBluePullStrength() {
+        return plugin.getConfig().getDouble("blue.pull-strength", 1.2);
+    }
+
+    public double getBlueDamage() {
+        return plugin.getConfig().getDouble("blue.damage", 4.0);
+    }
+
+    public int getBlueDuration() {
+        return (int) (plugin.getConfig().getDouble("blue.duration", 5.0) * 20);
+    }
+
+    public long getBlueCooldown() {
+        return (long) (plugin.getConfig().getDouble("blue.cooldown", 3.0) * 1000);
+    }
+
+    public String getPurpleTrigger() {
+        return plugin.getConfig().getString("purple.trigger", "SHIFT_LEFT");
+    }
+
+    public int getPurpleChargeTime() {
+        return (int) (plugin.getConfig().getDouble("purple.charge-time", 3.5) * 20);
+    }
+
+    public double getPurpleSpeed() {
+        return plugin.getConfig().getDouble("purple.speed", 2.0);
+    }
+
+    public double getPurpleRadius() {
+        return plugin.getConfig().getDouble("purple.radius", 8.0);
+    }
+
+    public double getPurpleRange() {
+        return plugin.getConfig().getDouble("purple.range", 150.0);
+    }
+
+    public double getPurpleDamage() {
+        return plugin.getConfig().getDouble("purple.damage", 1000.0);
+    }
+
+    public boolean isPurpleDropBlocks() {
+        return plugin.getConfig().getBoolean("purple.drop-blocks", false);
+    }
+
+    public boolean isPurpleHold() {
+        return plugin.getConfig().getBoolean("purple.hold", true);
+    }
+
+    public int getPurpleHoldTime() {
+        return (int) (plugin.getConfig().getDouble("purple.hold-time", 10.0) * 20);
+    }
+
+    public long getPurpleCooldown() {
+        return (long) (plugin.getConfig().getDouble("purple.cooldown", 15.0) * 1000);
+    }
+
+    public String getUnlimitedVoidTrigger() {
+        return plugin.getConfig().getString("unlimited-void.trigger", "SHIFT_RIGHT");
+    }
+
+    public double getUnlimitedVoidRange() {
+        return plugin.getConfig().getDouble("unlimited-void.range", 30.0);
+    }
+
+    public int getUnlimitedVoidRadiusX() {
+        return plugin.getConfig().getInt("unlimited-void.radius-x", 10);
+    }
+
+    public int getUnlimitedVoidRadiusY() {
+        return plugin.getConfig().getInt("unlimited-void.radius-y", 10);
+    }
+
+    public int getUnlimitedVoidRadiusZ() {
+        return plugin.getConfig().getInt("unlimited-void.radius-z", 10);
+    }
+
+    public int getUnlimitedVoidDuration() {
+        return (int) (plugin.getConfig().getDouble("unlimited-void.duration", 10.0) * 20);
+    }
+
+    public long getUnlimitedVoidCooldown() {
+        return (long) (plugin.getConfig().getDouble("unlimited-void.cooldown", 60.0) * 1000);
+    }
+
+    public long getUnlimitedVoidBuildDelay() {
+        return (long) (plugin.getConfig().getDouble("unlimited-void.build-delay", 0.05) * 1000);
+    }
+
+    public List<String> getUnlimitedVoidDebuffs() {
+        return plugin.getConfig().getStringList("unlimited-void.debuffs");
+    }
+
+    public int getUnlimitedVoidCasterDarknessDuration() {
+        return (int) (plugin.getConfig().getDouble("unlimited-void.caster.activation-darkness-duration", 5.0) * 20);
+    }
+
+    public int getUnlimitedVoidCasterTeleportDelay() {
+        return (int) (plugin.getConfig().getDouble("unlimited-void.caster.teleport-delay", 3.0) * 20);
+    }
+
+    public List<String> getUnlimitedVoidCasterBuffs() {
+        return plugin.getConfig().getStringList("unlimited-void.caster.buffs");
+    }
 }

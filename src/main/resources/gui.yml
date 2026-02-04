@@ -5,11 +5,9 @@
 gui-title: "&8Gojo Satoru Abilities"
 gui-size: 9
 
-# Item configuration
-# Placeholders: %status% (Enabled/Disabled)
 items:
   red:
-    slot: 1
+    slot: 0
     material: RED_DYE
     name: "&cRed (Aka)"
     lore:
@@ -20,7 +18,7 @@ items:
       - "&eClick to toggle"
   
   purple:
-    slot: 3
+    slot: 2
     material: PURPLE_DYE
     name: "&5Hollow Purple (Murasaki)"
     lore:
@@ -31,7 +29,7 @@ items:
       - "&eClick to toggle"
 
   blue:
-    slot: 5
+    slot: 4
     material: BLUE_DYE
     name: "&9Blue (Ao)"
     lore:
@@ -41,10 +39,10 @@ items:
       - ""
       - "&eClick to toggle"
 
-  mugen:
-    slot: 7
+  infinity:
+    slot: 6
     material: NETHER_STAR
-    name: "&fMugen (Infinity)"
+    name: "&fInfinity (Mugen)"
     lore:
       - "&7Neutral Limitless"
       - ""
@@ -52,6 +50,16 @@ items:
       - ""
       - "&eClick to toggle"
 
-# Text for status placeholder
+  unlimitedvoid:
+    slot: 8
+    material: END_PORTAL_FRAME
+    name: "&0Unlimited Void (Muryokusho)"
+    lore:
+      - "&7Domain Expansion"
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"

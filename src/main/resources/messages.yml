@@ -20,3 +20,9 @@ infinity-disabled: "&cInfinity mode disabled!"
 cooldown-red: "&cRed is on cooldown! Wait %time%s"
 cooldown-blue: "&cBlue is on cooldown! Wait %time%s"
 cooldown-purple: "&cPurple is on cooldown! Wait %time%s"
+cooldown-unlimitedvoid: "&cUnlimited Void is on cooldown! Wait %time%s"
+
+# Unlimited Void
+unlimitedvoid-activated: "&5Domain Expansion: Unlimited Void!"
+unlimitedvoid-deactivated: "&7Unlimited Void has ended."
+unlimitedvoid-no-target: "&cNo target found! Look at an entity to activate."

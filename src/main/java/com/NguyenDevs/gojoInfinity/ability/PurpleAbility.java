@@ -16,9 +16,11 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 public class PurpleAbility {
@@ -27,6 +29,9 @@ public class PurpleAbility {
     private final ConfigManager configManager;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Random random = new Random();
+    private final Set<UUID> holdingPlayers = new HashSet<>();
+    private final Set<UUID> chargingPlayers = new HashSet<>();
+    private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
 
     public PurpleAbility(GojoInfinity plugin, ConfigManager configManager) {
         this.plugin = plugin;
@@ -34,9 +39,20 @@ public class PurpleAbility {
     }
 
     public void activate(Player player) {
+        if (chargingPlayers.contains(player.getUniqueId())) {
+            return;
+        }
+
+        if (holdingPlayers.contains(player.getUniqueId())) {
+            fireHeldProjectile(player);
+            return;
+        }
+
         if (isOnCooldown(player)) {
-            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown()) - System.currentTimeMillis();
-            player.sendMessage(configManager.getMessage("cooldown-purple").replace("%time%", String.format("%.1f", timeLeft / 1000.0)));
+            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown())
+                    - System.currentTimeMillis();
+            player.sendMessage(configManager.getMessage("cooldown-purple").replace("%time%",
+                    String.format("%.1f", timeLeft / 1000.0)));
             return;
         }
 
@@ -47,12 +63,19 @@ public class PurpleAbility {
         Vector rightVector = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
 
         final int mergeDuration = configManager.getPurpleChargeTime();
-        final int holdDuration = 60; // Giữ khối cầu tím trong n giây
-        final int totalDuration = mergeDuration + holdDuration;
+        final boolean hold = configManager.isPurpleHold();
+        final int holdTime = configManager.getPurpleHoldTime();
+
+        chargingPlayers.add(player.getUniqueId());
 
         if (mergeDuration <= 0) {
-            launchProjectile(player, mergeLocation, direction);
-            setCooldown(player);
+            chargingPlayers.remove(player.getUniqueId());
+            if (hold) {
+                startHolding(player, mergeLocation, holdTime);
+            } else {
+                launchProjectile(player, mergeLocation, direction);
+                setCooldown(player);
+            }
             return;
         }
 
@@ -61,56 +84,125 @@ public class PurpleAbility {
 
             @Override
             public void run() {
-                Location currentTarget = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
-
-                if (ticks >= totalDuration) {
-                    launchProjectile(player, currentTarget, player.getEyeLocation().getDirection().normalize());
+                if (!player.isOnline()) {
+                    chargingPlayers.remove(player.getUniqueId());
                     this.cancel();
                     return;
                 }
 
-                if (ticks < mergeDuration) {
-                    double progress = (double) ticks / mergeDuration;
+                Location currentTarget = player.getEyeLocation()
+                        .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
 
-                    double currentRadius = 3.0 * (1 - progress);
-
-                    double angle = Math.pow(progress, 2) * (Math.PI * 6);
-
-                    Vector offset = rightVector.clone().multiply(currentRadius).rotateAroundAxis(direction, angle);
-
-                    Location redLoc = currentTarget.clone().add(offset);
-                    Location blueLoc = currentTarget.clone().subtract(offset);
-
-                    int rRed = (int) (255 - (127 * progress));
-                    int bRed = (int) (0 + (128 * progress));
-                    Color currentRedColor = Color.fromRGB(rRed, 0, bRed);
-
-                    int rBlue = (int) (0 + (128 * progress));
-                    int bBlue = (int) (255 - (127 * progress));
-                    Color currentBlueColor = Color.fromRGB(rBlue, 0, bBlue);
-
-                    spawnDenseSphere(redLoc, 0.4, currentRedColor, 20);
-                    spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
-
-                    if (ticks % 5 == 0) {
-                        currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f, 0.5f + (float)progress);
+                if (ticks >= mergeDuration) {
+                    chargingPlayers.remove(player.getUniqueId());
+                    if (hold) {
+                        startHolding(player, currentTarget, holdTime);
+                    } else {
+                        launchProjectile(player, currentTarget, player.getEyeLocation().getDirection().normalize());
+                        setCooldown(player);
                     }
+                    this.cancel();
+                    return;
                 }
-                else {
-                    spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
 
+                double progress = (double) ticks / mergeDuration;
+
+                double currentRadius = 3.0 * (1 - progress);
+
+                double angle = Math.pow(progress, 2) * (Math.PI * 6);
+
+                Vector offset = rightVector.clone().multiply(currentRadius).rotateAroundAxis(direction, angle);
+
+                Location redLoc = currentTarget.clone().add(offset);
+                Location blueLoc = currentTarget.clone().subtract(offset);
+
+                int rRed = (int) (255 - (127 * progress));
+                int bRed = (int) (0 + (128 * progress));
+                Color currentRedColor = Color.fromRGB(rRed, 0, bRed);
+
+                int rBlue = (int) (0 + (128 * progress));
+                int bBlue = (int) (255 - (127 * progress));
+                Color currentBlueColor = Color.fromRGB(rBlue, 0, bBlue);
+
+                spawnDenseSphere(redLoc, 0.4, currentRedColor, 20);
+                spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
+
+                if (ticks % 5 == 0) {
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f,
+                            0.5f + (float) progress);
+                }
+
+                if (ticks == mergeDuration - 1) {
+                    spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
                     currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 2, 0.5, 0.5, 0.5, 0.1);
-                    
-                    if (ticks == mergeDuration) {
-                        currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
-                        currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
-                    }
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
                 }
 
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 1L);
+    }
 
+    private void startHolding(Player player, Location location, int holdTime) {
+        holdingPlayers.add(player.getUniqueId());
+
+        BukkitRunnable holdTask = new BukkitRunnable() {
+            int ticks = 0;
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    holdingPlayers.remove(player.getUniqueId());
+                    holdTasks.remove(player.getUniqueId());
+                    this.cancel();
+                    return;
+                }
+
+                if (!holdingPlayers.contains(player.getUniqueId())) {
+                    this.cancel();
+                    return;
+                }
+
+                if (ticks >= holdTime) {
+                    timeoutHolding(player);
+                    this.cancel();
+                    return;
+                }
+
+                Location currentTarget = player.getEyeLocation()
+                        .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+                spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 10);
+
+                ticks++;
+            }
+        };
+        holdTask.runTaskTimer(plugin, 0L, 1L);
+        holdTasks.put(player.getUniqueId(), holdTask);
+    }
+
+    private void fireHeldProjectile(Player player) {
+        holdingPlayers.remove(player.getUniqueId());
+        if (holdTasks.containsKey(player.getUniqueId())) {
+            holdTasks.get(player.getUniqueId()).cancel();
+            holdTasks.remove(player.getUniqueId());
+        }
+
+        Location currentTarget = player.getEyeLocation()
+                .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+        launchProjectile(player, currentTarget, player.getEyeLocation().getDirection().normalize());
+        setCooldown(player);
+    }
+
+    private void timeoutHolding(Player player) {
+        holdingPlayers.remove(player.getUniqueId());
+        if (holdTasks.containsKey(player.getUniqueId())) {
+            holdTasks.remove(player.getUniqueId());
+        }
+
+        Location loc = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+        loc.getWorld().playSound(loc, Sound.BLOCK_FIRE_EXTINGUISH, 1.0f, 0.5f);
+        loc.getWorld().spawnParticle(Particle.SMOKE, loc, 20, 0.5, 0.5, 0.5, 0.1);
         setCooldown(player);
     }
 
@@ -127,7 +219,7 @@ public class PurpleAbility {
             final double speed = configManager.getPurpleSpeed();
             final double radius = configManager.getPurpleRadius();
             final double damage = configManager.getPurpleDamage();
-            final boolean breakBlocks = configManager.isPurpleBreakBlocks();
+            final boolean dropBlocks = configManager.isPurpleDropBlocks();
             double time = 0;
 
             @Override
@@ -154,36 +246,31 @@ public class PurpleAbility {
 
                     Location pLoc = currentLoc.clone().add(x, y, z);
 
-                    float colorShift = (float)(0.5 + Math.sin(time * 2 + point.phi) * 0.5);
+                    float colorShift = (float) (0.5 + Math.sin(time * 2 + point.phi) * 0.5);
                     Color particleColor = Color.fromRGB(
-                            (int)(128 + 127 * colorShift),
+                            (int) (128 + 127 * colorShift),
                             0,
-                            (int)(128 + 127 * (1 - colorShift))
-                    );
+                            (int) (128 + 127 * (1 - colorShift)));
 
                     pLoc.getWorld().spawnParticle(
                             Particle.DUST,
                             pLoc,
                             1,
                             0, 0, 0,
-                            new Particle.DustOptions(particleColor, 1.2f)
-                    );
+                            new Particle.DustOptions(particleColor, 1.2f));
                 }
 
-                // Particle bổ sung
                 currentLoc.getWorld().spawnParticle(
                         Particle.WITCH,
                         currentLoc,
                         10,
-                        radius/2, radius/2, radius/2,
-                        0.05
-                );
+                        radius / 2, radius / 2, radius / 2,
+                        0.05);
 
                 if (time % 0.5 < 0.1) {
                     currentLoc.getWorld().playSound(currentLoc, Sound.ENTITY_PHANTOM_FLAP, 0.3f, 0.5f);
                 }
 
-                // Xử lý va chạm
                 for (Entity entity : currentLoc.getWorld().getNearbyEntities(currentLoc, radius, radius, radius)) {
                     if (entity instanceof LivingEntity && entity != player) {
                         ((LivingEntity) entity).damage(damage, player);
@@ -193,25 +280,25 @@ public class PurpleAbility {
                                 entity.getLocation().add(0, 1, 0),
                                 20,
                                 0.3, 0.5, 0.3,
-                                new Particle.DustOptions(Color.PURPLE, 1.5f)
-                        );
+                                new Particle.DustOptions(Color.PURPLE, 1.5f));
                     } else if (entity != player) {
                         entity.remove();
                     }
                 }
 
-                // Phá block
-                if (breakBlocks) {
-                    int r = (int) Math.ceil(radius);
-                    for (int x = -r; x <= r; x++) {
-                        for (int y = -r; y <= r; y++) {
-                            for (int z = -r; z <= r; z++) {
-                                Block block = currentLoc.clone().add(x, y, z).getBlock();
-                                if (block.getType() != Material.AIR &&
-                                        block.getType() != Material.BEDROCK &&
-                                        block.getType() != Material.BARRIER) {
-                                    if (block.getLocation().distance(currentLoc) <= radius) {
+                int r = (int) Math.ceil(radius);
+                for (int x = -r; x <= r; x++) {
+                    for (int y = -r; y <= r; y++) {
+                        for (int z = -r; z <= r; z++) {
+                            Block block = currentLoc.clone().add(x, y, z).getBlock();
+                            if (block.getType() != Material.AIR &&
+                                    block.getType() != Material.BEDROCK &&
+                                    block.getType() != Material.BARRIER) {
+                                if (block.getLocation().distance(currentLoc) <= radius) {
+                                    if (dropBlocks) {
                                         block.breakNaturally();
+                                    } else {
+                                        block.setType(Material.AIR);
                                     }
                                 }
                             }
@@ -238,8 +325,7 @@ public class PurpleAbility {
                     center.clone().add(x, y, z),
                     1,
                     0, 0, 0,
-                    dustOptions
-            );
+                    dustOptions);
         }
     }
 
@@ -280,31 +366,29 @@ public class PurpleAbility {
                 location,
                 200,
                 radius, radius, radius,
-                new Particle.DustOptions(Color.PURPLE, 2.5f)
-        );
+                new Particle.DustOptions(Color.PURPLE, 2.5f));
 
         location.getWorld().spawnParticle(
                 Particle.EXPLOSION,
                 location,
                 10,
-                radius/2, radius/2, radius/2,
-                0.1
-        );
+                radius / 2, radius / 2, radius / 2,
+                0.1);
 
         location.getWorld().spawnParticle(
                 Particle.WITCH,
                 location,
                 50,
                 radius, radius, radius,
-                0.2
-        );
+                0.2);
 
         location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.8f);
     }
 
     private boolean isOnCooldown(Player player) {
         if (cooldowns.containsKey(player.getUniqueId())) {
-            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown()) - System.currentTimeMillis();
+            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown())
+                    - System.currentTimeMillis();
             return timeLeft > 0;
         }
         return false;

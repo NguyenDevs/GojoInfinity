@@ -8,17 +8,19 @@
 # ------------------------------------------------------------------------------
 # World Settings
 # ------------------------------------------------------------------------------
-# List of worlds where Gojo's abilities are DISABLED.
+# List of worlds where Gojo's abilities are DISABLED
+# Add world names here to prevent ability usage in specific dimensions
 disabled-worlds:
   - example
   - example_nether
   - example_the_end
 
 # ------------------------------------------------------------------------------
-# Mugen (Infinity) - Passive Defense
+# Infinity - Passive Defense Mechanism
 # ------------------------------------------------------------------------------
-# The "Limitless" barrier that slows down incoming entities.
-mugen:
+# The "Limitless" barrier that automatically slows down incoming entities
+# This creates an invisible protective zone around the player
+infinity:
   radius: 6.0
   min-speed-multiplier: 0.0
   min-distance: 2.0
@@ -26,36 +28,79 @@ mugen:
 # ------------------------------------------------------------------------------
 # Red (Aka) - Repulsion Technique
 # ------------------------------------------------------------------------------
+# Cursed Technique that repels entities away from the user
+# Creates a powerful repulsive force in all directions
 red:
-  # Trigger options: 
-  # LEFT_CLICK, RIGHT_CLICK, SHIFT_LEFT_CLICK, SHIFT_RIGHT_CLICK
-  # SHIFT (Hold/Toggle), DOUBLE_SHIFT (Double Tap Shift)
-  trigger: SHIFT
+  # Trigger Options:
+  # - LEFT_CLICK: Left mouse click
+  # - RIGHT_CLICK: Right mouse click
+  # - SHIFT_LEFT: Shift + Left click
+  # - SHIFT_RIGHT: Shift + Right click
+  # - SHIFT: Hold or toggle Shift key
+  # - DOUBLE_SHIFT: Double tap Shift key
+  trigger: RIGHT_CLICK
   push-distance: 20.0
   push-strength: 1.5
-  cooldown: 1000
+  cooldown: 1.0
 
 # ------------------------------------------------------------------------------
 # Blue (Ao) - Attraction Technique
 # ------------------------------------------------------------------------------
+# Cursed Technique that pulls entities toward a target point
+# Creates a gravitational pull effect with area damage
 blue:
   trigger: LEFT_CLICK
   range: 40.0
   radius: 10.0
   pull-strength: 1.2
   damage: 4.0
-  duration: 100
-  cooldown: 3000
+  duration: 5.0
+  cooldown: 3.0
 
 # ------------------------------------------------------------------------------
-# Hollow Purple (Murasaki) - Destruction Technique
+# Hollow Purple (Murasaki) - Destructive Technique
 # ------------------------------------------------------------------------------
+# Ultimate technique combining Red and Blue
+# Creates a devastating projectile that obliterates everything in its path
 purple:
-  trigger: SHIFT_LEFT_CLICK
-  charge-time: 30
+  trigger: SHIFT_LEFT
+  charge-time: 3.5
   speed: 2.0
-  radius: 5.0
-  range: 100.0
-  damage: 50.0
-  break-blocks: true
-  cooldown: 15000
+  radius: 8.0
+  range: 150.0
+  damage: 1000.0
+  drop-blocks: false
+  hold: true
+  hold-time: 10.0
+  cooldown: 15.0
+
+# ------------------------------------------------------------------------------
+# Unlimited Void (Muryokusho) - Domain Expansion
+# ------------------------------------------------------------------------------
+# Creates a spherical domain that traps and immobilizes all entities inside
+# The sphere is formed by END_PORTAL_FRAME blocks, interior is replaced with BARRIER
+# All terrain inside is temporarily replaced and restored when the ability ends
+unlimited-void:
+  trigger: SHIFT_RIGHT
+  range: 30.0
+  radius-x: 10
+  radius-y: 10
+  radius-z: 10
+  duration: 10.0
+  cooldown: 60.0
+  # Debuff format: EFFECT:AMPLIFIER:DURATION
+  # Duration -1 means infinite (lasts until ability ends)
+  # Available effects: WEAKNESS, DARKNESS, SLOWNESS, BLINDNESS, WITHER, etc.
+  debuffs:
+    - "WEAKNESS:1:-1"
+    - "DARKNESS:1:-1"
+  
+  # Caster (activator) settings
+  # When activated, caster gets DARKNESS effect and is teleported into the domain
+  caster:
+    activation-darkness-duration: 5.0    # Seconds of darkness when activating
+    teleport-delay: 3.0                  # Seconds after activation before teleporting into domain
+    # Buff effects for caster while inside domain (same format as debuffs)
+    buffs:
+      - "REGENERATION:2:-1"
+      - "STRENGTH:2:-1"

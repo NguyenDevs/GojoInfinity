@@ -14,7 +14,28 @@ commands:
 
 permissions:
   gojoinfinity.use:
-    description: Allows usage of Infinity ability
+    description: Allows usage of all Infinity abilities
+    default: op
+    children:
+      gojoinfinity.use.red: true
+      gojoinfinity.use.blue: true
+      gojoinfinity.use.purple: true
+      gojoinfinity.use.infinity: true
+      gojoinfinity.use.unlimitedvoid: true
+  gojoinfinity.use.red:
+    description: Allows usage of Red ability
+    default: op
+  gojoinfinity.use.blue:
+    description: Allows usage of Blue ability
+    default: op
+  gojoinfinity.use.purple:
+    description: Allows usage of Purple ability
+    default: op
+  gojoinfinity.use.infinity:
+    description: Allows usage of Infinity (passive) ability
+    default: op
+  gojoinfinity.use.unlimitedvoid:
+    description: Allows usage of Unlimited Void ability
     default: op
   gojoinfinity.admin:
     description: Allows administration of the plugin

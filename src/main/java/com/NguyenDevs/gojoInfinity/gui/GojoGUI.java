@@ -34,7 +34,9 @@ public class GojoGUI {
         inv.setItem(guiConfig.getInt("items.red.slot", 0), createItem(player, "red", "items.red"));
         inv.setItem(guiConfig.getInt("items.purple.slot", 2), createItem(player, "purple", "items.purple"));
         inv.setItem(guiConfig.getInt("items.blue.slot", 4), createItem(player, "blue", "items.blue"));
-        inv.setItem(guiConfig.getInt("items.mugen.slot", 6), createItem(player, "mugen", "items.mugen"));
+        inv.setItem(guiConfig.getInt("items.infinity.slot", 6), createItem(player, "infinity", "items.infinity"));
+        inv.setItem(guiConfig.getInt("items.unlimitedvoid.slot", 8),
+                createItem(player, "unlimitedvoid", "items.unlimitedvoid"));
 
         player.openInventory(inv);
     }
@@ -46,9 +48,8 @@ public class GojoGUI {
         List<String> lore = config.getStringList(configPath + ".lore");
 
         boolean isEnabled = toggleManager.isAbilityEnabled(player.getUniqueId(), abilityKey);
-        String statusText = isEnabled ? 
-                ColorUtils.colorize(config.getString("status-enabled", "&aEnabled")) : 
-                ColorUtils.colorize(config.getString("status-disabled", "&cDisabled"));
+        String statusText = isEnabled ? ColorUtils.colorize(config.getString("status-enabled", "&aEnabled"))
+                : ColorUtils.colorize(config.getString("status-disabled", "&cDisabled"));
 
         List<String> finalLore = new ArrayList<>();
         for (String line : lore) {

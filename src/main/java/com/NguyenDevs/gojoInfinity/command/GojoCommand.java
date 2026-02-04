@@ -33,14 +33,16 @@ public class GojoCommand implements CommandExecutor {
                 if (!sender.hasPermission("gojoinfinity.admin")) {
                     sender.sendMessage(configManager.getMessage("no-permission"));
                     if (sender instanceof Player) {
-                        ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+                        ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f,
+                                0.5f);
                     }
                     return true;
                 }
                 configManager.loadConfigs();
                 sender.sendMessage(configManager.getMessage("reload-success"));
                 if (sender instanceof Player) {
-                    ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.5f);
+                    ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE,
+                            1.0f, 1.5f);
                 }
                 return true;
             }
@@ -59,26 +61,8 @@ public class GojoCommand implements CommandExecutor {
                     return true;
                 }
 
-                if (args.length > 0 && args[0].equalsIgnoreCase("gui")) {
-                    if (infinityUsers.contains(player.getUniqueId())) {
-                        gojoGUI.openGUI(player);
-                    } else {
-                        player.sendMessage(configManager.getMessage("infinity-disabled"));
-                    }
-                    return true;
-                }
-
-                if (infinityUsers.contains(player.getUniqueId())) {
-                    infinityUsers.remove(player.getUniqueId());
-                    player.sendMessage(configManager.getMessage("infinity-disabled"));
-                    player.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 0.5f);
-                } else {
-                    infinityUsers.add(player.getUniqueId());
-                    player.sendMessage(configManager.getMessage("infinity-enabled"));
-                    player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.5f);
-
-                    gojoGUI.openGUI(player);
-                }
+                infinityUsers.add(player.getUniqueId());
+                gojoGUI.openGUI(player);
                 return true;
             } else {
                 sender.sendMessage(configManager.getMessage("only-players"));

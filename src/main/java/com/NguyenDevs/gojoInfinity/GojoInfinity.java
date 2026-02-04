@@ -1,9 +1,10 @@
 package com.NguyenDevs.gojoInfinity;
 
 import com.NguyenDevs.gojoInfinity.ability.BlueAbility;
-import com.NguyenDevs.gojoInfinity.ability.MugenAbility;
+import com.NguyenDevs.gojoInfinity.ability.InfinityAbility;
 import com.NguyenDevs.gojoInfinity.ability.PurpleAbility;
 import com.NguyenDevs.gojoInfinity.ability.RedAbility;
+import com.NguyenDevs.gojoInfinity.ability.UnlimitedVoidAbility;
 import com.NguyenDevs.gojoInfinity.command.GojoCommand;
 import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
 import com.NguyenDevs.gojoInfinity.listener.GojoListener;
@@ -24,84 +25,98 @@ import java.util.UUID;
 
 public final class GojoInfinity extends JavaPlugin {
 
-    private final Set<UUID> infinityUsers = new HashSet<>();
-    private ConfigManager configManager;
-    private AbilityToggleManager toggleManager;
-    private GojoGUI gojoGUI;
+        private final Set<UUID> infinityUsers = new HashSet<>();
+        private ConfigManager configManager;
+        private AbilityToggleManager toggleManager;
+        private GojoGUI gojoGUI;
 
-    private MugenAbility mugenAbility;
-    private RedAbility redAbility;
-    private BlueAbility blueAbility;
-    private PurpleAbility purpleAbility;
+        private InfinityAbility infinityAbility;
+        private RedAbility redAbility;
+        private BlueAbility blueAbility;
+        private PurpleAbility purpleAbility;
+        private UnlimitedVoidAbility unlimitedVoidAbility;
 
-    @Override
-    public void onEnable() {
-        this.configManager = new ConfigManager(this);
-        this.configManager.loadConfigs();
+        @Override
+        public void onEnable() {
+                this.configManager = new ConfigManager(this);
+                this.configManager.loadConfigs();
 
-        this.toggleManager = new AbilityToggleManager(this);
-        this.gojoGUI = new GojoGUI(configManager, toggleManager);
+                this.toggleManager = new AbilityToggleManager(this);
+                this.gojoGUI = new GojoGUI(configManager, toggleManager);
 
-        this.mugenAbility = new MugenAbility(configManager);
-        this.redAbility = new RedAbility(this, configManager);
-        this.blueAbility = new BlueAbility(this, configManager);
-        this.purpleAbility = new PurpleAbility(this, configManager);
+                this.infinityAbility = new InfinityAbility(configManager);
+                this.redAbility = new RedAbility(this, configManager);
+                this.blueAbility = new BlueAbility(this, configManager);
+                this.purpleAbility = new PurpleAbility(this, configManager);
+                this.unlimitedVoidAbility = new UnlimitedVoidAbility(this, configManager);
 
-        PluginCommand command = getCommand("gojoinfinity");
-        if (command != null) {
-            command.setExecutor(new GojoCommand(this, configManager, infinityUsers, gojoGUI));
-        } else {
-            getLogger().severe("Command 'gojoinfinity' not found in plugin.yml!");
-        }
-
-        getServer().getPluginManager().registerEvents(new GojoListener(configManager, infinityUsers, toggleManager, redAbility, blueAbility, purpleAbility), this);
-        getServer().getPluginManager().registerEvents(new GuiListener(configManager, toggleManager, gojoGUI), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(infinityUsers, toggleManager), this);
-
-        printLogo();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (toggleManager.hasAnyAbilityEnabled(player.getUniqueId())) {
-                infinityUsers.add(player.getUniqueId());
-            }
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (infinityUsers.contains(player.getUniqueId()) && configManager.isWorldEnabled(player.getWorld().getName())) {
-                        if (toggleManager.isAbilityEnabled(player.getUniqueId(), "mugen")) {
-                            mugenAbility.apply(player);
-                        }
-                    }
+                PluginCommand command = getCommand("gojoinfinity");
+                if (command != null) {
+                        command.setExecutor(new GojoCommand(this, configManager, infinityUsers, gojoGUI));
+                } else {
+                        getLogger().severe("Command 'gojoinfinity' not found in plugin.yml!");
                 }
-            }
-        }.runTaskTimer(this, 0L, 1L);
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
-    }
 
-    @Override
-    public void onDisable() {
-        if (toggleManager != null) {
-            toggleManager.saveData();
+                getServer().getPluginManager().registerEvents(new GojoListener(configManager, toggleManager,
+                                redAbility, blueAbility, purpleAbility, unlimitedVoidAbility), this);
+                getServer().getPluginManager().registerEvents(new GuiListener(configManager, toggleManager, gojoGUI),
+                                this);
+                getServer().getPluginManager().registerEvents(new PlayerJoinListener(infinityUsers, toggleManager),
+                                this);
+
+                printLogo();
+
+                new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                                for (Player player : Bukkit.getOnlinePlayers()) {
+                                        if (configManager.isWorldEnabled(player.getWorld().getName())) {
+                                                if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")
+                                                                && player.hasPermission("gojoinfinity.use.infinity")) {
+                                                        infinityAbility.apply(player);
+                                                }
+                                        }
+                                }
+                        }
+                }.runTaskTimer(this, 0L, 1L);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
         }
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d[&5Limitless&d] &cLimitless plugin disabled!"));
-    }
 
+        @Override
+        public void onDisable() {
+                if (toggleManager != null) {
+                        toggleManager.saveData();
+                }
+                Bukkit.getConsoleSender().sendMessage(
+                                ChatColor.translateAlternateColorCodes('&',
+                                                "&d[&5Limitless&d] &cLimitless plugin disabled!"));
+        }
 
-    public void printLogo() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d   ██╗     ██╗███╗   ███╗██╗████████╗██╗     ███████╗███████╗███████╗"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d   ██║     ██║████╗ ████║██║╚══██╔══╝██║     ██╔════╝██╔════╝██╔════╝"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d   ██║     ██║██╔████╔██║██║   ██║   ██║     █████╗  ███████╗███████╗"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&d   ██║     ██║██║╚██╔╝██║██║   ██║   ██║     ██╔══╝  ╚════██║╚════██║"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5   ███████╗██║██║ ╚═╝ ██║██║   ██║   ███████╗███████╗███████║███████║"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5   ╚══════╝╚═╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚══════╝╚══════╝╚══════╝╚══════╝"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5         無 下 限 - Limitless"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&6         Version " + getDescription().getVersion()));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b         Development by NguyenDevs"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
-    }
+        public void printLogo() {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&d   ██╗     ██╗███╗   ███╗██╗████████╗██╗     ███████╗███████╗███████╗"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&d   ██║     ██║████╗ ████║██║╚══██╔══╝██║     ██╔════╝██╔════╝██╔════╝"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&d   ██║     ██║██╔████╔██║██║   ██║   ██║     █████╗  ███████╗███████╗"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&d   ██║     ██║██║╚██╔╝██║██║   ██║   ██║     ██╔══╝  ╚════██║╚════██║"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&5   ███████╗██║██║ ╚═╝ ██║██║   ██║   ███████╗███████╗███████║███████║"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                "&5   ╚══════╝╚═╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚══════╝╚══════╝╚══════╝╚══════╝"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
+                Bukkit.getConsoleSender()
+                                .sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                                "&5         無 下 限 - Limitless"));
+                Bukkit.getConsoleSender().sendMessage(
+                                ChatColor.translateAlternateColorCodes('&',
+                                                "&6         Version " + getDescription().getVersion()));
+                Bukkit.getConsoleSender()
+                                .sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                                "&b         Development by NguyenDevs"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
+        }
 }
