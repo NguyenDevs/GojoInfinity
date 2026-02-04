@@ -131,7 +131,7 @@ public class UnlimitedVoidAbility {
         int blocksPerTick = Math.max(1, totalBlocks / targetBuildTicks);
 
         buildRealBlocksAnimated(player, domain, center, innerBarrierBlocks, Material.BARRIER, blocksPerTick, 0, () -> {
-            buildGatewayBlocksAnimated(player, domain, center, gatewayBlocks, blocksPerTick, 0,
+            buildFakeBlocksAnimated(player, domain, center, gatewayBlocks, Material.END_GATEWAY, blocksPerTick, 0,
                     () -> {
                         buildRealBlocksAnimated(player, domain, center, outerBarrierBlocks, Material.BARRIER,
                                 blocksPerTick, 0,
@@ -198,8 +198,10 @@ public class UnlimitedVoidAbility {
         }.runTaskTimer(plugin, delay, 1L);
     }
 
-    private void buildGatewayBlocksAnimated(Player player, DomainInstance domain, Location center,
-            List<BlockPosition> blocks, int blocksPerTick, int delay, Runnable onComplete) {
+    private void buildFakeBlocksAnimated(Player player, DomainInstance domain, Location center,
+            List<BlockPosition> blocks, Material material, int blocksPerTick, int delay, Runnable onComplete) {
+
+        Collection<? extends Player> nearbyPlayers = Bukkit.getOnlinePlayers();
 
         new BukkitRunnable() {
             int index = 0;
@@ -220,25 +222,23 @@ public class UnlimitedVoidAbility {
 
                 for (int i = 0; i < blocksPerTick && index < blocks.size(); i++) {
                     BlockPosition pos = blocks.get(index);
-                    Block block = center.getWorld().getBlockAt(pos.x, pos.y, pos.z);
+                    Location blockLoc = new Location(center.getWorld(), pos.x, pos.y, pos.z);
+                    Block block = blockLoc.getBlock();
 
-                    if (block.getType() != Material.BEDROCK && block.getType() != Material.END_GATEWAY) {
-                        domain.savedBlocks.put(pos, block.getBlockData().clone());
-                        block.setType(Material.END_GATEWAY);
+                    if (block.getType() != Material.BEDROCK) {
+                        domain.fakeBlocks.add(pos);
 
-                        // Set Age to disable beam rendering
-                        org.bukkit.block.BlockState state = block.getState();
-                        if (state instanceof org.bukkit.block.EndGateway) {
-                            org.bukkit.block.EndGateway gateway = (org.bukkit.block.EndGateway) state;
-                            gateway.setAge(-3456000L); // 2 days - disables beam
-                            gateway.update(true, false);
+                        if (FakeBlockManager.isProtocolLibAvailable()) {
+                            FakeBlockManager.sendFakeBlockToAll(blockLoc, material, nearbyPlayers);
+                        } else {
+                            domain.savedBlocks.put(pos, block.getBlockData().clone());
+                            block.setType(material);
                         }
                     }
 
                     if (random.nextInt(20) == 0) {
-                        center.getWorld().spawnParticle(Particle.PORTAL,
-                                new Location(center.getWorld(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5),
-                                3, 0.2, 0.2, 0.2, 0.1);
+                        center.getWorld().spawnParticle(Particle.PORTAL, blockLoc.add(0.5, 0.5, 0.5), 3, 0.2,
+                                0.2, 0.2, 0.1);
                     }
                     index++;
                 }
