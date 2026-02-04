@@ -1,43 +1,30 @@
-name: GojoInfinity
+name: Limitless
 version: '1.0.0'
-main: com.NguyenDevs.gojoInfinity.GojoInfinity
+main: com.NguyenDevs.limitless.Limitless
 api-version: '1.21'
 authors: [NguyenDevs]
-description: A plugin that adds Gojo Satoru's Infinity ability.
-softdepend: [ProtocolLib]
+description: A plugin that adds Gojo Satoru's Limitless ability.
 
 commands:
-  gojoinfinity:
-    description: Main command for GojoInfinity
-    aliases: [gi]
+  limitless:
+    description: Main command for Limitless
+    aliases: [lm]
     usage: /<command> [reload]
-    permission: gojoinfinity.admin
+    permission: limitless.admin
 
 permissions:
-  gojoinfinity.use:
-    description: Allows usage of all Infinity abilities
+  limitless.use:
+    description: Allows usage of all Limitless abilities
     default: op
     children:
-      gojoinfinity.use.red: true
-      gojoinfinity.use.blue: true
-      gojoinfinity.use.purple: true
-      gojoinfinity.use.infinity: true
-      gojoinfinity.use.unlimitedvoid: true
-  gojoinfinity.use.red:
-    description: Allows usage of Red ability
-    default: op
-  gojoinfinity.use.blue:
-    description: Allows usage of Blue ability
-    default: op
-  gojoinfinity.use.purple:
+      limitless.use.purple: true
+      limitless.use.infinity: true
+  limitless.use.purple:
     description: Allows usage of Purple ability
     default: op
-  gojoinfinity.use.infinity:
-    description: Allows usage of Infinity (passive) ability
+  limitless.use.infinity:
+    description: Allows usage of Infinity ability
     default: op
-  gojoinfinity.use.unlimitedvoid:
-    description: Allows usage of Unlimited Void ability
-    default: op
-  gojoinfinity.admin:
+  limitless.admin:
     description: Allows administration of the plugin
     default: op

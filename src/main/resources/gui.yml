@@ -6,19 +6,8 @@ gui-title: "&8Gojo Satoru Abilities"
 gui-size: 9
 
 items:
-  red:
-    slot: 0
-    material: RED_DYE
-    name: "&cRed (Aka)"
-    lore:
-      - "&7Cursed Technique Reversal"
-      - ""
-      - "&7Status: %status%"
-      - ""
-      - "&eClick to toggle"
-  
   purple:
-    slot: 2
+    slot: 4
     material: PURPLE_DYE
     name: "&5Hollow Purple (Murasaki)"
     lore:
@@ -28,34 +17,15 @@ items:
       - ""
       - "&eClick to toggle"
 
-  blue:
-    slot: 4
-    material: BLUE_DYE
-    name: "&9Blue (Ao)"
-    lore:
-      - "&7Cursed Technique Lapse"
-      - ""
-      - "&7Status: %status%"
-      - ""
-      - "&eClick to toggle"
-
   infinity:
-    slot: 6
+    slot: 2
     material: NETHER_STAR
-    name: "&fInfinity (Mugen)"
+    name: "&bInfinity (Mugen)"
     lore:
       - "&7Neutral Limitless"
       - ""
-      - "&7Status: %status%"
-      - ""
-      - "&eClick to toggle"
-
-  unlimitedvoid:
-    slot: 8
-    material: END_PORTAL_FRAME
-    name: "&0Unlimited Void (Muryokusho)"
-    lore:
-      - "&7Domain Expansion"
+      - "&7Slows down everything"
+      - "&7that approaches you."
       - ""
       - "&7Status: %status%"
       - ""

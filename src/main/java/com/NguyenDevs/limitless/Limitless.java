@@ -1,41 +1,30 @@
-package com.NguyenDevs.gojoInfinity;
+package com.NguyenDevs.limitless;
 
-import com.NguyenDevs.gojoInfinity.ability.BlueAbility;
-import com.NguyenDevs.gojoInfinity.ability.InfinityAbility;
-import com.NguyenDevs.gojoInfinity.ability.PurpleAbility;
-import com.NguyenDevs.gojoInfinity.ability.RedAbility;
-import com.NguyenDevs.gojoInfinity.ability.UnlimitedVoidAbility;
-import com.NguyenDevs.gojoInfinity.command.GojoCommand;
-import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
-import com.NguyenDevs.gojoInfinity.listener.GojoListener;
-import com.NguyenDevs.gojoInfinity.listener.GuiListener;
-import com.NguyenDevs.gojoInfinity.listener.PlayerJoinListener;
-import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
-import com.NguyenDevs.gojoInfinity.util.FakeBlockManager;
+import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.ability.InfinityAbility;
+import com.NguyenDevs.limitless.command.LimitlessCommand;
+import com.NguyenDevs.limitless.gui.LimitlessGUI;
+import com.NguyenDevs.limitless.listener.LimitlessListener;
+import com.NguyenDevs.limitless.listener.GuiListener;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
+import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public final class GojoInfinity extends JavaPlugin {
+public final class Limitless extends JavaPlugin {
 
         private final Set<UUID> infinityUsers = new HashSet<>();
         private ConfigManager configManager;
         private AbilityToggleManager toggleManager;
-        private GojoGUI gojoGUI;
+        private LimitlessGUI limitlessGUI;
 
-        private InfinityAbility infinityAbility;
-        private RedAbility redAbility;
-        private BlueAbility blueAbility;
         private PurpleAbility purpleAbility;
-        private UnlimitedVoidAbility unlimitedVoidAbility;
 
         @Override
         public void onEnable() {
@@ -43,45 +32,29 @@ public final class GojoInfinity extends JavaPlugin {
                 this.configManager.loadConfigs();
 
                 this.toggleManager = new AbilityToggleManager(this);
-                this.gojoGUI = new GojoGUI(configManager, toggleManager);
+                this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
 
-                this.infinityAbility = new InfinityAbility(configManager);
-                this.redAbility = new RedAbility(this, configManager);
-                this.blueAbility = new BlueAbility(this, configManager);
                 this.purpleAbility = new PurpleAbility(this, configManager);
-                this.unlimitedVoidAbility = new UnlimitedVoidAbility(this, configManager);
 
-                PluginCommand command = getCommand("gojoinfinity");
+                InfinityAbility infinityAbility = new InfinityAbility(this, configManager, toggleManager);
+                infinityAbility.startTask();
+
+                PluginCommand command = getCommand("limitless");
                 if (command != null) {
-                        command.setExecutor(new GojoCommand(this, configManager, infinityUsers, gojoGUI));
+                        command.setExecutor(new LimitlessCommand(this, configManager, infinityUsers, limitlessGUI));
                 } else {
-                        getLogger().severe("Command 'gojoinfinity' not found in plugin.yml!");
+                        getLogger().severe("Command 'limitless' not found in plugin.yml!");
                 }
 
-                getServer().getPluginManager().registerEvents(new GojoListener(configManager, toggleManager,
-                                redAbility, blueAbility, purpleAbility, unlimitedVoidAbility), this);
-                getServer().getPluginManager().registerEvents(new GuiListener(configManager, toggleManager, gojoGUI),
-                                this);
-                getServer().getPluginManager().registerEvents(new PlayerJoinListener(infinityUsers, toggleManager),
+                getServer().getPluginManager()
+                                .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility),
+                                                this);
+                getServer().getPluginManager().registerEvents(
+                                new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 printLogo();
 
-                FakeBlockManager.initialize();
-
-                new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                                for (Player player : Bukkit.getOnlinePlayers()) {
-                                        if (configManager.isWorldEnabled(player.getWorld().getName())) {
-                                                if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")
-                                                                && player.hasPermission("gojoinfinity.use.infinity")) {
-                                                        infinityAbility.apply(player);
-                                                }
-                                        }
-                                }
-                        }
-                }.runTaskTimer(this, 0L, 1L);
                 Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
                                 "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
         }

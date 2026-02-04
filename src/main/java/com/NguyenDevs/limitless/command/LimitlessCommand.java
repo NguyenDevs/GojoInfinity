@@ -1,8 +1,8 @@
-package com.NguyenDevs.gojoInfinity.command;
+package com.NguyenDevs.limitless.command;
 
-import com.NguyenDevs.gojoInfinity.GojoInfinity;
-import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
+import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.gui.LimitlessGUI;
+import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,25 +12,26 @@ import org.bukkit.entity.Player;
 import java.util.Set;
 import java.util.UUID;
 
-public class GojoCommand implements CommandExecutor {
+public class LimitlessCommand implements CommandExecutor {
 
-    private final GojoInfinity plugin;
+    private final Limitless plugin;
     private final ConfigManager configManager;
     private final Set<UUID> infinityUsers;
-    private final GojoGUI gojoGUI;
+    private final LimitlessGUI limitlessGUI;
 
-    public GojoCommand(GojoInfinity plugin, ConfigManager configManager, Set<UUID> infinityUsers, GojoGUI gojoGUI) {
+    public LimitlessCommand(Limitless plugin, ConfigManager configManager, Set<UUID> infinityUsers,
+            LimitlessGUI limitlessGUI) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.infinityUsers = infinityUsers;
-        this.gojoGUI = gojoGUI;
+        this.limitlessGUI = limitlessGUI;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("gojoinfinity")) {
+        if (command.getName().equalsIgnoreCase("limitless")) {
             if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-                if (!sender.hasPermission("gojoinfinity.admin")) {
+                if (!sender.hasPermission("limitless.admin")) {
                     sender.sendMessage(configManager.getMessage("no-permission"));
                     if (sender instanceof Player) {
                         ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f,
@@ -49,7 +50,7 @@ public class GojoCommand implements CommandExecutor {
 
             if (sender instanceof Player) {
                 Player player = (Player) sender;
-                if (!player.hasPermission("gojoinfinity.use")) {
+                if (!player.hasPermission("limitless.use")) {
                     player.sendMessage(configManager.getMessage("no-permission"));
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
                     return true;
@@ -62,7 +63,7 @@ public class GojoCommand implements CommandExecutor {
                 }
 
                 infinityUsers.add(player.getUniqueId());
-                gojoGUI.openGUI(player);
+                limitlessGUI.openGUI(player);
                 return true;
             } else {
                 sender.sendMessage(configManager.getMessage("only-players"));

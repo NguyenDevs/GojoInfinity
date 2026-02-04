@@ -5,24 +5,16 @@
 # Supports legacy color codes (&a, &b) and Hex colors (&#RRGGBB).
 # ==============================================================================
 
-prefix: "&#00FFFF[&b&lGojoInfinity&#00FFFF] &r"
+prefix: "<gradient:#FE0002:#0302FC>[Limitless]</gradient> &r"
 
 reload-success: "&aConfiguration reloaded successfully!"
 no-permission: "&cYou do not have permission to use this command."
 only-players: "&cOnly players can use this command."
 world-disabled: "&cGojo's abilities are disabled in this world."
 
-# Infinity
-infinity-enabled: "&aInfinity mode enabled!"
-infinity-disabled: "&cInfinity mode disabled!"
-
 # Cooldown messages
-cooldown-red: "&cRed is on cooldown! Wait %time%s"
-cooldown-blue: "&cBlue is on cooldown! Wait %time%s"
-cooldown-purple: "&cPurple is on cooldown! Wait %time%s"
-cooldown-unlimitedvoid: "&cUnlimited Void is on cooldown! Wait %time%s"
+cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
 
-# Unlimited Void
-unlimitedvoid-activated: "&5Domain Expansion: Unlimited Void!"
-unlimitedvoid-deactivated: "&7Unlimited Void has ended."
-unlimitedvoid-no-target: "&cNo target found! Look at an entity to activate."
+# Ability toggle messages
+infinity-enabled: "&bInfinity has been enabled."
+infinity-disabled: "&cInfinity has been disabled."

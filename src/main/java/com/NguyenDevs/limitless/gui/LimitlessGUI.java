@@ -1,8 +1,8 @@
-package com.NguyenDevs.gojoInfinity.gui;
+package com.NguyenDevs.limitless.gui;
 
-import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
-import com.NguyenDevs.gojoInfinity.util.ColorUtils;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
+import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,12 +14,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GojoGUI {
+public class LimitlessGUI {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
 
-    public GojoGUI(ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public LimitlessGUI(ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
     }
@@ -31,12 +31,8 @@ public class GojoGUI {
 
         Inventory inv = Bukkit.createInventory(null, size, title);
 
-        inv.setItem(guiConfig.getInt("items.red.slot", 0), createItem(player, "red", "items.red"));
-        inv.setItem(guiConfig.getInt("items.purple.slot", 2), createItem(player, "purple", "items.purple"));
-        inv.setItem(guiConfig.getInt("items.blue.slot", 4), createItem(player, "blue", "items.blue"));
-        inv.setItem(guiConfig.getInt("items.infinity.slot", 6), createItem(player, "infinity", "items.infinity"));
-        inv.setItem(guiConfig.getInt("items.unlimitedvoid.slot", 8),
-                createItem(player, "unlimitedvoid", "items.unlimitedvoid"));
+        inv.setItem(guiConfig.getInt("items.purple.slot", 4), createItem(player, "purple", "items.purple"));
+        inv.setItem(guiConfig.getInt("items.infinity.slot", 2), createItem(player, "infinity", "items.infinity"));
 
         player.openInventory(inv);
     }
