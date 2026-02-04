@@ -13,4 +13,8 @@ only-players: "&cOnly players can use this command."
 world-disabled: "&cGojo's abilities are disabled in this world."
 
 # Cooldown messages
-cooldown-purple: "&#63009EPurple is on cooldown! Wait %time%s"
+cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
+
+# Ability toggle messages
+infinity-enabled: "&bInfinity has been enabled."
+infinity-disabled: "&cInfinity has been disabled."

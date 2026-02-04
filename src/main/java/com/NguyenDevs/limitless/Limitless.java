@@ -1,6 +1,7 @@
 package com.NguyenDevs.limitless;
 
 import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.ability.InfinityAbility;
 import com.NguyenDevs.limitless.command.LimitlessCommand;
 import com.NguyenDevs.limitless.gui.LimitlessGUI;
 import com.NguyenDevs.limitless.listener.LimitlessListener;
@@ -34,6 +35,9 @@ public final class Limitless extends JavaPlugin {
                 this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
 
                 this.purpleAbility = new PurpleAbility(this, configManager);
+
+                InfinityAbility infinityAbility = new InfinityAbility(this, configManager, toggleManager);
+                infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
                 if (command != null) {

@@ -32,3 +32,19 @@ purple:
   hold-time: 10.0
   cooldown: 15.0
   recoil: 0.5
+
+# ------------------------------------------------------------------------------
+# Infinity (Mugen) - Neutral Limitless
+# ------------------------------------------------------------------------------
+# Creates an infinite space between the user and incoming threats
+# Slows down entities and projectiles as they approach
+infinity:
+  radius: 10.0
+  min-speed: 0.0
+  min-distance: 2.5
+  block-explosion: true
+  block-fall-damage: true
+  block-falling-blocks: true
+  drain-saturation: true
+  saturation-cost: 0.2 # Cost per second
+  saturation-threshold: 6 # Disable if hunger is below this

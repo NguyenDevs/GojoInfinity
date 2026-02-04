@@ -18,8 +18,12 @@ permissions:
     default: op
     children:
       limitless.use.purple: true
+      limitless.use.infinity: true
   limitless.use.purple:
     description: Allows usage of Purple ability
+    default: op
+  limitless.use.infinity:
+    description: Allows usage of Infinity ability
     default: op
   limitless.admin:
     description: Allows administration of the plugin

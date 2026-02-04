@@ -26,6 +26,12 @@ public class ConfigManager {
     public void loadConfigs() {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+        if (updateConfig(config, configFile, "config.yml")) {
+            plugin.reloadConfig();
+        }
+
         loadMessages();
         loadGui();
     }
@@ -36,24 +42,8 @@ public class ConfigManager {
             plugin.saveResource("messages.yml", false);
         }
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
-
-        InputStream defConfigStream = plugin.getResource("messages.yml");
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
-            boolean changed = false;
-            for (String key : defConfig.getKeys(true)) {
-                if (!messagesConfig.contains(key)) {
-                    messagesConfig.set(key, defConfig.get(key));
-                    changed = true;
-                }
-            }
-            if (changed) {
-                try {
-                    messagesConfig.save(messagesFile);
-                } catch (IOException e) {
-                    plugin.getLogger().severe("Could not save messages.yml!");
-                }
-            }
+        if (updateConfig(messagesConfig, messagesFile, "messages.yml")) {
+            messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
         }
     }
 
@@ -63,6 +53,33 @@ public class ConfigManager {
             plugin.saveResource("gui.yml", false);
         }
         guiConfig = YamlConfiguration.loadConfiguration(guiFile);
+        if (updateConfig(guiConfig, guiFile, "gui.yml")) {
+            guiConfig = YamlConfiguration.loadConfiguration(guiFile);
+        }
+    }
+
+    private boolean updateConfig(FileConfiguration config, File file, String resourceName) {
+        InputStream defConfigStream = plugin.getResource(resourceName);
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
+            boolean changed = false;
+            for (String key : defConfig.getKeys(true)) {
+                if (!defConfig.isConfigurationSection(key) && !config.contains(key)) {
+                    config.set(key, defConfig.get(key));
+                    changed = true;
+                }
+            }
+            if (changed) {
+                try {
+                    config.save(file);
+                    plugin.getLogger().info("Updated " + resourceName + " with missing keys.");
+                } catch (IOException e) {
+                    plugin.getLogger().severe("Could not save " + resourceName + "!");
+                }
+            }
+            return changed;
+        }
+        return false;
     }
 
     public FileConfiguration getGuiConfig() {
@@ -125,4 +142,41 @@ public class ConfigManager {
     public double getPurpleRecoil() {
         return plugin.getConfig().getDouble("purple.recoil", 0.5);
     }
+
+    public double getInfinityRadius() {
+        return plugin.getConfig().getDouble("infinity.radius", 6.0);
+    }
+
+    public double getInfinityMinSpeed() {
+        return plugin.getConfig().getDouble("infinity.min-speed", 0.01);
+    }
+
+    public double getInfinityMinDistance() {
+        return plugin.getConfig().getDouble("infinity.min-distance", 1.5);
+    }
+
+    public boolean isInfinityBlockExplosion() {
+        return plugin.getConfig().getBoolean("infinity.block-explosion", true);
+    }
+
+    public boolean isInfinityBlockFallDamage() {
+        return plugin.getConfig().getBoolean("infinity.block-fall-damage", true);
+    }
+
+    public boolean isInfinityBlockFallingBlocks() {
+        return plugin.getConfig().getBoolean("infinity.block-falling-blocks", true);
+    }
+
+    public boolean isInfinityDrainSaturation() {
+        return plugin.getConfig().getBoolean("infinity.drain-saturation", true);
+    }
+
+    public double getInfinitySaturationCost() {
+        return plugin.getConfig().getDouble("infinity.saturation-cost", 0.2);
+    }
+
+    public int getInfinitySaturationThreshold() {
+        return plugin.getConfig().getInt("infinity.saturation-threshold", 1);
+    }
+
 }

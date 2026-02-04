@@ -111,7 +111,6 @@ public class PurpleAbility {
                 Vector currentDirection = player.getEyeLocation().getDirection().normalize();
                 Vector currentRightVector = currentDirection.getCrossProduct(new Vector(0, 1, 0)).normalize();
 
-                // Handle looking straight up/down where cross product might be zero
                 if (currentRightVector.lengthSquared() < 0.001) {
                     currentRightVector = player.getEyeLocation().getDirection().getCrossProduct(new Vector(1, 0, 0))
                             .normalize();
@@ -135,8 +134,8 @@ public class PurpleAbility {
                 spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
 
                 if (ticks % 5 == 0) {
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5f,
-                            0.5f + (float) progress);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.1f,
+                            1.0f + (float) progress);
                 }
 
                 if (ticks == mergeDuration - 1) {
@@ -209,7 +208,7 @@ public class PurpleAbility {
         }
 
         Location loc = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
-        loc.getWorld().playSound(loc, Sound.BLOCK_FIRE_EXTINGUISH, 1.0f, 0.5f);
+        loc.getWorld().playSound(loc, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 0.5f);
         loc.getWorld().spawnParticle(Particle.SMOKE, loc, 20, 0.5, 0.5, 0.5, 0.1);
         setCooldown(player);
     }
@@ -217,6 +216,7 @@ public class PurpleAbility {
     private void launchProjectile(Player player, Location startLocation, Vector direction) {
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 2.0f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
+        startLocation.getWorld().playSound(startLocation, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.0f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_WITHER_HURT, 1.0f, 0.1f);
 
         double recoil = configManager.getPurpleRecoil();
@@ -241,7 +241,7 @@ public class PurpleAbility {
             @Override
             public void run() {
                 if (distanceTraveled >= maxDistance) {
-                    createExplosionEffect(currentLoc, baseRadius); // Use base radius for final explosion or calculcate?
+                    createExplosionEffect(currentLoc, baseRadius);
                     this.cancel();
                     return;
                 }
@@ -249,47 +249,37 @@ public class PurpleAbility {
                 currentLoc.add(direction.clone().multiply(speed));
                 distanceTraveled += speed;
                 time += 0.1;
-                rotationAngle += 0.2; // Spin speed
+                rotationAngle += 0.2;
 
-                // Dynamic Radius Calculation for Comet Shape
                 double progress = distanceTraveled / maxDistance;
                 double currentRadiusScale = 1.0;
 
                 if (progress < 0.2) {
-                    // 0% - 20%: Drill phase (0.4 -> 1.0)
                     currentRadiusScale = 0.4 + (0.6 * (progress / 0.2));
                 } else if (progress < 0.7) {
-                    // 20% - 70%: Flare phase (1.0 -> 1.3)
                     currentRadiusScale = 1.0 + (0.3 * ((progress - 0.2) / 0.5));
                 } else {
-                    // 70% - 100%: Round off phase (1.3 -> 0) using Cosine for roundness
-                    double remaining = (progress - 0.7) / 0.3; // 0 to 1
+                    double remaining = (progress - 0.7) / 0.3;
                     currentRadiusScale = 1.3 * Math.cos(remaining * (Math.PI / 2));
                 }
 
-                // Ensure radius doesn't go below effectively zero or negative
                 if (currentRadiusScale < 0)
                     currentRadiusScale = 0;
 
                 double effectiveRadius = baseRadius * currentRadiusScale;
 
-                // Swirling Core Particles
-                // Rotate the sphere points around the direction axis
                 spawnSwirlingSphere(currentLoc, effectiveRadius * 0.5, Color.PURPLE, 100, direction, rotationAngle);
 
                 for (SpherePoint point : spherePoints) {
                     double wave = Math.sin(time * 3 + point.theta * 2) * 0.15;
                     double currentPointRadius = effectiveRadius * point.radiusMultiplier * (1 + wave);
 
-                    // Calculate point position relative to center
                     double x = currentPointRadius * point.sinTheta * point.cosPhi;
                     double y = currentPointRadius * point.sinTheta * point.sinPhi;
                     double z = currentPointRadius * point.cosTheta;
 
                     Vector offset = new Vector(x, y, z);
-                    // Rotate offset around the projectile's direction
-                    offset.rotateAroundAxis(direction, rotationAngle + point.phi); // Add point.phi to vary rotation
-                                                                                   // start
+                    offset.rotateAroundAxis(direction, rotationAngle + point.phi);
 
                     Location pLoc = currentLoc.clone().add(offset);
 
@@ -318,8 +308,7 @@ public class PurpleAbility {
                     currentLoc.getWorld().playSound(currentLoc, Sound.ENTITY_PHANTOM_FLAP, 0.3f, 0.5f);
                 }
 
-                // Entity Damage
-                if (effectiveRadius > 0.5) { // Only damage if radius is significant
+                if (effectiveRadius > 0.5) {
                     for (Entity entity : currentLoc.getWorld().getNearbyEntities(currentLoc, effectiveRadius,
                             effectiveRadius, effectiveRadius)) {
                         if (entity instanceof LivingEntity && entity != player) {
@@ -337,7 +326,6 @@ public class PurpleAbility {
                     }
                 }
 
-                // Block Destruction
                 if (effectiveRadius > 0.5) {
                     int r = (int) Math.ceil(effectiveRadius);
                     for (int x = -r; x <= r; x++) {
@@ -384,7 +372,6 @@ public class PurpleAbility {
                 try {
                     offset.rotateAroundAxis(axis, angle);
                 } catch (IllegalArgumentException e) {
-                    // Axis might be zero vector if something went wrong, ignore rotation
                 }
             }
 

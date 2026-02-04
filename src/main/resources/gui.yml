@@ -17,5 +17,19 @@ items:
       - ""
       - "&eClick to toggle"
 
+  infinity:
+    slot: 2
+    material: NETHER_STAR
+    name: "&bInfinity (Mugen)"
+    lore:
+      - "&7Neutral Limitless"
+      - ""
+      - "&7Slows down everything"
+      - "&7that approaches you."
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"
