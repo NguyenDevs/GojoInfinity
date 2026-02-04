@@ -57,10 +57,6 @@ public class PurpleAbility {
         }
 
         final Location eyeLoc = player.getEyeLocation();
-        final Vector direction = eyeLoc.getDirection().normalize();
-        final Location mergeLocation = eyeLoc.clone().add(direction.clone().multiply(2.5));
-
-        Vector rightVector = direction.getCrossProduct(new Vector(0, 1, 0)).normalize();
 
         final int mergeDuration = configManager.getPurpleChargeTime();
         final boolean hold = configManager.isPurpleHold();
@@ -69,11 +65,12 @@ public class PurpleAbility {
         chargingPlayers.add(player.getUniqueId());
 
         if (mergeDuration <= 0) {
+            final Location mergeLocation = eyeLoc.clone().add(eyeLoc.getDirection().normalize().multiply(2.5));
             chargingPlayers.remove(player.getUniqueId());
             if (hold) {
                 startHolding(player, mergeLocation, holdTime);
             } else {
-                launchProjectile(player, mergeLocation, direction);
+                launchProjectile(player, mergeLocation, eyeLoc.getDirection().normalize());
                 setCooldown(player);
             }
             return;
@@ -111,7 +108,17 @@ public class PurpleAbility {
 
                 double angle = Math.pow(progress, 2) * (Math.PI * 6);
 
-                Vector offset = rightVector.clone().multiply(currentRadius).rotateAroundAxis(direction, angle);
+                Vector currentDirection = player.getEyeLocation().getDirection().normalize();
+                Vector currentRightVector = currentDirection.getCrossProduct(new Vector(0, 1, 0)).normalize();
+
+                // Handle looking straight up/down where cross product might be zero
+                if (currentRightVector.lengthSquared() < 0.001) {
+                    currentRightVector = player.getEyeLocation().getDirection().getCrossProduct(new Vector(1, 0, 0))
+                            .normalize();
+                }
+
+                Vector offset = currentRightVector.clone().multiply(currentRadius).rotateAroundAxis(currentDirection,
+                        angle);
 
                 Location redLoc = currentTarget.clone().add(offset);
                 Location blueLoc = currentTarget.clone().subtract(offset);
@@ -134,7 +141,7 @@ public class PurpleAbility {
 
                 if (ticks == mergeDuration - 1) {
                     spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
-                    currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 2, 0.5, 0.5, 0.5, 0.1);
+                    currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 5, 0.5, 0.5, 0.5, 0.1);
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 0.1f);
