@@ -176,7 +176,7 @@ public class ConfigManager {
     }
 
     public int getInfinitySaturationThreshold() {
-        return plugin.getConfig().getInt("infinity.saturation-threshold", 1);
+        return plugin.getConfig().getInt("infinity.saturation-threshold", 5);
     }
 
 }

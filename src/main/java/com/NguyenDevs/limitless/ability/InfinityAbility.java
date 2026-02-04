@@ -10,6 +10,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -36,6 +38,9 @@ public class InfinityAbility {
     public void startTask() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!player.hasPermission("limitless.use.infinity")) {
+                    continue;
+                }
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
                     apply(player);
                 }
@@ -186,15 +191,17 @@ public class InfinityAbility {
         }
 
         if (configManager.isInfinityBlockFallDamage()) {
-            if (player.getFallDistance() > 3.0 && !player.isOnGround()) {
-                if (player.getLocation().getBlock().getRelative(0, -1, 0).getType().isSolid() ||
-                        player.getLocation().getBlock().getRelative(0, -2, 0).getType().isSolid() ||
-                        player.getLocation().getBlock().getRelative(0, -3, 0).getType().isSolid()) {
-                    Vector vel = player.getVelocity();
-                    if (vel.getY() < -0.2) {
-                        vel.setY(Math.max(vel.getY() * 0.1, -0.2));
-                        player.setVelocity(vel);
+            if (player.getFallDistance() > 3.0 && !player.isOnGround() && player.getVelocity().getY() < -0.5) {
+                boolean groundNearby = false;
+                for (int y = 1; y <= 8; y++) {
+                    if (player.getLocation().getBlock().getRelative(0, -y, 0).getType().isSolid()) {
+                        groundNearby = true;
+                        break;
                     }
+                }
+                if (groundNearby) {
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SLOW_FALLING, 60, 24, false, false, false));
                 }
             }
         }
