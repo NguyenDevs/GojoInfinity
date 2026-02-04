@@ -5,7 +5,7 @@
 # Supports legacy color codes (&a, &b) and Hex colors (&#RRGGBB).
 # ==============================================================================
 
-prefix: "&#00FFFF[&b&lGojoInfinity&#00FFFF] &r"
+prefix: "<gradient:#FE0002:#0302FC>[Limitless]</gradient> &r"
 
 reload-success: "&aConfiguration reloaded successfully!"
 no-permission: "&cYou do not have permission to use this command."
@@ -13,4 +13,4 @@ only-players: "&cOnly players can use this command."
 world-disabled: "&cGojo's abilities are disabled in this world."
 
 # Cooldown messages
-cooldown-purple: "&cPurple is on cooldown! Wait %time%s"
+cooldown-purple: "&#63009EPurple is on cooldown! Wait %time%s"
