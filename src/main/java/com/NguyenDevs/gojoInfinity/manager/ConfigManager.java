@@ -214,12 +214,28 @@ public class ConfigManager {
         return plugin.getConfig().getStringList("unlimited-void.debuffs");
     }
 
-    public int getUnlimitedVoidCasterDarknessDuration() {
-        return (int) (plugin.getConfig().getDouble("unlimited-void.caster.activation-darkness-duration", 5.0) * 20);
+    public boolean isUnlimitedVoidCasterTeleportEnabled() {
+        return plugin.getConfig().getBoolean("unlimited-void.caster.teleport-enabled", true);
     }
 
     public int getUnlimitedVoidCasterTeleportDelay() {
         return (int) (plugin.getConfig().getDouble("unlimited-void.caster.teleport-delay", 3.0) * 20);
+    }
+
+    public boolean isUnlimitedVoidCasterActivationDarknessEnabled() {
+        return plugin.getConfig().getBoolean("unlimited-void.caster.activation-darkness-enabled", true);
+    }
+
+    public int getUnlimitedVoidCasterDarknessDuration() {
+        return (int) (plugin.getConfig().getDouble("unlimited-void.caster.activation-darkness-duration", 5.0) * 20);
+    }
+
+    public boolean isUnlimitedVoidCasterReturnDarknessEnabled() {
+        return plugin.getConfig().getBoolean("unlimited-void.caster.return-darkness-enabled", true);
+    }
+
+    public int getUnlimitedVoidCasterReturnDarknessDuration() {
+        return (int) (plugin.getConfig().getDouble("unlimited-void.caster.return-darkness-duration", 5.0) * 20);
     }
 
     public List<String> getUnlimitedVoidCasterBuffs() {

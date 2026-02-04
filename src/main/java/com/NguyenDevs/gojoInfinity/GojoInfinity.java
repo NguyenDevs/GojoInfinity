@@ -12,6 +12,7 @@ import com.NguyenDevs.gojoInfinity.listener.GuiListener;
 import com.NguyenDevs.gojoInfinity.listener.PlayerJoinListener;
 import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
 import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
+import com.NguyenDevs.gojoInfinity.util.FakeBlockManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -65,6 +66,8 @@ public final class GojoInfinity extends JavaPlugin {
                                 this);
 
                 printLogo();
+
+                FakeBlockManager.initialize();
 
                 new BukkitRunnable() {
                         @Override

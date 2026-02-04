@@ -4,6 +4,7 @@ main: com.NguyenDevs.gojoInfinity.GojoInfinity
 api-version: '1.21'
 authors: [NguyenDevs]
 description: A plugin that adds Gojo Satoru's Infinity ability.
+softdepend: [ProtocolLib]
 
 commands:
   gojoinfinity:

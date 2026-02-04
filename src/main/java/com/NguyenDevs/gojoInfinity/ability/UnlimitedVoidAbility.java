@@ -2,6 +2,8 @@ package com.NguyenDevs.gojoInfinity.ability;
 
 import com.NguyenDevs.gojoInfinity.GojoInfinity;
 import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
+import com.NguyenDevs.gojoInfinity.util.FakeBlockManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,6 +22,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,8 +72,10 @@ public class UnlimitedVoidAbility {
         int radiusZ = configManager.getUnlimitedVoidRadiusZ();
         int duration = configManager.getUnlimitedVoidDuration();
 
-        int casterDarknessDuration = configManager.getUnlimitedVoidCasterDarknessDuration();
+        boolean teleportEnabled = configManager.isUnlimitedVoidCasterTeleportEnabled();
         int casterTeleportDelay = configManager.getUnlimitedVoidCasterTeleportDelay();
+        boolean activationDarknessEnabled = configManager.isUnlimitedVoidCasterActivationDarknessEnabled();
+        int casterDarknessDuration = configManager.getUnlimitedVoidCasterDarknessDuration();
 
         Location originalPlayerLocation = player.getLocation().clone();
         boolean playerInsideSphere = isInsideEllipsoid(player.getLocation(), center, radiusX, radiusY, radiusZ);
@@ -86,12 +91,14 @@ public class UnlimitedVoidAbility {
         player.getWorld().playSound(center, Sound.ENTITY_WITHER_SPAWN, 2.0f, 0.5f);
         player.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 0.8f);
 
-        PotionEffectType darknessType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("darkness"));
-        if (darknessType != null) {
-            player.addPotionEffect(new PotionEffect(darknessType, casterDarknessDuration, 0, false, false));
+        if (activationDarknessEnabled) {
+            PotionEffectType darknessType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("darkness"));
+            if (darknessType != null) {
+                player.addPotionEffect(new PotionEffect(darknessType, casterDarknessDuration, 0, false, false));
+            }
         }
 
-        if (!playerInsideSphere) {
+        if (teleportEnabled && !playerInsideSphere) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -123,23 +130,25 @@ public class UnlimitedVoidAbility {
         int targetBuildTicks = 60;
         int blocksPerTick = Math.max(1, totalBlocks / targetBuildTicks);
 
-        buildSphereAnimated(player, domain, center, innerBarrierBlocks, Material.BARRIER, blocksPerTick, 0, () -> {
-            buildSphereAnimated(player, domain, center, gatewayBlocks, Material.END_GATEWAY, blocksPerTick, 0, () -> {
-                buildSphereAnimated(player, domain, center, outerBarrierBlocks, Material.BARRIER, blocksPerTick, 0,
-                        () -> {
-                            removeInteriorBlocks(player, domain, center, interiorBlocks, blocksPerTick, () -> {
-                                placeFloorBlocks(player, domain, center, floorBlocks, () -> {
-                                    teleportTargetToCenter(domain, center);
-                                    startDomainEffect(player, domain, duration);
+        buildRealBlocksAnimated(player, domain, center, innerBarrierBlocks, Material.BARRIER, blocksPerTick, 0, () -> {
+            buildGatewayBlocksAnimated(player, domain, center, gatewayBlocks, blocksPerTick, 0,
+                    () -> {
+                        buildRealBlocksAnimated(player, domain, center, outerBarrierBlocks, Material.BARRIER,
+                                blocksPerTick, 0,
+                                () -> {
+                                    removeInteriorBlocks(player, domain, center, interiorBlocks, blocksPerTick, () -> {
+                                        placeFloorBlocks(player, domain, center, floorBlocks, () -> {
+                                            teleportTargetToCenter(domain, center);
+                                            startDomainEffect(player, domain, duration);
+                                        });
+                                    });
                                 });
-                            });
-                        });
-            });
+                    });
         });
     }
 
     private void teleportTargetToCenter(DomainInstance domain, Location center) {
-        Entity target = org.bukkit.Bukkit.getEntity(domain.targetEntityId);
+        Entity target = Bukkit.getEntity(domain.targetEntityId);
         if (target != null && target.isValid()) {
             Location teleportLoc = center.clone().add(0, 1, 0);
             target.teleport(teleportLoc);
@@ -147,7 +156,7 @@ public class UnlimitedVoidAbility {
         }
     }
 
-    private void buildSphereAnimated(Player player, DomainInstance domain, Location center,
+    private void buildRealBlocksAnimated(Player player, DomainInstance domain, Location center,
             List<BlockPosition> blocks, Material material, int blocksPerTick, int delay, Runnable onComplete) {
         new BukkitRunnable() {
             int index = 0;
@@ -173,26 +182,69 @@ public class UnlimitedVoidAbility {
                     if (block.getType() != Material.BEDROCK && block.getType() != material) {
                         domain.savedBlocks.put(pos, block.getBlockData().clone());
                         block.setType(material);
-
-                        if (material == Material.END_GATEWAY) {
-                            org.bukkit.block.BlockState state = block.getState();
-                            if (state instanceof org.bukkit.block.EndGateway) {
-                                org.bukkit.block.EndGateway gateway = (org.bukkit.block.EndGateway) state;
-                                gateway.setAge(Long.MIN_VALUE);
-                                gateway.update(true, false);
-                            }
-                        }
                     }
 
-                    if (random.nextInt(10) == 0) {
-                        center.getWorld().spawnParticle(Particle.PORTAL, block.getLocation().add(0.5, 0.5, 0.5), 5, 0.3,
-                                0.3, 0.3, 0.1);
+                    if (random.nextInt(15) == 0) {
+                        center.getWorld().spawnParticle(Particle.PORTAL, block.getLocation().add(0.5, 0.5, 0.5), 3, 0.2,
+                                0.2, 0.2, 0.1);
                     }
                     index++;
                 }
 
-                if (index % 30 == 0) {
-                    center.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_FRAME_FILL, 0.3f, 1.5f);
+                if (index % 50 == 0) {
+                    center.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_FRAME_FILL, 0.2f, 1.5f);
+                }
+            }
+        }.runTaskTimer(plugin, delay, 1L);
+    }
+
+    private void buildGatewayBlocksAnimated(Player player, DomainInstance domain, Location center,
+            List<BlockPosition> blocks, int blocksPerTick, int delay, Runnable onComplete) {
+
+        new BukkitRunnable() {
+            int index = 0;
+
+            @Override
+            public void run() {
+                if (!activeDomains.containsKey(player.getUniqueId())) {
+                    this.cancel();
+                    return;
+                }
+
+                if (index >= blocks.size()) {
+                    this.cancel();
+                    if (onComplete != null)
+                        onComplete.run();
+                    return;
+                }
+
+                for (int i = 0; i < blocksPerTick && index < blocks.size(); i++) {
+                    BlockPosition pos = blocks.get(index);
+                    Block block = center.getWorld().getBlockAt(pos.x, pos.y, pos.z);
+
+                    if (block.getType() != Material.BEDROCK && block.getType() != Material.END_GATEWAY) {
+                        domain.savedBlocks.put(pos, block.getBlockData().clone());
+                        block.setType(Material.END_GATEWAY);
+
+                        // Set Age to disable beam rendering
+                        org.bukkit.block.BlockState state = block.getState();
+                        if (state instanceof org.bukkit.block.EndGateway) {
+                            org.bukkit.block.EndGateway gateway = (org.bukkit.block.EndGateway) state;
+                            gateway.setAge(-3456000L); // 2 days - disables beam
+                            gateway.update(true, false);
+                        }
+                    }
+
+                    if (random.nextInt(20) == 0) {
+                        center.getWorld().spawnParticle(Particle.PORTAL,
+                                new Location(center.getWorld(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5),
+                                3, 0.2, 0.2, 0.2, 0.1);
+                    }
+                    index++;
+                }
+
+                if (index % 80 == 0) {
+                    center.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_FRAME_FILL, 0.15f, 1.8f);
                 }
             }
         }.runTaskTimer(plugin, delay, 1L);
@@ -343,7 +395,7 @@ public class UnlimitedVoidAbility {
         }
 
         for (UUID entityId : domain.affectedEntities) {
-            Entity entity = org.bukkit.Bukkit.getEntity(entityId);
+            Entity entity = Bukkit.getEntity(entityId);
             if (entity instanceof LivingEntity) {
                 LivingEntity living = (LivingEntity) entity;
                 for (String debuffConfig : configManager.getUnlimitedVoidDebuffs()) {
@@ -359,7 +411,7 @@ public class UnlimitedVoidAbility {
             }
         }
 
-        Player caster = org.bukkit.Bukkit.getPlayer(domain.casterId);
+        Player caster = Bukkit.getPlayer(domain.casterId);
         if (caster != null && caster.isOnline()) {
             for (String buffConfig : configManager.getUnlimitedVoidCasterBuffs()) {
                 String[] parts = buffConfig.split(":");
@@ -373,7 +425,7 @@ public class UnlimitedVoidAbility {
             }
         }
 
-        Entity targetEntity = org.bukkit.Bukkit.getEntity(domain.targetEntityId);
+        Entity targetEntity = Bukkit.getEntity(domain.targetEntityId);
         if (targetEntity != null && targetEntity.isValid() && domain.originalTargetLocation != null) {
             targetEntity.teleport(domain.originalTargetLocation);
             targetEntity.getWorld().playSound(targetEntity.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.0f);
@@ -384,9 +436,11 @@ public class UnlimitedVoidAbility {
         domain.center.getWorld().spawnParticle(Particle.EXPLOSION, domain.center, 10, 2, 2, 2, 0.1);
 
         removeFloorAndRestoreInterior(domain, () -> {
-            restoreSphereAnimated(domain, () -> {
-                teleportCasterBack(caster, domain);
-                setCooldown(player);
+            removeFakeBlocks(domain, () -> {
+                restoreSphereAnimated(domain, () -> {
+                    teleportCasterBack(caster, domain);
+                    setCooldown(player);
+                });
             });
         });
     }
@@ -421,6 +475,46 @@ public class UnlimitedVoidAbility {
                     BlockData data = domain.interiorBlocks.get(pos);
                     Block block = domain.center.getWorld().getBlockAt(pos.x, pos.y, pos.z);
                     block.setBlockData(data);
+                    index++;
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void removeFakeBlocks(DomainInstance domain, Runnable onComplete) {
+        if (!FakeBlockManager.isProtocolLibAvailable()) {
+            if (onComplete != null)
+                onComplete.run();
+            return;
+        }
+
+        Collection<? extends Player> nearbyPlayers = Bukkit.getOnlinePlayers();
+        List<BlockPosition> fakeBlockList = new ArrayList<>(domain.fakeBlocks);
+        shuffleByYDescending(fakeBlockList);
+
+        int blocksPerTick = Math.max(5, fakeBlockList.size() / 30);
+
+        new BukkitRunnable() {
+            int index = 0;
+
+            @Override
+            public void run() {
+                if (index >= fakeBlockList.size()) {
+                    this.cancel();
+                    if (onComplete != null)
+                        onComplete.run();
+                    return;
+                }
+
+                for (int i = 0; i < blocksPerTick && index < fakeBlockList.size(); i++) {
+                    BlockPosition pos = fakeBlockList.get(index);
+                    Location blockLoc = new Location(domain.center.getWorld(), pos.x, pos.y, pos.z);
+                    FakeBlockManager.sendRealBlockToAll(blockLoc, nearbyPlayers);
+
+                    if (random.nextInt(15) == 0) {
+                        domain.center.getWorld().spawnParticle(Particle.PORTAL, blockLoc.add(0.5, 0.5, 0.5), 3, 0.2,
+                                0.2, 0.2, 0.05);
+                    }
                     index++;
                 }
             }
@@ -463,10 +557,17 @@ public class UnlimitedVoidAbility {
     }
 
     private void teleportCasterBack(Player caster, DomainInstance domain) {
-        if (caster != null && caster.isOnline() && !domain.casterWasInside && domain.originalCasterLocation != null) {
-            PotionEffectType darknessType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("darkness"));
-            if (darknessType != null) {
-                caster.addPotionEffect(new PotionEffect(darknessType, 100, 0, false, false));
+        boolean teleportEnabled = configManager.isUnlimitedVoidCasterTeleportEnabled();
+        boolean returnDarknessEnabled = configManager.isUnlimitedVoidCasterReturnDarknessEnabled();
+        int returnDarknessDuration = configManager.getUnlimitedVoidCasterReturnDarknessDuration();
+
+        if (caster != null && caster.isOnline() && teleportEnabled && !domain.casterWasInside
+                && domain.originalCasterLocation != null) {
+            if (returnDarknessEnabled) {
+                PotionEffectType darknessType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft("darkness"));
+                if (darknessType != null) {
+                    caster.addPotionEffect(new PotionEffect(darknessType, returnDarknessDuration, 0, false, false));
+                }
             }
 
             new BukkitRunnable() {
@@ -650,6 +751,7 @@ public class UnlimitedVoidAbility {
         Map<BlockPosition, BlockData> savedBlocks = new HashMap<>();
         Map<BlockPosition, BlockData> interiorBlocks = new HashMap<>();
         Set<BlockPosition> floorBlocks = new HashSet<>();
+        Set<BlockPosition> fakeBlocks = new HashSet<>();
         Set<UUID> affectedEntities = new HashSet<>();
         BukkitRunnable effectTask;
 

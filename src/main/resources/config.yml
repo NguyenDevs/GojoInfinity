@@ -98,8 +98,12 @@ unlimited-void:
   # Caster (activator) settings
   # When activated, caster gets DARKNESS effect and is teleported into the domain
   caster:
-    activation-darkness-duration: 5.0    # Seconds of darkness when activating
+    teleport-enabled: true               # Enable/disable teleporting caster into domain
     teleport-delay: 3.0                  # Seconds after activation before teleporting into domain
+    activation-darkness-enabled: true    # Enable/disable darkness effect when activating
+    activation-darkness-duration: 5.0    # Seconds of darkness when activating
+    return-darkness-enabled: true        # Enable/disable darkness effect when returning
+    return-darkness-duration: 5.0        # Seconds of darkness when domain ends
     # Buff effects for caster while inside domain (same format as debuffs)
     buffs:
       - "REGENERATION:2:-1"
