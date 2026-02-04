@@ -1,7 +1,7 @@
-package com.NguyenDevs.gojoInfinity.ability;
+package com.NguyenDevs.limitless.ability;
 
-import com.NguyenDevs.gojoInfinity.GojoInfinity;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
+import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,7 +25,7 @@ import java.util.UUID;
 
 public class PurpleAbility {
 
-    private final GojoInfinity plugin;
+    private final Limitless plugin;
     private final ConfigManager configManager;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Random random = new Random();
@@ -33,7 +33,7 @@ public class PurpleAbility {
     private final Set<UUID> chargingPlayers = new HashSet<>();
     private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
 
-    public PurpleAbility(GojoInfinity plugin, ConfigManager configManager) {
+    public PurpleAbility(Limitless plugin, ConfigManager configManager) {
         this.plugin = plugin;
         this.configManager = configManager;
     }
@@ -137,6 +137,7 @@ public class PurpleAbility {
                     currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 2, 0.5, 0.5, 0.5, 0.1);
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 2.0f, 0.1f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 0.1f);
                 }
 
                 ticks++;
@@ -207,8 +208,15 @@ public class PurpleAbility {
     }
 
     private void launchProjectile(Player player, Location startLocation, Vector direction) {
+        startLocation.getWorld().playSound(startLocation, Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 2.0f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_WITHER_HURT, 1.0f, 0.1f);
+
+        double recoil = configManager.getPurpleRecoil();
+        if (recoil > 0) {
+            Vector recoilVector = direction.clone().multiply(-1).normalize().multiply(recoil);
+            player.setVelocity(player.getVelocity().add(recoilVector));
+        }
 
         List<SpherePoint> spherePoints = generateIrregularSphere(100);
 
@@ -217,15 +225,16 @@ public class PurpleAbility {
             double distanceTraveled = 0;
             final double maxDistance = configManager.getPurpleRange();
             final double speed = configManager.getPurpleSpeed();
-            final double radius = configManager.getPurpleRadius();
+            final double baseRadius = configManager.getPurpleRadius();
             final double damage = configManager.getPurpleDamage();
             final boolean dropBlocks = configManager.isPurpleDropBlocks();
             double time = 0;
+            double rotationAngle = 0;
 
             @Override
             public void run() {
                 if (distanceTraveled >= maxDistance) {
-                    createExplosionEffect(currentLoc, radius);
+                    createExplosionEffect(currentLoc, baseRadius); // Use base radius for final explosion or calculcate?
                     this.cancel();
                     return;
                 }
@@ -233,18 +242,49 @@ public class PurpleAbility {
                 currentLoc.add(direction.clone().multiply(speed));
                 distanceTraveled += speed;
                 time += 0.1;
+                rotationAngle += 0.2; // Spin speed
 
-                spawnDenseSphere(currentLoc, radius * 0.5, Color.PURPLE, 100);
+                // Dynamic Radius Calculation for Comet Shape
+                double progress = distanceTraveled / maxDistance;
+                double currentRadiusScale = 1.0;
+
+                if (progress < 0.2) {
+                    // 0% - 20%: Drill phase (0.4 -> 1.0)
+                    currentRadiusScale = 0.4 + (0.6 * (progress / 0.2));
+                } else if (progress < 0.7) {
+                    // 20% - 70%: Flare phase (1.0 -> 1.3)
+                    currentRadiusScale = 1.0 + (0.3 * ((progress - 0.2) / 0.5));
+                } else {
+                    // 70% - 100%: Round off phase (1.3 -> 0) using Cosine for roundness
+                    double remaining = (progress - 0.7) / 0.3; // 0 to 1
+                    currentRadiusScale = 1.3 * Math.cos(remaining * (Math.PI / 2));
+                }
+
+                // Ensure radius doesn't go below effectively zero or negative
+                if (currentRadiusScale < 0)
+                    currentRadiusScale = 0;
+
+                double effectiveRadius = baseRadius * currentRadiusScale;
+
+                // Swirling Core Particles
+                // Rotate the sphere points around the direction axis
+                spawnSwirlingSphere(currentLoc, effectiveRadius * 0.5, Color.PURPLE, 100, direction, rotationAngle);
 
                 for (SpherePoint point : spherePoints) {
                     double wave = Math.sin(time * 3 + point.theta * 2) * 0.15;
-                    double currentPointRadius = radius * point.radiusMultiplier * (1 + wave);
+                    double currentPointRadius = effectiveRadius * point.radiusMultiplier * (1 + wave);
 
+                    // Calculate point position relative to center
                     double x = currentPointRadius * point.sinTheta * point.cosPhi;
                     double y = currentPointRadius * point.sinTheta * point.sinPhi;
                     double z = currentPointRadius * point.cosTheta;
 
-                    Location pLoc = currentLoc.clone().add(x, y, z);
+                    Vector offset = new Vector(x, y, z);
+                    // Rotate offset around the projectile's direction
+                    offset.rotateAroundAxis(direction, rotationAngle + point.phi); // Add point.phi to vary rotation
+                                                                                   // start
+
+                    Location pLoc = currentLoc.clone().add(offset);
 
                     float colorShift = (float) (0.5 + Math.sin(time * 2 + point.phi) * 0.5);
                     Color particleColor = Color.fromRGB(
@@ -264,41 +304,48 @@ public class PurpleAbility {
                         Particle.WITCH,
                         currentLoc,
                         10,
-                        radius / 2, radius / 2, radius / 2,
+                        effectiveRadius / 2, effectiveRadius / 2, effectiveRadius / 2,
                         0.05);
 
                 if (time % 0.5 < 0.1) {
                     currentLoc.getWorld().playSound(currentLoc, Sound.ENTITY_PHANTOM_FLAP, 0.3f, 0.5f);
                 }
 
-                for (Entity entity : currentLoc.getWorld().getNearbyEntities(currentLoc, radius, radius, radius)) {
-                    if (entity instanceof LivingEntity && entity != player) {
-                        ((LivingEntity) entity).damage(damage, player);
+                // Entity Damage
+                if (effectiveRadius > 0.5) { // Only damage if radius is significant
+                    for (Entity entity : currentLoc.getWorld().getNearbyEntities(currentLoc, effectiveRadius,
+                            effectiveRadius, effectiveRadius)) {
+                        if (entity instanceof LivingEntity && entity != player) {
+                            ((LivingEntity) entity).damage(damage, player);
 
-                        entity.getWorld().spawnParticle(
-                                Particle.DUST,
-                                entity.getLocation().add(0, 1, 0),
-                                20,
-                                0.3, 0.5, 0.3,
-                                new Particle.DustOptions(Color.PURPLE, 1.5f));
-                    } else if (entity != player) {
-                        entity.remove();
+                            entity.getWorld().spawnParticle(
+                                    Particle.DUST,
+                                    entity.getLocation().add(0, 1, 0),
+                                    20,
+                                    0.3, 0.5, 0.3,
+                                    new Particle.DustOptions(Color.PURPLE, 1.5f));
+                        } else if (entity != player) {
+                            entity.remove();
+                        }
                     }
                 }
 
-                int r = (int) Math.ceil(radius);
-                for (int x = -r; x <= r; x++) {
-                    for (int y = -r; y <= r; y++) {
-                        for (int z = -r; z <= r; z++) {
-                            Block block = currentLoc.clone().add(x, y, z).getBlock();
-                            if (block.getType() != Material.AIR &&
-                                    block.getType() != Material.BEDROCK &&
-                                    block.getType() != Material.BARRIER) {
-                                if (block.getLocation().distance(currentLoc) <= radius) {
-                                    if (dropBlocks) {
-                                        block.breakNaturally();
-                                    } else {
-                                        block.setType(Material.AIR);
+                // Block Destruction
+                if (effectiveRadius > 0.5) {
+                    int r = (int) Math.ceil(effectiveRadius);
+                    for (int x = -r; x <= r; x++) {
+                        for (int y = -r; y <= r; y++) {
+                            for (int z = -r; z <= r; z++) {
+                                Block block = currentLoc.clone().add(x, y, z).getBlock();
+                                if (block.getType() != Material.AIR &&
+                                        block.getType() != Material.BEDROCK &&
+                                        block.getType() != Material.BARRIER) {
+                                    if (block.getLocation().distance(currentLoc) <= effectiveRadius) {
+                                        if (dropBlocks) {
+                                            block.breakNaturally();
+                                        } else {
+                                            block.setType(Material.AIR);
+                                        }
                                     }
                                 }
                             }
@@ -310,6 +357,11 @@ public class PurpleAbility {
     }
 
     private void spawnDenseSphere(Location center, double radius, Color color, int particles) {
+        spawnSwirlingSphere(center, radius, color, particles, new Vector(0, 1, 0), 0);
+    }
+
+    private void spawnSwirlingSphere(Location center, double radius, Color color, int particles, Vector axis,
+            double angle) {
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.5f);
         for (int i = 0; i < particles; i++) {
             double r = radius * Math.cbrt(random.nextDouble());
@@ -320,9 +372,18 @@ public class PurpleAbility {
             double y = r * Math.sin(theta) * Math.sin(phi);
             double z = r * Math.cos(theta);
 
+            Vector offset = new Vector(x, y, z);
+            if (axis != null) {
+                try {
+                    offset.rotateAroundAxis(axis, angle);
+                } catch (IllegalArgumentException e) {
+                    // Axis might be zero vector if something went wrong, ignore rotation
+                }
+            }
+
             center.getWorld().spawnParticle(
                     Particle.DUST,
-                    center.clone().add(x, y, z),
+                    center.clone().add(offset),
                     1,
                     0, 0, 0,
                     dustOptions);

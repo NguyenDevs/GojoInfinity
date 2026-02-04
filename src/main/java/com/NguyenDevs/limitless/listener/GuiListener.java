@@ -1,9 +1,9 @@
-package com.NguyenDevs.gojoInfinity.listener;
+package com.NguyenDevs.limitless.listener;
 
-import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
-import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
-import com.NguyenDevs.gojoInfinity.util.ColorUtils;
+import com.NguyenDevs.limitless.gui.LimitlessGUI;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
+import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,12 +14,12 @@ public class GuiListener implements Listener {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
-    private final GojoGUI gojoGUI;
+    private final LimitlessGUI limitlessGUI;
 
-    public GuiListener(ConfigManager configManager, AbilityToggleManager toggleManager, GojoGUI gojoGUI) {
+    public GuiListener(ConfigManager configManager, AbilityToggleManager toggleManager, LimitlessGUI limitlessGUI) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
-        this.gojoGUI = gojoGUI;
+        this.limitlessGUI = limitlessGUI;
     }
 
     @EventHandler
@@ -44,7 +44,7 @@ public class GuiListener implements Listener {
         if (abilityToToggle != null) {
             toggleManager.toggleAbility(player.getUniqueId(), abilityToToggle);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-            gojoGUI.openGUI(player);
+            limitlessGUI.openGUI(player);
         }
     }
 }

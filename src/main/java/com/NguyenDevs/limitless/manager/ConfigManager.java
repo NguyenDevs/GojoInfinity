@@ -1,7 +1,7 @@
-package com.NguyenDevs.gojoInfinity.manager;
+package com.NguyenDevs.limitless.manager;
 
-import com.NguyenDevs.gojoInfinity.GojoInfinity;
-import com.NguyenDevs.gojoInfinity.util.ColorUtils;
+import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -13,13 +13,13 @@ import java.util.List;
 
 public class ConfigManager {
 
-    private final GojoInfinity plugin;
+    private final Limitless plugin;
     private FileConfiguration messagesConfig;
     private File messagesFile;
     private FileConfiguration guiConfig;
     private File guiFile;
 
-    public ConfigManager(GojoInfinity plugin) {
+    public ConfigManager(Limitless plugin) {
         this.plugin = plugin;
     }
 
@@ -120,5 +120,9 @@ public class ConfigManager {
 
     public long getPurpleCooldown() {
         return (long) (plugin.getConfig().getDouble("purple.cooldown", 15.0) * 1000);
+    }
+
+    public double getPurpleRecoil() {
+        return plugin.getConfig().getDouble("purple.recoil", 0.5);
     }
 }

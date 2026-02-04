@@ -1,8 +1,8 @@
-package com.NguyenDevs.gojoInfinity.gui;
+package com.NguyenDevs.limitless.gui;
 
-import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
-import com.NguyenDevs.gojoInfinity.util.ColorUtils;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
+import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,12 +14,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GojoGUI {
+public class LimitlessGUI {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
 
-    public GojoGUI(ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public LimitlessGUI(ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
     }

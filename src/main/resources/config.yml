@@ -31,3 +31,4 @@ purple:
   hold: true
   hold-time: 10.0
   cooldown: 15.0
+  recoil: 0.5

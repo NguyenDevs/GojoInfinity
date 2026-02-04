@@ -1,6 +1,6 @@
-package com.NguyenDevs.gojoInfinity.manager;
+package com.NguyenDevs.limitless.manager;
 
-import com.NguyenDevs.gojoInfinity.GojoInfinity;
+import com.NguyenDevs.limitless.Limitless;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,12 +13,12 @@ import java.util.UUID;
 
 public class AbilityToggleManager {
 
-    private final GojoInfinity plugin;
+    private final Limitless plugin;
     private final Map<UUID, Map<String, Boolean>> playerToggles = new HashMap<>();
     private File dataFile;
     private FileConfiguration dataConfig;
 
-    public AbilityToggleManager(GojoInfinity plugin) {
+    public AbilityToggleManager(Limitless plugin) {
         this.plugin = plugin;
         loadData();
     }
@@ -56,7 +56,8 @@ public class AbilityToggleManager {
     }
 
     public void saveData() {
-        if (dataConfig == null || dataFile == null) return;
+        if (dataConfig == null || dataFile == null)
+            return;
 
         dataConfig.set("players", null);
 

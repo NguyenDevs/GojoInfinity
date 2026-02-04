@@ -1,12 +1,12 @@
-package com.NguyenDevs.gojoInfinity;
+package com.NguyenDevs.limitless;
 
-import com.NguyenDevs.gojoInfinity.ability.PurpleAbility;
-import com.NguyenDevs.gojoInfinity.command.GojoCommand;
-import com.NguyenDevs.gojoInfinity.gui.GojoGUI;
-import com.NguyenDevs.gojoInfinity.listener.GojoListener;
-import com.NguyenDevs.gojoInfinity.listener.GuiListener;
-import com.NguyenDevs.gojoInfinity.manager.AbilityToggleManager;
-import com.NguyenDevs.gojoInfinity.manager.ConfigManager;
+import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.command.LimitlessCommand;
+import com.NguyenDevs.limitless.gui.LimitlessGUI;
+import com.NguyenDevs.limitless.listener.LimitlessListener;
+import com.NguyenDevs.limitless.listener.GuiListener;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
+import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -16,12 +16,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public final class GojoInfinity extends JavaPlugin {
+public final class Limitless extends JavaPlugin {
 
         private final Set<UUID> infinityUsers = new HashSet<>();
         private ConfigManager configManager;
         private AbilityToggleManager toggleManager;
-        private GojoGUI gojoGUI;
+        private LimitlessGUI limitlessGUI;
 
         private PurpleAbility purpleAbility;
 
@@ -31,20 +31,22 @@ public final class GojoInfinity extends JavaPlugin {
                 this.configManager.loadConfigs();
 
                 this.toggleManager = new AbilityToggleManager(this);
-                this.gojoGUI = new GojoGUI(configManager, toggleManager);
+                this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
 
                 this.purpleAbility = new PurpleAbility(this, configManager);
 
-                PluginCommand command = getCommand("gojoinfinity");
+                PluginCommand command = getCommand("limitless");
                 if (command != null) {
-                        command.setExecutor(new GojoCommand(this, configManager, infinityUsers, gojoGUI));
+                        command.setExecutor(new LimitlessCommand(this, configManager, infinityUsers, limitlessGUI));
                 } else {
-                        getLogger().severe("Command 'gojoinfinity' not found in plugin.yml!");
+                        getLogger().severe("Command 'limitless' not found in plugin.yml!");
                 }
 
                 getServer().getPluginManager()
-                                .registerEvents(new GojoListener(configManager, toggleManager, purpleAbility), this);
-                getServer().getPluginManager().registerEvents(new GuiListener(configManager, toggleManager, gojoGUI),
+                                .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility),
+                                                this);
+                getServer().getPluginManager().registerEvents(
+                                new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 printLogo();
