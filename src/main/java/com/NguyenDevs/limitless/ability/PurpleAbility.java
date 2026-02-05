@@ -186,9 +186,9 @@ public class PurpleAbility {
                 if (ticks == mergeDuration - 1) {
                     spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
                     currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 5, 0.5, 0.5, 0.5, 0.1);
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 0.1f, 0.1f);
-                    currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.1f, 2.0f);
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 0.1f, 0.1f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_AMBIENT, 0.5f, 0.5f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, 0.5f, 0.1f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 0.2f, 0.1f);
                 }
 
                 ticks++;

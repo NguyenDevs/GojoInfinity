@@ -246,8 +246,19 @@ public class InfinityAbility {
             long now = System.currentTimeMillis();
             if (!lastSoundTime.containsKey(player.getUniqueId())
                     || now - lastSoundTime.get(player.getUniqueId()) > 2000) {
-                Sound sound = Math.random() < 0.5 ? Sound.BLOCK_CONDUIT_AMBIENT : Sound.BLOCK_CONDUIT_AMBIENT_SHORT;
-                player.playSound(player.getLocation(), sound, 3.0f, 1.0f);
+                Sound sound;
+                float pitch = 1.0f;
+                double rand = Math.random();
+                if (rand < 0.33) {
+                    sound = Sound.BLOCK_CONDUIT_AMBIENT;
+                } else if (rand < 0.66) {
+                    sound = Sound.BLOCK_CONDUIT_AMBIENT_SHORT;
+                } else {
+                    sound = Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS;
+                    float[] pitches = { 0.2f, 0.5f, 0.7f };
+                    pitch = pitches[(int) (Math.random() * pitches.length)];
+                }
+                player.playSound(player.getLocation(), sound, 3.0f, pitch);
                 lastSoundTime.put(player.getUniqueId(), now);
             }
         } else {
