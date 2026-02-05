@@ -44,6 +44,18 @@ public class PurpleAbility {
     private final Set<UUID> chargingPlayers = new HashSet<>();
     private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
     private final Set<UUID> dischargingPlayers = new HashSet<>();
+    private final Material[] MOLTEN_MATERIALS = {
+            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
+            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
+            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
+            Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK,
+            Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK,
+            Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE,
+            Material.BLACKSTONE, Material.BLACKSTONE, Material.BLACKSTONE, Material.BLACKSTONE,
+            Material.COBBLED_DEEPSLATE, Material.COBBLED_DEEPSLATE, Material.COBBLED_DEEPSLATE,
+            Material.COBBLED_DEEPSLATE,
+            Material.LAVA
+    };
 
     public PurpleAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
@@ -431,7 +443,8 @@ public class PurpleAbility {
                 }
 
                 if (effectiveRadius > 0.5) {
-                    int r = (int) Math.ceil(effectiveRadius);
+                    final boolean impactMelt = configManager.isPurpleImpactMelt();
+                    int r = (int) Math.ceil(effectiveRadius + (impactMelt ? 1.0 : 0));
                     for (int x = -r; x <= r; x++) {
                         for (int y = -r; y <= r; y++) {
                             for (int z = -r; z <= r; z++) {
@@ -439,11 +452,21 @@ public class PurpleAbility {
                                 if (block.getType() != Material.AIR &&
                                         block.getType() != Material.BEDROCK &&
                                         block.getType() != Material.BARRIER) {
-                                    if (block.getLocation().distance(currentLoc) <= effectiveRadius) {
+                                    double dist = block.getLocation().distance(currentLoc);
+                                    if (dist <= effectiveRadius) {
                                         if (dropBlocks) {
                                             block.breakNaturally();
                                         } else {
                                             block.setType(Material.AIR);
+                                        }
+                                    } else if (impactMelt && dist <= effectiveRadius + 1.2) {
+                                        if (random.nextDouble() < 0.2) {
+                                            Material mat = MOLTEN_MATERIALS[random.nextInt(MOLTEN_MATERIALS.length)];
+                                            if (mat == Material.LAVA
+                                                    && block.getRelative(0, -1, 0).getType() == Material.AIR) {
+                                                mat = Material.OBSIDIAN;
+                                            }
+                                            block.setType(mat);
                                         }
                                     }
                                 }

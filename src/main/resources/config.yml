@@ -15,6 +15,7 @@ purple:
   range: 150.0               # Max travel distance
   damage: 1000.0             # Damage to entities
   drop-blocks: false         # Drop destroyed blocks as items
+  impact-melt: true          # Melt blocks in the hole
   hold: true                 # Allow holding charge before firing
   hold-time: 10.0            # Max hold duration (seconds)
   cooldown: 15.0             # Cooldown after use (seconds)

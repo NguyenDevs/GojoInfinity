@@ -143,6 +143,10 @@ public class ConfigManager {
         return plugin.getConfig().getDouble("purple.recoil", 0.5);
     }
 
+    public boolean isPurpleImpactMelt() {
+        return plugin.getConfig().getBoolean("purple.impact-melt", true);
+    }
+
     public double getInfinityRadius() {
         return plugin.getConfig().getDouble("infinity.radius", 6.0);
     }
