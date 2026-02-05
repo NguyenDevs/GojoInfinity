@@ -179,4 +179,14 @@ public class ConfigManager {
         return plugin.getConfig().getInt("infinity.saturation-threshold", 5);
     }
 
+    public String getPlaceholderInfinityState(String state) {
+        String text = plugin.getConfig().getString("placeholders.infinity." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
+    public String getPlaceholderPurpleState(String state) {
+        String text = plugin.getConfig().getString("placeholders.purple." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
 }

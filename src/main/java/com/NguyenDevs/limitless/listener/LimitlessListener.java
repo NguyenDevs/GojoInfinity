@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EquipmentSlot;
@@ -24,6 +25,25 @@ public class LimitlessListener implements Listener {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
         this.purpleAbility = purpleAbility;
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+
+        if (!configManager.isWorldEnabled(player.getWorld().getName())) {
+            return;
+        }
+
+        if (!player.hasPermission("limitless.use")) {
+            return;
+        }
+
+        if (player.hasPermission("limitless.use.infinity")) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
+                player.sendMessage(configManager.getMessage("infinity-enabled"));
+            }
+        }
     }
 
     @EventHandler
@@ -66,6 +86,10 @@ public class LimitlessListener implements Listener {
         if (!(event.getEntity() instanceof Player))
             return;
         Player player = (Player) event.getEntity();
+
+        if (!player.hasPermission("limitless.use.infinity")) {
+            return;
+        }
 
         if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
             boolean isExplosion = event.getCause() == DamageCause.BLOCK_EXPLOSION

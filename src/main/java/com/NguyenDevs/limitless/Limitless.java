@@ -8,8 +8,9 @@ import com.NguyenDevs.limitless.listener.LimitlessListener;
 import com.NguyenDevs.limitless.listener.GuiListener;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.placeholder.LimitlessExpansion;
+import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,8 +24,8 @@ public final class Limitless extends JavaPlugin {
         private ConfigManager configManager;
         private AbilityToggleManager toggleManager;
         private LimitlessGUI limitlessGUI;
-
         private PurpleAbility purpleAbility;
+        private InfinityAbility infinityAbility;
 
         @Override
         public void onEnable() {
@@ -34,9 +35,8 @@ public final class Limitless extends JavaPlugin {
                 this.toggleManager = new AbilityToggleManager(this);
                 this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
 
-                this.purpleAbility = new PurpleAbility(this, configManager);
-
-                InfinityAbility infinityAbility = new InfinityAbility(this, configManager, toggleManager);
+                this.purpleAbility = new PurpleAbility(this, configManager, toggleManager);
+                this.infinityAbility = new InfinityAbility(this, configManager, toggleManager);
                 infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
@@ -53,9 +53,18 @@ public final class Limitless extends JavaPlugin {
                                 new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility).register();
+                        Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
+                                        "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
+                } else {
+                        Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
+                                        "&d[&5Limitless&d] &ePlaceholderAPI not found, placeholders disabled."));
+                }
+
                 printLogo();
 
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
         }
 
@@ -65,34 +74,42 @@ public final class Limitless extends JavaPlugin {
                         toggleManager.saveData();
                 }
                 Bukkit.getConsoleSender().sendMessage(
-                                ChatColor.translateAlternateColorCodes('&',
+                                ColorUtils.colorize(
                                                 "&d[&5Limitless&d] &cLimitless plugin disabled!"));
         }
 
         public void printLogo() {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(""));
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d   ██╗     ██╗███╗   ███╗██╗████████╗██╗     ███████╗███████╗███████╗"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d   ██║     ██║████╗ ████║██║╚══██╔══╝██║     ██╔════╝██╔════╝██╔════╝"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d   ██║     ██║██╔████╔██║██║   ██║   ██║     █████╗  ███████╗███████╗"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d   ██║     ██║██║╚██╔╝██║██║   ██║   ██║     ██╔══╝  ╚════██║╚════██║"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&5   ███████╗██║██║ ╚═╝ ██║██║   ██║   ███████╗███████╗███████║███████║"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&5   ╚══════╝╚═╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚══════╝╚══════╝╚══════╝╚══════╝"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(""));
                 Bukkit.getConsoleSender()
-                                .sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                .sendMessage(ColorUtils.colorize(
                                                 "&5         無 下 限 - Limitless"));
                 Bukkit.getConsoleSender().sendMessage(
-                                ChatColor.translateAlternateColorCodes('&',
+                                ColorUtils.colorize(
                                                 "&6         Version " + getDescription().getVersion()));
                 Bukkit.getConsoleSender()
-                                .sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                .sendMessage(ColorUtils.colorize(
                                                 "&b         Development by NguyenDevs"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ""));
+                Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(""));
+        }
+
+        public InfinityAbility getInfinityAbility() {
+                return infinityAbility;
+        }
+
+        public PurpleAbility getPurpleAbility() {
+                return purpleAbility;
         }
 }

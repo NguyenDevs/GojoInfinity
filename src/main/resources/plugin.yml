@@ -4,6 +4,8 @@ main: com.NguyenDevs.limitless.Limitless
 api-version: '1.21'
 authors: [NguyenDevs]
 description: A plugin that adds Gojo Satoru's Limitless ability.
+softdepend:
+  - PlaceholderAPI
 
 commands:
   limitless:

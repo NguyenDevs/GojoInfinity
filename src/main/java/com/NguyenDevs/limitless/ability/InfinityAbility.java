@@ -21,6 +21,13 @@ import java.util.UUID;
 
 public class InfinityAbility {
 
+    public enum InfinityState {
+        DISABLED,
+        IDLE,
+        ACTIVATED,
+        COOLDOWN
+    }
+
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
@@ -28,6 +35,7 @@ public class InfinityAbility {
     private final Map<UUID, Long> lastSoundTime = new HashMap<>();
     private final Map<UUID, Double> partialHunger = new HashMap<>();
     private final Map<UUID, Boolean> wasAboveThreshold = new HashMap<>();
+    private final Map<UUID, InfinityState> playerStates = new HashMap<>();
 
     public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
@@ -35,14 +43,21 @@ public class InfinityAbility {
         this.toggleManager = toggleManager;
     }
 
+    public InfinityState getState(UUID playerId) {
+        return playerStates.getOrDefault(playerId, InfinityState.DISABLED);
+    }
+
     public void startTask() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (!player.hasPermission("limitless.use.infinity")) {
+                    playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
                     continue;
                 }
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
                     apply(player);
+                } else {
+                    playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
                 }
             }
             cleanup();
@@ -56,6 +71,7 @@ public class InfinityAbility {
         });
         partialHunger.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
         wasAboveThreshold.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
+        playerStates.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
     }
 
     public void apply(Player player) {
@@ -67,6 +83,7 @@ public class InfinityAbility {
             if (previouslyAbove) {
                 player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.1f, 0.5f);
             }
+            playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
             return;
         }
 
@@ -181,6 +198,7 @@ public class InfinityAbility {
         }
 
         if (isActive) {
+            playerStates.put(player.getUniqueId(), InfinityState.ACTIVATED);
             long now = System.currentTimeMillis();
             if (!lastSoundTime.containsKey(player.getUniqueId())
                     || now - lastSoundTime.get(player.getUniqueId()) > 2000) {
@@ -188,6 +206,8 @@ public class InfinityAbility {
                 player.playSound(player.getLocation(), sound, 3.0f, 1.0f);
                 lastSoundTime.put(player.getUniqueId(), now);
             }
+        } else {
+            playerStates.put(player.getUniqueId(), InfinityState.IDLE);
         }
 
         if (configManager.isInfinityBlockFallDamage()) {
@@ -205,7 +225,8 @@ public class InfinityAbility {
                 }
             }
         }
-        if (configManager.isInfinityDrainSaturation()) {
+
+        if (configManager.isInfinityDrainSaturation() && isActive) {
             if (player.isOp() || player.hasPermission("limitless.use.infinity.bypasssaturation")
                     || player.getGameMode() == org.bukkit.GameMode.CREATIVE) {
                 return;

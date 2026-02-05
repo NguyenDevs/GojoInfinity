@@ -1,6 +1,7 @@
 package com.NguyenDevs.limitless.ability;
 
 import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -25,17 +26,57 @@ import java.util.UUID;
 
 public class PurpleAbility {
 
+    public enum PurpleState {
+        DISABLED,
+        IDLE,
+        CHARGING,
+        HOLDING,
+        DISCHARGE,
+        COOLDOWN
+    }
+
     private final Limitless plugin;
     private final ConfigManager configManager;
+    private final AbilityToggleManager toggleManager;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Random random = new Random();
     private final Set<UUID> holdingPlayers = new HashSet<>();
     private final Set<UUID> chargingPlayers = new HashSet<>();
     private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
+    private final Set<UUID> dischargingPlayers = new HashSet<>();
 
-    public PurpleAbility(Limitless plugin, ConfigManager configManager) {
+    public PurpleAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
+        this.toggleManager = toggleManager;
+    }
+
+    public PurpleState getState(UUID playerId) {
+        if (!toggleManager.isAbilityEnabled(playerId, "purple")) {
+            return PurpleState.DISABLED;
+        }
+        if (dischargingPlayers.contains(playerId)) {
+            return PurpleState.DISCHARGE;
+        }
+        if (chargingPlayers.contains(playerId)) {
+            return PurpleState.CHARGING;
+        }
+        if (holdingPlayers.contains(playerId)) {
+            return PurpleState.HOLDING;
+        }
+        if (isOnCooldown(playerId)) {
+            return PurpleState.COOLDOWN;
+        }
+        return PurpleState.IDLE;
+    }
+
+    private boolean isOnCooldown(UUID playerId) {
+        if (cooldowns.containsKey(playerId)) {
+            long timeLeft = (cooldowns.get(playerId) + configManager.getPurpleCooldown())
+                    - System.currentTimeMillis();
+            return timeLeft > 0;
+        }
+        return false;
     }
 
     public void activate(Player player) {
@@ -138,7 +179,7 @@ public class PurpleAbility {
                 spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
 
                 if (ticks % 5 == 0) {
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.1f,
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f,
                             1.0f + (float) progress);
                 }
 
@@ -213,11 +254,66 @@ public class PurpleAbility {
 
         Location loc = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
         loc.getWorld().playSound(loc, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 0.5f);
-        loc.getWorld().spawnParticle(Particle.SMOKE, loc, 20, 0.5, 0.5, 0.5, 0.1);
+
+        new BukkitRunnable() {
+            int ticks = 0;
+            final int duration = 15;
+            final double initialRadius = 0.6;
+
+            @Override
+            public void run() {
+                if (ticks >= duration) {
+                    this.cancel();
+                    return;
+                }
+
+                Location currentLoc = player.getEyeLocation()
+                        .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+                double progress = (double) ticks / duration;
+                double expandRadius = initialRadius + (progress * 2.0);
+                int particleCount = (int) ((1 - progress) * 20);
+                float particleSize = (float) (1.5 * (1 - progress));
+
+                if (particleSize < 0.1f)
+                    particleSize = 0.1f;
+                if (particleCount < 1)
+                    particleCount = 1;
+
+                for (int i = 0; i < particleCount; i++) {
+                    double theta = Math.acos(1 - 2 * random.nextDouble());
+                    double phi = 2 * Math.PI * random.nextDouble();
+
+                    double x = expandRadius * Math.sin(theta) * Math.cos(phi);
+                    double y = expandRadius * Math.sin(theta) * Math.sin(phi);
+                    double z = expandRadius * Math.cos(theta);
+
+                    Location redLoc = currentLoc.clone().add(x * 1.1, y * 1.1, z * 1.1);
+                    Location blueLoc = currentLoc.clone().add(-x * 1.1, -y * 1.1, -z * 1.1);
+
+                    currentLoc.getWorld().spawnParticle(
+                            Particle.DUST,
+                            redLoc,
+                            1,
+                            0.1, 0.1, 0.1,
+                            new Particle.DustOptions(Color.RED, particleSize));
+
+                    currentLoc.getWorld().spawnParticle(
+                            Particle.DUST,
+                            blueLoc,
+                            1,
+                            0.1, 0.1, 0.1,
+                            new Particle.DustOptions(Color.BLUE, particleSize));
+                }
+
+                ticks++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+
         setCooldown(player);
     }
 
     private void launchProjectile(Player player, Location startLocation, Vector direction) {
+        dischargingPlayers.add(player.getUniqueId());
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 2.0f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
         startLocation.getWorld().playSound(startLocation, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.0f);
@@ -246,6 +342,7 @@ public class PurpleAbility {
             public void run() {
                 if (distanceTraveled >= maxDistance) {
                     createExplosionEffect(currentLoc, baseRadius);
+                    dischargingPlayers.remove(player.getUniqueId());
                     this.cancel();
                     return;
                 }

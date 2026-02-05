@@ -48,3 +48,22 @@ infinity:
   drain-saturation: true
   saturation-cost: 0.2 # Cost per second
   saturation-threshold: 6 # Disable if hunger is below this
+
+# ------------------------------------------------------------------------------
+# PlaceholderAPI - Ability State Placeholders
+# ------------------------------------------------------------------------------
+# Customize the text and color for each ability state
+# Use %limitless_infinity_state% and %limitless_purple_state% in your plugins
+placeholders:
+  infinity:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    activated: "&a⬤ Activated"
+    cooldown: "&7⬤ Cooldown"
+  purple:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    charging: "&b⬤ Charging"
+    holding: "&d⬤ Holding"
+    discharge: "&5⬤ Discharge"
+    cooldown: "&7⬤ Cooldown"
