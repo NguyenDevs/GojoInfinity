@@ -6,7 +6,9 @@ import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
@@ -15,8 +17,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class InfinityAbility {
@@ -36,6 +40,7 @@ public class InfinityAbility {
     private final Map<UUID, Double> partialHunger = new HashMap<>();
     private final Map<UUID, Boolean> wasAboveThreshold = new HashMap<>();
     private final Map<UUID, InfinityState> playerStates = new HashMap<>();
+    private final Set<UUID> aiDisabledMobs = new HashSet<>();
 
     public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
@@ -127,17 +132,21 @@ public class InfinityAbility {
                     if (distance > snapshot.lastDistance && distance > radius * 0.7) {
                         shouldCapture = true;
                     }
+
+                    if (entity instanceof LivingEntity && isOnGround && !snapshot.wasOnGround) {
+                        shouldCapture = true;
+                    }
                 }
 
                 if (shouldCapture) {
                     snapshot = new VelocitySnapshot(
                             currentVel.clone(),
                             distance,
-                            System.currentTimeMillis());
+                            System.currentTimeMillis(),
+                            isOnGround);
                     velocitySnapshots.put(entityId, snapshot);
                 }
 
-                Vector originalVelocity = snapshot.capturedVelocity;
                 double speedMultiplier;
 
                 if (distance <= minDistance) {
@@ -152,15 +161,53 @@ public class InfinityAbility {
                 }
 
                 Vector newVelocity;
-                if (entity instanceof org.bukkit.entity.FallingBlock && distance <= minDistance
+
+                if (entity instanceof Projectile) {
+                    if (distance <= minDistance) {
+                        newVelocity = new Vector(0, 0, 0);
+                        entity.setGravity(false);
+                    } else {
+                        Vector direction = snapshot.capturedVelocity.clone().normalize();
+                        double speed = snapshot.capturedVelocity.length() * speedMultiplier;
+                        newVelocity = direction.multiply(speed);
+                    }
+                } else if (entity instanceof org.bukkit.entity.FallingBlock && distance <= minDistance
                         && configManager.isInfinityBlockFallingBlocks()) {
                     newVelocity = new Vector(0, 0, 0);
                     entity.setGravity(false);
+                } else if (entity instanceof Mob
+                        && (entity instanceof Flying || entity instanceof org.bukkit.entity.Phantom)) {
+                    Mob mob = (Mob) entity;
+                    if (distance <= minDistance) {
+                        if (mob.hasAI()) {
+                            mob.setAI(false);
+                            aiDisabledMobs.add(entityId);
+                        }
+                        newVelocity = new Vector(0, 0, 0);
+                        entity.setGravity(false);
+                    } else {
+                        newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier * 0.3);
+                    }
+                } else if (entity instanceof LivingEntity) {
+                    Vector towardsPlayer = player.getLocation().toVector().subtract(entity.getLocation().toVector());
+                    double horizontalSpeed = Math.sqrt(
+                            towardsPlayer.getX() * towardsPlayer.getX() + towardsPlayer.getZ() * towardsPlayer.getZ());
+
+                    if (horizontalSpeed > 0.1) {
+                        towardsPlayer.normalize();
+                        double moveSpeed = Math.min(currentVel.length(), 0.3) * speedMultiplier;
+                        newVelocity = towardsPlayer.multiply(moveSpeed);
+                        newVelocity.setY(currentVel.getY());
+                    } else {
+                        newVelocity = currentVel.clone();
+                        newVelocity.setX(newVelocity.getX() * speedMultiplier);
+                        newVelocity.setZ(newVelocity.getZ() * speedMultiplier);
+                    }
                 } else {
                     if (entity instanceof org.bukkit.entity.FallingBlock) {
                         entity.setGravity(true);
                     }
-                    newVelocity = originalVelocity.clone().multiply(speedMultiplier);
+                    newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier);
                 }
 
                 if (isOnGround && newVelocity.getY() < 0) {
@@ -171,6 +218,7 @@ public class InfinityAbility {
                 snapshot.lastAppliedVelocity = newVelocity;
                 snapshot.lastDistance = distance;
                 snapshot.lastUpdate = System.currentTimeMillis();
+                snapshot.wasOnGround = isOnGround;
             }
         }
 
@@ -189,6 +237,14 @@ public class InfinityAbility {
             if (dist > radius) {
                 if (System.currentTimeMillis() - entry.getValue().lastUpdate < 100) {
                     continue;
+                }
+
+                if (aiDisabledMobs.contains(entry.getKey())) {
+                    if (ent instanceof Mob) {
+                        ((Mob) ent).setAI(true);
+                        ent.setGravity(true);
+                    }
+                    aiDisabledMobs.remove(entry.getKey());
                 }
 
                 ent.setVelocity(entry.getValue().capturedVelocity);
@@ -264,13 +320,15 @@ public class InfinityAbility {
         double entryDistance;
         double lastDistance;
         long lastUpdate;
+        boolean wasOnGround;
 
-        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp) {
+        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp, boolean wasOnGround) {
             this.capturedVelocity = capturedVelocity;
             this.entryDistance = entryDistance;
             this.lastDistance = entryDistance;
             this.lastUpdate = timestamp;
             this.lastAppliedVelocity = capturedVelocity;
+            this.wasOnGround = wasOnGround;
         }
     }
 }
