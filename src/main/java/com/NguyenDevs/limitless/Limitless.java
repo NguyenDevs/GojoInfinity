@@ -8,6 +8,7 @@ import com.NguyenDevs.limitless.listener.LimitlessListener;
 import com.NguyenDevs.limitless.listener.GuiListener;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.manager.InfinityEntityManager;
 import com.NguyenDevs.limitless.placeholder.LimitlessExpansion;
 import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Bukkit;
@@ -26,6 +27,7 @@ public final class Limitless extends JavaPlugin {
         private LimitlessGUI limitlessGUI;
         private PurpleAbility purpleAbility;
         private InfinityAbility infinityAbility;
+        private InfinityEntityManager infinityEntityManager;
 
         @Override
         public void onEnable() {
@@ -35,8 +37,11 @@ public final class Limitless extends JavaPlugin {
                 this.toggleManager = new AbilityToggleManager(this);
                 this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
 
+                this.infinityEntityManager = new InfinityEntityManager(this);
+                this.infinityEntityManager.loadConfigs();
+
                 this.purpleAbility = new PurpleAbility(this, configManager, toggleManager);
-                this.infinityAbility = new InfinityAbility(this, configManager, toggleManager);
+                this.infinityAbility = new InfinityAbility(this, configManager, toggleManager, infinityEntityManager);
                 infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
@@ -111,5 +116,9 @@ public final class Limitless extends JavaPlugin {
 
         public PurpleAbility getPurpleAbility() {
                 return purpleAbility;
+        }
+
+        public InfinityEntityManager getInfinityEntityManager() {
+                return infinityEntityManager;
         }
 }

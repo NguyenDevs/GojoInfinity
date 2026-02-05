@@ -61,9 +61,9 @@ public class LimitlessListener implements Listener {
         boolean isShift = player.isSneaking();
         String trigger = "";
 
-        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+        if (action == Action.LEFT_CLICK_AIR) {
             trigger = isShift ? "SHIFT_LEFT" : "LEFT_CLICK";
-        } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+        } else if (action == Action.RIGHT_CLICK_AIR) {
             trigger = isShift ? "SHIFT_RIGHT" : "RIGHT_CLICK";
         }
 

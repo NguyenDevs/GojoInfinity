@@ -3,6 +3,7 @@ package com.NguyenDevs.limitless.ability;
 import com.NguyenDevs.limitless.Limitless;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.manager.InfinityEntityManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -10,7 +11,6 @@ import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,6 +35,7 @@ public class InfinityAbility {
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
+    private final InfinityEntityManager entityManager;
     private final Map<UUID, VelocitySnapshot> velocitySnapshots = new HashMap<>();
     private final Map<UUID, Long> lastSoundTime = new HashMap<>();
     private final Map<UUID, Double> partialHunger = new HashMap<>();
@@ -42,10 +43,12 @@ public class InfinityAbility {
     private final Map<UUID, InfinityState> playerStates = new HashMap<>();
     private final Set<UUID> aiDisabledMobs = new HashSet<>();
 
-    public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager,
+            InfinityEntityManager entityManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
+        this.entityManager = entityManager;
     }
 
     public InfinityState getState(UUID playerId) {
@@ -102,15 +105,9 @@ public class InfinityAbility {
             if (entity == player)
                 continue;
 
-            if (entity instanceof LivingEntity || entity instanceof Projectile || entity instanceof TNTPrimed
+            if (entity instanceof LivingEntity || entity instanceof TNTPrimed
                     || (configManager.isInfinityBlockFallingBlocks()
                             && entity instanceof org.bukkit.entity.FallingBlock)) {
-                if (entity instanceof Projectile) {
-                    Projectile projectile = (Projectile) entity;
-                    if (projectile.getShooter() != null && projectile.getShooter().equals(player)) {
-                        continue;
-                    }
-                }
                 double distance = entity.getLocation().distance(player.getLocation());
                 UUID entityId = entity.getUniqueId();
                 Vector currentVel = entity.getVelocity();
@@ -162,16 +159,7 @@ public class InfinityAbility {
 
                 Vector newVelocity;
 
-                if (entity instanceof Projectile) {
-                    if (distance <= minDistance) {
-                        newVelocity = new Vector(0, 0, 0);
-                        entity.setGravity(false);
-                    } else {
-                        Vector direction = snapshot.capturedVelocity.clone().normalize();
-                        double speed = snapshot.capturedVelocity.length() * speedMultiplier;
-                        newVelocity = direction.multiply(speed);
-                    }
-                } else if (entity instanceof org.bukkit.entity.FallingBlock && distance <= minDistance
+                if (entity instanceof org.bukkit.entity.FallingBlock && distance <= minDistance
                         && configManager.isInfinityBlockFallingBlocks()) {
                     newVelocity = new Vector(0, 0, 0);
                     entity.setGravity(false);
@@ -189,19 +177,15 @@ public class InfinityAbility {
                         newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier * 0.3);
                     }
                 } else if (entity instanceof LivingEntity) {
-                    Vector towardsPlayer = player.getLocation().toVector().subtract(entity.getLocation().toVector());
-                    double horizontalSpeed = Math.sqrt(
-                            towardsPlayer.getX() * towardsPlayer.getX() + towardsPlayer.getZ() * towardsPlayer.getZ());
-
-                    if (horizontalSpeed > 0.1) {
-                        towardsPlayer.normalize();
-                        double moveSpeed = Math.min(currentVel.length(), 0.3) * speedMultiplier;
-                        newVelocity = towardsPlayer.multiply(moveSpeed);
-                        newVelocity.setY(currentVel.getY());
+                    if (distance <= minDistance) {
+                        newVelocity = new Vector(0, 0, 0);
                     } else {
                         newVelocity = currentVel.clone();
                         newVelocity.setX(newVelocity.getX() * speedMultiplier);
                         newVelocity.setZ(newVelocity.getZ() * speedMultiplier);
+                        if (currentVel.getY() < 0) {
+                            newVelocity.setY(currentVel.getY() * speedMultiplier);
+                        }
                     }
                 } else {
                     if (entity instanceof org.bukkit.entity.FallingBlock) {
@@ -248,6 +232,7 @@ public class InfinityAbility {
                 }
 
                 ent.setVelocity(entry.getValue().capturedVelocity);
+
                 iterator.remove();
                 continue;
             }
