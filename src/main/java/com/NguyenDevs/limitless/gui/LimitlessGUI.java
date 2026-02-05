@@ -32,7 +32,11 @@ public class LimitlessGUI {
         Inventory inv = Bukkit.createInventory(null, size, title);
 
         inv.setItem(guiConfig.getInt("items.purple.slot", 4), createItem(player, "purple", "items.purple"));
-        inv.setItem(guiConfig.getInt("items.infinity.slot", 2), createItem(player, "infinity", "items.infinity"));
+        inv.setItem(guiConfig.getInt("items.purple.slot", 4), createItem(player, "purple", "items.purple"));
+
+        ItemStack infinityItem = createItem(player, "infinity", "items.infinity");
+
+        inv.setItem(guiConfig.getInt("items.infinity.slot", 2), infinityItem);
 
         player.openInventory(inv);
     }

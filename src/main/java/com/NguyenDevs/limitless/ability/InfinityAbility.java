@@ -4,6 +4,7 @@ import com.NguyenDevs.limitless.Limitless;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import com.NguyenDevs.limitless.manager.InfinityEntityManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -36,6 +37,7 @@ public class InfinityAbility {
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
     private final InfinityEntityManager entityManager;
+
     private final Map<UUID, VelocitySnapshot> velocitySnapshots = new HashMap<>();
     private final Map<UUID, Long> lastSoundTime = new HashMap<>();
     private final Map<UUID, Double> partialHunger = new HashMap<>();
@@ -58,6 +60,7 @@ public class InfinityAbility {
     public void startTask() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
+
                 if (!player.hasPermission("limitless.use.infinity")) {
                     playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
                     continue;

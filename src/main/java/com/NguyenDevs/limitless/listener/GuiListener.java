@@ -40,8 +40,10 @@ public class GuiListener implements Listener {
 
         if (slot == configManager.getGuiConfig().getInt("items.purple.slot", 4))
             abilityToToggle = "purple";
-        else if (slot == configManager.getGuiConfig().getInt("items.infinity.slot", 2))
+        else if (slot == configManager.getGuiConfig().getInt("items.infinity.slot", 2)) {
+
             abilityToToggle = "infinity";
+        }
 
         if (abilityToToggle != null) {
             String permission = "limitless.use." + abilityToToggle;

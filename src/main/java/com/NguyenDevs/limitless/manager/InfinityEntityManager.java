@@ -101,7 +101,8 @@ public class InfinityEntityManager {
                 plugin.getLogger().warning("Invalid material in blocks.yml: " + blockName);
             }
         }
-        plugin.getLogger().info("Loaded " + affectedFallingBlocks.size() + " falling block types.");
+        plugin.getLogger().info(
+                "Loaded " + affectedFallingBlocks.size() + " falling blocks");
     }
 
     private void loadProjectiles() {
@@ -115,7 +116,8 @@ public class InfinityEntityManager {
                 plugin.getLogger().warning("Invalid entity type in projectiles.yml: " + projectileName);
             }
         }
-        plugin.getLogger().info("Loaded " + affectedProjectiles.size() + " projectile types.");
+        plugin.getLogger()
+                .info("Loaded " + affectedProjectiles.size() + " projectiles");
     }
 
     public void reload() {

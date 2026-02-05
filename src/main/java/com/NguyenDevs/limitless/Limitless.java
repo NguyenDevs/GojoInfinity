@@ -9,6 +9,7 @@ import com.NguyenDevs.limitless.listener.GuiListener;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import com.NguyenDevs.limitless.manager.InfinityEntityManager;
+
 import com.NguyenDevs.limitless.placeholder.LimitlessExpansion;
 import com.NguyenDevs.limitless.util.ColorUtils;
 import org.bukkit.Bukkit;

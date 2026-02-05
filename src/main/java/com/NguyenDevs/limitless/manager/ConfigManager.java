@@ -167,6 +167,14 @@ public class ConfigManager {
         return plugin.getConfig().getBoolean("infinity.block-falling-blocks", true);
     }
 
+    public boolean isInfinityBlockProjectiles() {
+        return plugin.getConfig().getBoolean("infinity.block-projectiles", true);
+    }
+
+    public double getInfinityProjectileSmoothFactor() {
+        return plugin.getConfig().getDouble("infinity.projectile-smooth-factor", 0.1);
+    }
+
     public boolean isInfinityDrainSaturation() {
         return plugin.getConfig().getBoolean("infinity.drain-saturation", true);
     }

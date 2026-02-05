@@ -179,16 +179,16 @@ public class PurpleAbility {
                 spawnDenseSphere(blueLoc, 0.4, currentBlueColor, 20);
 
                 if (ticks % 5 == 0) {
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f,
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f,
                             1.0f + (float) progress);
                 }
 
                 if (ticks == mergeDuration - 1) {
                     spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 50);
                     currentTarget.getWorld().spawnParticle(Particle.WITCH, currentTarget, 5, 0.5, 0.5, 0.5, 0.1);
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 0.5f, 0.1f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 0.1f, 0.1f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.1f, 2.0f);
-                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 0.5f, 0.1f);
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 0.1f, 0.1f);
                 }
 
                 ticks++;
@@ -226,6 +226,9 @@ public class PurpleAbility {
                         .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
                 spawnDenseSphere(currentTarget, 0.6, Color.PURPLE, 10);
 
+                if (ticks % 20 == 0) {
+                    currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
+                }
                 ticks++;
             }
         };
@@ -314,8 +317,8 @@ public class PurpleAbility {
 
     private void launchProjectile(Player player, Location startLocation, Vector direction) {
         dischargingPlayers.add(player.getUniqueId());
-        startLocation.getWorld().playSound(startLocation, Sound.ENTITY_ENDER_DRAGON_DEATH, 1.0f, 2.0f);
-        startLocation.getWorld().playSound(startLocation, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
+        startLocation.getWorld().playSound(startLocation, Sound.ENTITY_ENDER_DRAGON_DEATH, 0.5f, 2.0f);
+        startLocation.getWorld().playSound(startLocation, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.5f);
         startLocation.getWorld().playSound(startLocation, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.0f);
         startLocation.getWorld().playSound(startLocation, Sound.ENTITY_WITHER_HURT, 1.0f, 0.1f);
 

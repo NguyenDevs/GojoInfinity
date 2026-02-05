@@ -40,6 +40,7 @@ public class LimitlessCommand implements CommandExecutor {
                     return true;
                 }
                 configManager.loadConfigs();
+                plugin.getInfinityEntityManager().reload();
                 sender.sendMessage(configManager.getMessage("reload-success"));
                 if (sender instanceof Player) {
                     ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE,
