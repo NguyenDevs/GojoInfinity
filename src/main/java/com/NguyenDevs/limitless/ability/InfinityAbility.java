@@ -61,7 +61,7 @@ public class InfinityAbility {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
 
-                if (!player.hasPermission("limitless.use.infinity")) {
+                if (!player.hasPermission("limitless.ability.infinity")) {
                     playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
                     continue;
                 }
@@ -323,7 +323,7 @@ public class InfinityAbility {
         }
 
         if (configManager.isInfinityDrainSaturation() && isActive) {
-            if (player.isOp() || player.hasPermission("limitless.use.infinity.bypasssaturation")
+            if (player.isOp() || player.hasPermission("limitless.ability.infinity.bypasssaturation")
                     || player.getGameMode() == org.bukkit.GameMode.CREATIVE) {
                 return;
             }

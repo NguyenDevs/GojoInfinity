@@ -46,6 +46,7 @@ public class PurpleAbility {
     private final Set<UUID> chargingPlayers = new HashSet<>();
     private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
     private final Set<UUID> dischargingPlayers = new HashSet<>();
+    private final Map<UUID, Double> partialHunger = new HashMap<>();
     private final Material[] MOLTEN_MATERIALS = {
             Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
             Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
@@ -94,7 +95,7 @@ public class PurpleAbility {
     }
 
     public void activate(Player player) {
-        if (!player.hasPermission("limitless.use.purple")) {
+        if (!player.hasPermission("limitless.ability.purple")) {
             return;
         }
 
@@ -126,7 +127,7 @@ public class PurpleAbility {
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
         final boolean canBypassSaturation = player.isOp()
-                || player.hasPermission("limitless.use.purple.bypasssaturation")
+                || player.hasPermission("limitless.ability.purple.bypasssaturation")
                 || player.getGameMode() == org.bukkit.GameMode.CREATIVE;
 
         if (drainSaturation && !canBypassSaturation) {
@@ -148,6 +149,8 @@ public class PurpleAbility {
             if (drainSaturation && !canBypassSaturation) {
                 final int drainDuration = 20;
                 final double drainPerTick = saturationCost / drainDuration;
+                final UUID playerId = player.getUniqueId();
+                partialHunger.put(playerId, 0.0);
 
                 new BukkitRunnable() {
                     int drainTicks = 0;
@@ -155,6 +158,7 @@ public class PurpleAbility {
                     @Override
                     public void run() {
                         if (!player.isOnline() || drainTicks >= drainDuration) {
+                            partialHunger.remove(playerId);
                             this.cancel();
                             return;
                         }
@@ -165,8 +169,13 @@ public class PurpleAbility {
                         } else {
                             player.setSaturation(0);
                             double remaining = drainPerTick - currentSat;
-                            int hungerToRemove = (int) Math.ceil(remaining);
-                            player.setFoodLevel(Math.max(0, player.getFoodLevel() - hungerToRemove));
+                            double accumulated = partialHunger.getOrDefault(playerId, 0.0) + remaining;
+                            if (accumulated >= 1.0) {
+                                int hungerToRemove = (int) accumulated;
+                                player.setFoodLevel(Math.max(0, player.getFoodLevel() - hungerToRemove));
+                                accumulated -= hungerToRemove;
+                            }
+                            partialHunger.put(playerId, accumulated);
                         }
                         drainTicks++;
                     }
@@ -205,6 +214,7 @@ public class PurpleAbility {
 
                     if (totalAvailable < drainPerTick) {
                         chargingPlayers.remove(player.getUniqueId());
+                        partialHunger.remove(player.getUniqueId());
                         player.sendMessage(configManager.getMessage("purple-saturation-empty"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 60, 0, false, false, false));
@@ -220,13 +230,19 @@ public class PurpleAbility {
                     } else {
                         player.setSaturation(0);
                         double remaining = drainPerTick - currentSat;
-                        int hungerToRemove = (int) Math.ceil(remaining);
-                        player.setFoodLevel(Math.max(0, currentFood - hungerToRemove));
+                        double accumulated = partialHunger.getOrDefault(player.getUniqueId(), 0.0) + remaining;
+                        if (accumulated >= 1.0) {
+                            int hungerToRemove = (int) accumulated;
+                            player.setFoodLevel(Math.max(0, currentFood - hungerToRemove));
+                            accumulated -= hungerToRemove;
+                        }
+                        partialHunger.put(player.getUniqueId(), accumulated);
                     }
                 }
 
                 if (ticks >= mergeDuration) {
                     chargingPlayers.remove(player.getUniqueId());
+                    partialHunger.remove(player.getUniqueId());
                     if (hold) {
                         startHolding(player, currentTarget, holdTime);
                     } else {

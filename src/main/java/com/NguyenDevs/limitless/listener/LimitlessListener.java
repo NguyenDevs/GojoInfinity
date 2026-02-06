@@ -39,7 +39,7 @@ public class LimitlessListener implements Listener {
             return;
         }
 
-        if (player.hasPermission("limitless.use.infinity")) {
+        if (player.hasPermission("limitless.ability.infinity")) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
                 player.sendMessage(configManager.getMessage("infinity-enabled"));
             }
@@ -75,7 +75,7 @@ public class LimitlessListener implements Listener {
     private void checkAndActivate(Player player, String trigger) {
         if (configManager.getPurpleTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")
-                    && player.hasPermission("limitless.use.purple")) {
+                    && player.hasPermission("limitless.ability.purple")) {
                 purpleAbility.activate(player);
             }
         }
@@ -87,7 +87,7 @@ public class LimitlessListener implements Listener {
             return;
         Player player = (Player) event.getEntity();
 
-        if (!player.hasPermission("limitless.use.infinity")) {
+        if (!player.hasPermission("limitless.ability.infinity")) {
             return;
         }
 
