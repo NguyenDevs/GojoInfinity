@@ -151,7 +151,8 @@ public class InfinityAbility {
 
             if (entity instanceof LivingEntity || entity instanceof TNTPrimed
                     || (configManager.isInfinityBlockFallingBlocks()
-                            && entity instanceof org.bukkit.entity.FallingBlock)) {
+                            && entity instanceof org.bukkit.entity.FallingBlock
+                            && entityManager.isAffectedFallingBlock(entity))) {
                 double distance = entity.getLocation().distance(player.getLocation());
                 UUID entityId = entity.getUniqueId();
                 Vector currentVel = entity.getVelocity();
