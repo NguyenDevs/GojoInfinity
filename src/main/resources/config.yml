@@ -20,6 +20,8 @@ purple:
   hold-time: 10.0            # Max hold duration (seconds)
   cooldown: 15.0             # Cooldown after use (seconds)
   recoil: 0.5                # Knockback when firing
+  drain-saturation: true     # Drain saturation during charge
+  saturation-cost: 8         # Total saturation cost for full charge
 
 # Infinity - Slows entities/projectiles approaching the user
 infinity:

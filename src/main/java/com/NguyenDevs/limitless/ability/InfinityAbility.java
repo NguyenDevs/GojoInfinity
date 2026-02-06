@@ -85,6 +85,47 @@ public class InfinityAbility {
         playerStates.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
     }
 
+    public void onConfigReload() {
+        Iterator<Map.Entry<UUID, VelocitySnapshot>> iterator = velocitySnapshots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, VelocitySnapshot> entry = iterator.next();
+            Entity ent = Bukkit.getEntity(entry.getKey());
+
+            if (ent == null || !ent.isValid()) {
+                iterator.remove();
+                continue;
+            }
+
+            boolean shouldBeAffected = false;
+
+            if (ent instanceof org.bukkit.entity.FallingBlock) {
+                shouldBeAffected = entityManager.isAffectedFallingBlock(ent);
+            } else if (entityManager.isAffectedProjectile(ent)) {
+                shouldBeAffected = true;
+            } else if (ent instanceof LivingEntity || ent instanceof TNTPrimed) {
+                shouldBeAffected = true;
+            }
+
+            if (!shouldBeAffected) {
+                if (aiDisabledMobs.contains(entry.getKey())) {
+                    if (ent instanceof Mob) {
+                        ((Mob) ent).setAI(true);
+                        ent.setGravity(true);
+                    }
+                    aiDisabledMobs.remove(entry.getKey());
+                }
+
+                if (ent instanceof org.bukkit.entity.FallingBlock) {
+                    ent.setGravity(true);
+                }
+
+                ent.setVelocity(entry.getValue().capturedVelocity);
+                iterator.remove();
+            }
+        }
+        plugin.getLogger().info("Cleared entity tracking cache after config reload.");
+    }
+
     public void apply(Player player) {
         boolean currentlyAbove = player.getFoodLevel() >= configManager.getInfinitySaturationThreshold();
         boolean previouslyAbove = wasAboveThreshold.getOrDefault(player.getUniqueId(), true);

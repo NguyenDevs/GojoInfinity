@@ -12,6 +12,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -121,9 +123,56 @@ public class PurpleAbility {
 
         chargingPlayers.add(player.getUniqueId());
 
+        final boolean drainSaturation = configManager.isPurpleDrainSaturation();
+        final double saturationCost = configManager.getPurpleSaturationCost();
+        final boolean canBypassSaturation = player.isOp()
+                || player.hasPermission("limitless.use.purple.bypasssaturation")
+                || player.getGameMode() == org.bukkit.GameMode.CREATIVE;
+
+        if (drainSaturation && !canBypassSaturation) {
+            float currentSaturation = player.getSaturation();
+            int currentFood = player.getFoodLevel();
+            double totalAvailable = currentSaturation + currentFood;
+            if (totalAvailable < 1) {
+                chargingPlayers.remove(player.getUniqueId());
+                player.sendMessage(configManager.getMessage("purple-saturation-empty"));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
+                return;
+            }
+        }
+
         if (mergeDuration <= 0) {
             final Location mergeLocation = eyeLoc.clone().add(eyeLoc.getDirection().normalize().multiply(2.5));
             chargingPlayers.remove(player.getUniqueId());
+
+            if (drainSaturation && !canBypassSaturation) {
+                final int drainDuration = 20;
+                final double drainPerTick = saturationCost / drainDuration;
+
+                new BukkitRunnable() {
+                    int drainTicks = 0;
+
+                    @Override
+                    public void run() {
+                        if (!player.isOnline() || drainTicks >= drainDuration) {
+                            this.cancel();
+                            return;
+                        }
+
+                        float currentSat = player.getSaturation();
+                        if (currentSat >= drainPerTick) {
+                            player.setSaturation((float) (currentSat - drainPerTick));
+                        } else {
+                            player.setSaturation(0);
+                            double remaining = drainPerTick - currentSat;
+                            int hungerToRemove = (int) Math.ceil(remaining);
+                            player.setFoodLevel(Math.max(0, player.getFoodLevel() - hungerToRemove));
+                        }
+                        drainTicks++;
+                    }
+                }.runTaskTimer(plugin, 0L, 1L);
+            }
+
             if (hold) {
                 startHolding(player, mergeLocation, holdTime);
             } else {
@@ -132,6 +181,8 @@ public class PurpleAbility {
             }
             return;
         }
+
+        final double drainPerTick = drainSaturation && !canBypassSaturation ? saturationCost / mergeDuration : 0;
 
         new BukkitRunnable() {
             int ticks = 0;
@@ -146,6 +197,33 @@ public class PurpleAbility {
 
                 Location currentTarget = player.getEyeLocation()
                         .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+
+                if (drainPerTick > 0 && ticks > 0) {
+                    float currentSat = player.getSaturation();
+                    int currentFood = player.getFoodLevel();
+                    double totalAvailable = currentSat + currentFood;
+
+                    if (totalAvailable < drainPerTick) {
+                        chargingPlayers.remove(player.getUniqueId());
+                        player.sendMessage(configManager.getMessage("purple-saturation-empty"));
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 60, 0, false, false, false));
+                        currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 0.5f);
+                        createChargeFailureEffect(player, currentTarget);
+                        setCooldown(player);
+                        this.cancel();
+                        return;
+                    }
+
+                    if (currentSat >= drainPerTick) {
+                        player.setSaturation((float) (currentSat - drainPerTick));
+                    } else {
+                        player.setSaturation(0);
+                        double remaining = drainPerTick - currentSat;
+                        int hungerToRemove = (int) Math.ceil(remaining);
+                        player.setFoodLevel(Math.max(0, currentFood - hungerToRemove));
+                    }
+                }
 
                 if (ticks >= mergeDuration) {
                     chargingPlayers.remove(player.getUniqueId());
@@ -201,6 +279,62 @@ public class PurpleAbility {
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_RESPAWN_ANCHOR_AMBIENT, 0.5f, 0.5f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, 0.5f, 0.1f);
                     currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_END_PORTAL_SPAWN, 0.2f, 0.1f);
+                }
+
+                ticks++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void createChargeFailureEffect(Player player, Location loc) {
+        new BukkitRunnable() {
+            int ticks = 0;
+            final int duration = 15;
+            final double initialRadius = 0.6;
+
+            @Override
+            public void run() {
+                if (ticks >= duration) {
+                    this.cancel();
+                    return;
+                }
+
+                Location currentLoc = player.getEyeLocation()
+                        .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
+                double progress = (double) ticks / duration;
+                double expandRadius = initialRadius + (progress * 2.0);
+                int particleCount = (int) ((1 - progress) * 20);
+                float particleSize = (float) (1.5 * (1 - progress));
+
+                if (particleSize < 0.1f)
+                    particleSize = 0.1f;
+                if (particleCount < 1)
+                    particleCount = 1;
+
+                for (int i = 0; i < particleCount; i++) {
+                    double theta = Math.acos(1 - 2 * random.nextDouble());
+                    double phi = 2 * Math.PI * random.nextDouble();
+
+                    double x = expandRadius * Math.sin(theta) * Math.cos(phi);
+                    double y = expandRadius * Math.sin(theta) * Math.sin(phi);
+                    double z = expandRadius * Math.cos(theta);
+
+                    Location redLoc = currentLoc.clone().add(x * 1.1, y * 1.1, z * 1.1);
+                    Location blueLoc = currentLoc.clone().add(-x * 1.1, -y * 1.1, -z * 1.1);
+
+                    currentLoc.getWorld().spawnParticle(
+                            Particle.DUST,
+                            redLoc,
+                            1,
+                            0.1, 0.1, 0.1,
+                            new Particle.DustOptions(Color.RED, particleSize));
+
+                    currentLoc.getWorld().spawnParticle(
+                            Particle.DUST,
+                            blueLoc,
+                            1,
+                            0.1, 0.1, 0.1,
+                            new Particle.DustOptions(Color.BLUE, particleSize));
                 }
 
                 ticks++;

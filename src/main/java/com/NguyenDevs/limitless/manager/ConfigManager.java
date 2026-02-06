@@ -147,6 +147,14 @@ public class ConfigManager {
         return plugin.getConfig().getBoolean("purple.impact-melt", true);
     }
 
+    public boolean isPurpleDrainSaturation() {
+        return plugin.getConfig().getBoolean("purple.drain-saturation", true);
+    }
+
+    public double getPurpleSaturationCost() {
+        return plugin.getConfig().getDouble("purple.saturation-cost", 8);
+    }
+
     public double getInfinityRadius() {
         return plugin.getConfig().getDouble("infinity.radius", 6.0);
     }
