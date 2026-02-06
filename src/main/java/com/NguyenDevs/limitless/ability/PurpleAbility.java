@@ -47,18 +47,14 @@ public class PurpleAbility {
     private final Map<UUID, BukkitRunnable> holdTasks = new HashMap<>();
     private final Set<UUID> dischargingPlayers = new HashSet<>();
     private final Map<UUID, Double> partialHunger = new HashMap<>();
-    private final Material[] MOLTEN_MATERIALS = {
-            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
-            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
-            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
-            Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK,
-            Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK, Material.MAGMA_BLOCK,
-            Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE, Material.COBBLESTONE,
-            Material.BLACKSTONE, Material.BLACKSTONE, Material.BLACKSTONE, Material.BLACKSTONE,
-            Material.COBBLED_DEEPSLATE, Material.COBBLED_DEEPSLATE, Material.COBBLED_DEEPSLATE,
-            Material.COBBLED_DEEPSLATE,
-            Material.LAVA
+    private final Material[] SOLID_MOLTEN_MATERIALS = {
+            Material.OBSIDIAN, Material.OBSIDIAN, Material.OBSIDIAN,
+            Material.COBBLESTONE, Material.COBBLESTONE,
+            Material.BLACKSTONE, Material.BLACKSTONE,
+            Material.COBBLED_DEEPSLATE, Material.COBBLED_DEEPSLATE
     };
+    private static final double MAGMA_CHANCE = 0.12;
+    private static final double LAVA_CHANCE = 0.015;
 
     public PurpleAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
@@ -611,10 +607,16 @@ public class PurpleAbility {
                                         }
                                     } else if (impactMelt && dist <= effectiveRadius + 1.2) {
                                         if (random.nextDouble() < 0.2) {
-                                            Material mat = MOLTEN_MATERIALS[random.nextInt(MOLTEN_MATERIALS.length)];
-                                            if (mat == Material.LAVA
-                                                    && block.getRelative(0, -1, 0).getType() == Material.AIR) {
-                                                mat = Material.OBSIDIAN;
+                                            double roll = random.nextDouble();
+                                            Material mat;
+                                            if (roll < LAVA_CHANCE
+                                                    && block.getRelative(0, -1, 0).getType() != Material.AIR) {
+                                                mat = Material.LAVA;
+                                            } else if (roll < LAVA_CHANCE + MAGMA_CHANCE) {
+                                                mat = Material.MAGMA_BLOCK;
+                                            } else {
+                                                mat = SOLID_MOLTEN_MATERIALS[random
+                                                        .nextInt(SOLID_MOLTEN_MATERIALS.length)];
                                             }
                                             block.setType(mat);
                                         }
