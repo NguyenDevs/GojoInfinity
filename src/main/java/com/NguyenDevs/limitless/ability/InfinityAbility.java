@@ -110,15 +110,11 @@ public class InfinityAbility {
                 if (aiDisabledMobs.contains(entry.getKey())) {
                     if (ent instanceof Mob) {
                         ((Mob) ent).setAI(true);
-                        ent.setGravity(true);
                     }
                     aiDisabledMobs.remove(entry.getKey());
                 }
 
-                if (ent instanceof org.bukkit.entity.FallingBlock) {
-                    ent.setGravity(true);
-                }
-
+                ent.setGravity(entry.getValue().originalGravity);
                 ent.setVelocity(entry.getValue().capturedVelocity);
                 iterator.remove();
             }
@@ -150,6 +146,7 @@ public class InfinityAbility {
                 continue;
 
             if (entity instanceof LivingEntity || entity instanceof TNTPrimed
+                    || entityManager.isAffectedProjectile(entity)
                     || (configManager.isInfinityBlockFallingBlocks()
                             && entity instanceof org.bukkit.entity.FallingBlock
                             && entityManager.isAffectedFallingBlock(entity))) {
@@ -185,7 +182,8 @@ public class InfinityAbility {
                             currentVel.clone(),
                             distance,
                             System.currentTimeMillis(),
-                            isOnGround);
+                            isOnGround,
+                            entity.hasGravity());
                     velocitySnapshots.put(entityId, snapshot);
                 }
 
@@ -232,9 +230,17 @@ public class InfinityAbility {
                             newVelocity.setY(currentVel.getY() * speedMultiplier);
                         }
                     }
+                } else if (entityManager.isAffectedProjectile(entity)) {
+                    if (distance <= minDistance) {
+                        newVelocity = new Vector(0, 0, 0);
+                        entity.setGravity(false);
+                    } else {
+                        entity.setGravity(snapshot.originalGravity);
+                        newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier);
+                    }
                 } else {
                     if (entity instanceof org.bukkit.entity.FallingBlock) {
-                        entity.setGravity(true);
+                        entity.setGravity(snapshot.originalGravity);
                     }
                     newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier);
                 }
@@ -271,11 +277,11 @@ public class InfinityAbility {
                 if (aiDisabledMobs.contains(entry.getKey())) {
                     if (ent instanceof Mob) {
                         ((Mob) ent).setAI(true);
-                        ent.setGravity(true);
                     }
                     aiDisabledMobs.remove(entry.getKey());
                 }
 
+                ent.setGravity(entry.getValue().originalGravity);
                 ent.setVelocity(entry.getValue().capturedVelocity);
 
                 iterator.remove();
@@ -362,14 +368,17 @@ public class InfinityAbility {
         double lastDistance;
         long lastUpdate;
         boolean wasOnGround;
+        boolean originalGravity;
 
-        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp, boolean wasOnGround) {
+        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp, boolean wasOnGround,
+                boolean originalGravity) {
             this.capturedVelocity = capturedVelocity;
             this.entryDistance = entryDistance;
             this.lastDistance = entryDistance;
             this.lastUpdate = timestamp;
             this.lastAppliedVelocity = capturedVelocity;
             this.wasOnGround = wasOnGround;
+            this.originalGravity = originalGravity;
         }
     }
 }
