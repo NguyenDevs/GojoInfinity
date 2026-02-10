@@ -76,12 +76,12 @@ public class AbilityToggleManager {
     }
 
     public boolean isAbilityEnabled(UUID uuid, String ability) {
-        return playerToggles.computeIfAbsent(uuid, k -> new HashMap<>()).getOrDefault(ability, true);
+        return playerToggles.computeIfAbsent(uuid, k -> new HashMap<>()).getOrDefault(ability, false);
     }
 
     public void toggleAbility(UUID uuid, String ability) {
         Map<String, Boolean> toggles = playerToggles.computeIfAbsent(uuid, k -> new HashMap<>());
-        boolean current = toggles.getOrDefault(ability, true);
+        boolean current = toggles.getOrDefault(ability, false);
         toggles.put(ability, !current);
         saveData();
     }

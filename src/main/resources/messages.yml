@@ -18,3 +18,6 @@ cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
 # Ability toggle messages
 infinity-enabled: "&bInfinity has been enabled."
 infinity-disabled: "&cInfinity has been disabled."
+
+# Purple ability messages
+purple-saturation-empty: "&cKhông đủ saturation để hoàn thành Purple!"

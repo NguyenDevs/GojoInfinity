@@ -3,41 +3,72 @@ package com.NguyenDevs.limitless.ability;
 import com.NguyenDevs.limitless.Limitless;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
+import com.NguyenDevs.limitless.manager.InfinityEntityManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class InfinityAbility {
 
+    public enum InfinityState {
+        DISABLED,
+        IDLE,
+        ACTIVATED,
+        COOLDOWN
+    }
+
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
+    private final InfinityEntityManager entityManager;
+
     private final Map<UUID, VelocitySnapshot> velocitySnapshots = new HashMap<>();
     private final Map<UUID, Long> lastSoundTime = new HashMap<>();
     private final Map<UUID, Double> partialHunger = new HashMap<>();
     private final Map<UUID, Boolean> wasAboveThreshold = new HashMap<>();
+    private final Map<UUID, InfinityState> playerStates = new HashMap<>();
+    private final Set<UUID> aiDisabledMobs = new HashSet<>();
 
-    public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public InfinityAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager,
+            InfinityEntityManager entityManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
+        this.entityManager = entityManager;
+    }
+
+    public InfinityState getState(UUID playerId) {
+        return playerStates.getOrDefault(playerId, InfinityState.DISABLED);
     }
 
     public void startTask() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
+
+                if (!player.hasPermission("limitless.ability.infinity")) {
+                    playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
+                    continue;
+                }
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
                     apply(player);
+                } else {
+                    playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
                 }
             }
             cleanup();
@@ -51,6 +82,45 @@ public class InfinityAbility {
         });
         partialHunger.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
         wasAboveThreshold.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
+        playerStates.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
+    }
+
+    public void onConfigReload() {
+        Iterator<Map.Entry<UUID, VelocitySnapshot>> iterator = velocitySnapshots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, VelocitySnapshot> entry = iterator.next();
+            Entity ent = Bukkit.getEntity(entry.getKey());
+
+            if (ent == null || !ent.isValid()) {
+                iterator.remove();
+                continue;
+            }
+
+            boolean shouldBeAffected = false;
+
+            if (ent instanceof org.bukkit.entity.FallingBlock) {
+                shouldBeAffected = configManager.isInfinityBlockFallingBlocks()
+                        && entityManager.isAffectedFallingBlock(ent);
+            } else if (entityManager.isAffectedProjectile(ent)) {
+                shouldBeAffected = configManager.isInfinityBlockProjectiles();
+            } else if (ent instanceof LivingEntity || ent instanceof TNTPrimed) {
+                shouldBeAffected = true;
+            }
+
+            if (!shouldBeAffected) {
+                if (aiDisabledMobs.contains(entry.getKey())) {
+                    if (ent instanceof Mob) {
+                        ((Mob) ent).setAI(true);
+                    }
+                    aiDisabledMobs.remove(entry.getKey());
+                }
+
+                ent.setGravity(entry.getValue().originalGravity);
+                ent.setVelocity(entry.getValue().capturedVelocity);
+                iterator.remove();
+            }
+        }
+        plugin.getLogger().info("Cleared entity tracking cache after config reload.");
     }
 
     public void apply(Player player) {
@@ -62,6 +132,7 @@ public class InfinityAbility {
             if (previouslyAbove) {
                 player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.1f, 0.5f);
             }
+            playerStates.put(player.getUniqueId(), InfinityState.DISABLED);
             return;
         }
 
@@ -75,15 +146,12 @@ public class InfinityAbility {
             if (entity == player)
                 continue;
 
-            if (entity instanceof LivingEntity || entity instanceof Projectile || entity instanceof TNTPrimed
+            if (entity instanceof LivingEntity || entity instanceof TNTPrimed
+                    || (configManager.isInfinityBlockProjectiles()
+                    && entityManager.isAffectedProjectile(entity))
                     || (configManager.isInfinityBlockFallingBlocks()
-                            && entity instanceof org.bukkit.entity.FallingBlock)) {
-                if (entity instanceof Projectile) {
-                    Projectile projectile = (Projectile) entity;
-                    if (projectile.getShooter() != null && projectile.getShooter().equals(player)) {
-                        continue;
-                    }
-                }
+                    && entity instanceof org.bukkit.entity.FallingBlock
+                    && entityManager.isAffectedFallingBlock(entity))) {
                 double distance = entity.getLocation().distance(player.getLocation());
                 UUID entityId = entity.getUniqueId();
                 Vector currentVel = entity.getVelocity();
@@ -105,17 +173,22 @@ public class InfinityAbility {
                     if (distance > snapshot.lastDistance && distance > radius * 0.7) {
                         shouldCapture = true;
                     }
+
+                    if (entity instanceof LivingEntity && isOnGround && !snapshot.wasOnGround) {
+                        shouldCapture = true;
+                    }
                 }
 
                 if (shouldCapture) {
                     snapshot = new VelocitySnapshot(
                             currentVel.clone(),
                             distance,
-                            System.currentTimeMillis());
+                            System.currentTimeMillis(),
+                            isOnGround,
+                            entity.hasGravity());
                     velocitySnapshots.put(entityId, snapshot);
                 }
 
-                Vector originalVelocity = snapshot.capturedVelocity;
                 double speedMultiplier;
 
                 if (distance <= minDistance) {
@@ -130,15 +203,48 @@ public class InfinityAbility {
                 }
 
                 Vector newVelocity;
+
                 if (entity instanceof org.bukkit.entity.FallingBlock && distance <= minDistance
                         && configManager.isInfinityBlockFallingBlocks()) {
                     newVelocity = new Vector(0, 0, 0);
                     entity.setGravity(false);
+                } else if (entity instanceof Mob
+                        && (entity instanceof Flying || entity instanceof org.bukkit.entity.Phantom)) {
+                    Mob mob = (Mob) entity;
+                    if (distance <= minDistance) {
+                        if (mob.hasAI()) {
+                            mob.setAI(false);
+                            aiDisabledMobs.add(entityId);
+                        }
+                        newVelocity = new Vector(0, 0, 0);
+                        entity.setGravity(false);
+                    } else {
+                        newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier * 0.3);
+                    }
+                } else if (entity instanceof LivingEntity) {
+                    if (distance <= minDistance) {
+                        newVelocity = new Vector(0, 0, 0);
+                    } else {
+                        newVelocity = currentVel.clone();
+                        newVelocity.setX(newVelocity.getX() * speedMultiplier);
+                        newVelocity.setZ(newVelocity.getZ() * speedMultiplier);
+                        if (currentVel.getY() < 0) {
+                            newVelocity.setY(currentVel.getY() * speedMultiplier);
+                        }
+                    }
+                } else if (entityManager.isAffectedProjectile(entity)) {
+                    if (distance <= minDistance) {
+                        newVelocity = new Vector(0, 0, 0);
+                        entity.setGravity(false);
+                    } else {
+                        entity.setGravity(snapshot.originalGravity);
+                        newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier);
+                    }
                 } else {
                     if (entity instanceof org.bukkit.entity.FallingBlock) {
-                        entity.setGravity(true);
+                        entity.setGravity(snapshot.originalGravity);
                     }
-                    newVelocity = originalVelocity.clone().multiply(speedMultiplier);
+                    newVelocity = snapshot.capturedVelocity.clone().multiply(speedMultiplier);
                 }
 
                 if (isOnGround && newVelocity.getY() < 0) {
@@ -149,6 +255,7 @@ public class InfinityAbility {
                 snapshot.lastAppliedVelocity = newVelocity;
                 snapshot.lastDistance = distance;
                 snapshot.lastUpdate = System.currentTimeMillis();
+                snapshot.wasOnGround = isOnGround;
             }
         }
 
@@ -169,37 +276,63 @@ public class InfinityAbility {
                     continue;
                 }
 
+                if (aiDisabledMobs.contains(entry.getKey())) {
+                    if (ent instanceof Mob) {
+                        ((Mob) ent).setAI(true);
+                    }
+                    aiDisabledMobs.remove(entry.getKey());
+                }
+
+                ent.setGravity(entry.getValue().originalGravity);
                 ent.setVelocity(entry.getValue().capturedVelocity);
+
                 iterator.remove();
                 continue;
             }
         }
 
         if (isActive) {
+            playerStates.put(player.getUniqueId(), InfinityState.ACTIVATED);
             long now = System.currentTimeMillis();
             if (!lastSoundTime.containsKey(player.getUniqueId())
                     || now - lastSoundTime.get(player.getUniqueId()) > 2000) {
-                Sound sound = Math.random() < 0.5 ? Sound.BLOCK_CONDUIT_AMBIENT : Sound.BLOCK_CONDUIT_AMBIENT_SHORT;
-                player.playSound(player.getLocation(), sound, 3.0f, 1.0f);
+                Sound sound;
+                float pitch = 1.0f;
+                double rand = Math.random();
+                if (rand < 0.33) {
+                    sound = Sound.BLOCK_CONDUIT_AMBIENT;
+                } else if (rand < 0.66) {
+                    sound = Sound.BLOCK_CONDUIT_AMBIENT_SHORT;
+                } else {
+                    sound = Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS;
+                    float[] pitches = { 0.2f, 0.5f, 0.7f };
+                    pitch = pitches[(int) (Math.random() * pitches.length)];
+                }
+                player.playSound(player.getLocation(), sound, 3.0f, pitch);
                 lastSoundTime.put(player.getUniqueId(), now);
             }
+        } else {
+            playerStates.put(player.getUniqueId(), InfinityState.IDLE);
         }
 
         if (configManager.isInfinityBlockFallDamage()) {
-            if (player.getFallDistance() > 3.0 && !player.isOnGround()) {
-                if (player.getLocation().getBlock().getRelative(0, -1, 0).getType().isSolid() ||
-                        player.getLocation().getBlock().getRelative(0, -2, 0).getType().isSolid() ||
-                        player.getLocation().getBlock().getRelative(0, -3, 0).getType().isSolid()) {
-                    Vector vel = player.getVelocity();
-                    if (vel.getY() < -0.2) {
-                        vel.setY(Math.max(vel.getY() * 0.1, -0.2));
-                        player.setVelocity(vel);
+            if (player.getFallDistance() > 3.0 && !player.isOnGround() && player.getVelocity().getY() < -0.5) {
+                boolean groundNearby = false;
+                for (int y = 1; y <= 8; y++) {
+                    if (player.getLocation().getBlock().getRelative(0, -y, 0).getType().isSolid()) {
+                        groundNearby = true;
+                        break;
                     }
+                }
+                if (groundNearby) {
+                    player.addPotionEffect(
+                            new PotionEffect(PotionEffectType.SLOW_FALLING, 60, 24, false, false, false));
                 }
             }
         }
-        if (configManager.isInfinityDrainSaturation()) {
-            if (player.isOp() || player.hasPermission("limitless.use.infinity.bypasssaturation")
+
+        if (configManager.isInfinityDrainSaturation() && isActive) {
+            if (player.isOp() || player.hasPermission("limitless.ability.infinity.bypasssaturation")
                     || player.getGameMode() == org.bukkit.GameMode.CREATIVE) {
                 return;
             }
@@ -236,13 +369,18 @@ public class InfinityAbility {
         double entryDistance;
         double lastDistance;
         long lastUpdate;
+        boolean wasOnGround;
+        boolean originalGravity;
 
-        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp) {
+        VelocitySnapshot(Vector capturedVelocity, double entryDistance, long timestamp, boolean wasOnGround,
+                boolean originalGravity) {
             this.capturedVelocity = capturedVelocity;
             this.entryDistance = entryDistance;
             this.lastDistance = entryDistance;
             this.lastUpdate = timestamp;
             this.lastAppliedVelocity = capturedVelocity;
+            this.wasOnGround = wasOnGround;
+            this.originalGravity = originalGravity;
         }
     }
 }

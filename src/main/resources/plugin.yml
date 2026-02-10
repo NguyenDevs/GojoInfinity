@@ -4,27 +4,37 @@ main: com.NguyenDevs.limitless.Limitless
 api-version: '1.21'
 authors: [NguyenDevs]
 description: A plugin that adds Gojo Satoru's Limitless ability.
+softdepend:
+  - PlaceholderAPI
 
 commands:
   limitless:
     description: Main command for Limitless
     aliases: [lm]
     usage: /<command> [reload]
-    permission: limitless.admin
 
 permissions:
+  limitless.admin:
+    description: Allows administration of the plugin (reload)
+    default: op
   limitless.use:
+    description: Allows opening the Limitless GUI
+    default: true
+  limitless.ability.*:
     description: Allows usage of all Limitless abilities
     default: op
     children:
-      limitless.use.purple: true
-      limitless.use.infinity: true
-  limitless.use.purple:
+      limitless.ability.purple: true
+      limitless.ability.infinity: true
+  limitless.ability.purple:
     description: Allows usage of Purple ability
     default: op
-  limitless.use.infinity:
+  limitless.ability.infinity:
     description: Allows usage of Infinity ability
     default: op
-  limitless.admin:
-    description: Allows administration of the plugin
+  limitless.ability.purple.bypasssaturation:
+    description: Bypass saturation cost for Purple ability
+    default: op
+  limitless.ability.infinity.bypasssaturation:
+    description: Bypass saturation cost for Infinity ability
     default: op

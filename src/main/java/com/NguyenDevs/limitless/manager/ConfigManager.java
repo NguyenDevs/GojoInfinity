@@ -143,6 +143,18 @@ public class ConfigManager {
         return plugin.getConfig().getDouble("purple.recoil", 0.5);
     }
 
+    public boolean isPurpleImpactMelt() {
+        return plugin.getConfig().getBoolean("purple.impact-melt", true);
+    }
+
+    public boolean isPurpleDrainSaturation() {
+        return plugin.getConfig().getBoolean("purple.drain-saturation", true);
+    }
+
+    public double getPurpleSaturationCost() {
+        return plugin.getConfig().getDouble("purple.saturation-cost", 8);
+    }
+
     public double getInfinityRadius() {
         return plugin.getConfig().getDouble("infinity.radius", 6.0);
     }
@@ -167,6 +179,14 @@ public class ConfigManager {
         return plugin.getConfig().getBoolean("infinity.block-falling-blocks", true);
     }
 
+    public boolean isInfinityBlockProjectiles() {
+        return plugin.getConfig().getBoolean("infinity.block-projectiles", true);
+    }
+
+    public double getInfinityProjectileSmoothFactor() {
+        return plugin.getConfig().getDouble("infinity.projectile-smooth-factor", 0.1);
+    }
+
     public boolean isInfinityDrainSaturation() {
         return plugin.getConfig().getBoolean("infinity.drain-saturation", true);
     }
@@ -176,7 +196,17 @@ public class ConfigManager {
     }
 
     public int getInfinitySaturationThreshold() {
-        return plugin.getConfig().getInt("infinity.saturation-threshold", 1);
+        return plugin.getConfig().getInt("infinity.saturation-threshold", 5);
+    }
+
+    public String getPlaceholderInfinityState(String state) {
+        String text = plugin.getConfig().getString("placeholders.infinity." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
+    public String getPlaceholderPurpleState(String state) {
+        String text = plugin.getConfig().getString("placeholders.purple." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
     }
 
 }

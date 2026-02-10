@@ -1,0 +1,26 @@
+# Projectiles Configuration
+# List of projectile entities that can be affected by Infinity ability
+# Compatible with Minecraft 1.21+
+# Add or remove projectiles as needed
+
+projectiles:
+  - ARROW
+  - BREEZE_WIND_CHARGE
+  - DRAGON_FIREBALL
+  - EGG
+  - ENDER_PEARL
+  - EXPERIENCE_BOTTLE
+  - EYE_OF_ENDER
+  - FIREBALL
+  - FIREWORK_ROCKET
+  - FISHING_BOBBER
+  - LINGERING_POTION
+  - LLAMA_SPIT
+  - SHULKER_BULLET
+  - SMALL_FIREBALL
+  - SNOWBALL
+  - SPECTRAL_ARROW
+  - SPLASH_POTION
+  - TRIDENT
+  - WIND_CHARGE
+  - WITHER_SKULL

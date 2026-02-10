@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EquipmentSlot;
@@ -27,6 +28,25 @@ public class LimitlessListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+
+        if (!configManager.isWorldEnabled(player.getWorld().getName())) {
+            return;
+        }
+
+        if (!player.hasPermission("limitless.use")) {
+            return;
+        }
+
+        if (player.hasPermission("limitless.ability.infinity")) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
+                player.sendMessage(configManager.getMessage("infinity-enabled"));
+            }
+        }
+    }
+
+    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (!canUseAbilities(player))
@@ -41,9 +61,9 @@ public class LimitlessListener implements Listener {
         boolean isShift = player.isSneaking();
         String trigger = "";
 
-        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+        if (action == Action.LEFT_CLICK_AIR) {
             trigger = isShift ? "SHIFT_LEFT" : "LEFT_CLICK";
-        } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+        } else if (action == Action.RIGHT_CLICK_AIR) {
             trigger = isShift ? "SHIFT_RIGHT" : "RIGHT_CLICK";
         }
 
@@ -55,7 +75,7 @@ public class LimitlessListener implements Listener {
     private void checkAndActivate(Player player, String trigger) {
         if (configManager.getPurpleTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")
-                    && player.hasPermission("limitless.use.purple")) {
+                    && player.hasPermission("limitless.ability.purple")) {
                 purpleAbility.activate(player);
             }
         }
@@ -66,6 +86,10 @@ public class LimitlessListener implements Listener {
         if (!(event.getEntity() instanceof Player))
             return;
         Player player = (Player) event.getEntity();
+
+        if (!player.hasPermission("limitless.ability.infinity")) {
+            return;
+        }
 
         if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
             boolean isExplosion = event.getCause() == DamageCause.BLOCK_EXPLOSION

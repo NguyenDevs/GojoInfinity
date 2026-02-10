@@ -1,50 +1,53 @@
-# ==============================================================================
-#                        GojoInfinity Configuration
-# ==============================================================================
-# This configuration file controls the core mechanics of Gojo Satoru's abilities.
-# Adjust these values to balance the power level for your server.
-# ==============================================================================
+# Limitless Configuration
 
-# ------------------------------------------------------------------------------
-# World Settings
-# ------------------------------------------------------------------------------
-# List of worlds where Gojo's abilities are DISABLED
-# Add world names here to prevent ability usage in specific dimensions
+# Worlds where abilities are disabled
 disabled-worlds:
   - example
   - example_nether
   - example_the_end
 
-# ------------------------------------------------------------------------------
-# Hollow Purple (Murasaki) - Destructive Technique
-# ------------------------------------------------------------------------------
-# Ultimate technique combining Red and Blue
-# Creates a devastating projectile that obliterates everything in its path
+# Hollow Purple - Destructive projectile combining Red and Blue
 purple:
-  trigger: SHIFT_LEFT
-  charge-time: 3.5
-  speed: 2.0
-  radius: 8.0
-  range: 150.0
-  damage: 1000.0
-  drop-blocks: false
-  hold: true
-  hold-time: 10.0
-  cooldown: 15.0
-  recoil: 0.5
+  trigger: SHIFT_LEFT        # SHIFT_LEFT, SHIFT_RIGHT, LEFT, RIGHT
+  charge-time: 3.5           # Seconds to charge
+  speed: 2.0                 # Projectile speed
+  radius: 8.0                # Destruction radius
+  range: 150.0               # Max travel distance
+  damage: 1000.0             # Damage to entities
+  drop-blocks: false         # Drop destroyed blocks as items
+  impact-melt: true          # Melt blocks in the hole
+  hold: true                 # Allow holding charge before firing
+  hold-time: 10.0            # Max hold duration (seconds)
+  cooldown: 15.0             # Cooldown after use (seconds)
+  recoil: 0.5                # Knockback when firing
+  drain-saturation: true     # Drain saturation during charge
+  saturation-cost: 8         # Total saturation cost for full charge
 
-# ------------------------------------------------------------------------------
-# Infinity (Mugen) - Neutral Limitless
-# ------------------------------------------------------------------------------
-# Creates an infinite space between the user and incoming threats
-# Slows down entities and projectiles as they approach
+# Infinity - Slows entities/projectiles approaching the user
 infinity:
-  radius: 10.0
-  min-speed: 0.0
-  min-distance: 2.5
-  block-explosion: true
-  block-fall-damage: true
-  block-falling-blocks: true
-  drain-saturation: true
-  saturation-cost: 0.2 # Cost per second
-  saturation-threshold: 6 # Disable if hunger is below this
+  radius: 10.0               # Effect radius
+  min-speed: 0.0             # Speed at closest distance (0 = stop)
+  min-distance: 2.5          # Distance where entities stop
+  block-explosion: true      # Block explosion damage
+  block-fall-damage: true    # Block fall damage
+  block-falling-blocks: true # Stop falling blocks
+  block-projectiles: true    # Stop projectiles
+  drain-saturation: true     # Drain saturation when active
+  saturation-cost: 0.2       # Saturation cost per second
+  saturation-threshold: 6    # Disable if hunger below this
+
+# PlaceholderAPI - Customize state display text
+# Placeholders: %limitless_infinity_state%, %limitless_purple_state%
+placeholders:
+  infinity:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    activated: "&a⬤ Activated"
+    cooldown: "&7⬤ Cooldown"
+  purple:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    charging: "&b⬤ Charging"
+    holding: "&d⬤ Holding"
+    discharge: "&5⬤ Discharge"
+    cooldown: "&7⬤ Cooldown"
