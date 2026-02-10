@@ -31,6 +31,7 @@ infinity:
   block-explosion: true      # Block explosion damage
   block-fall-damage: true    # Block fall damage
   block-falling-blocks: true # Stop falling blocks
+  block-projectiles: true    # Stop projectiles
   drain-saturation: true     # Drain saturation when active
   saturation-cost: 0.2       # Saturation cost per second
   saturation-threshold: 6    # Disable if hunger below this

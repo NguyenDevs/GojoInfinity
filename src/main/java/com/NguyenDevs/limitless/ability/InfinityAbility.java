@@ -99,9 +99,10 @@ public class InfinityAbility {
             boolean shouldBeAffected = false;
 
             if (ent instanceof org.bukkit.entity.FallingBlock) {
-                shouldBeAffected = entityManager.isAffectedFallingBlock(ent);
+                shouldBeAffected = configManager.isInfinityBlockFallingBlocks()
+                        && entityManager.isAffectedFallingBlock(ent);
             } else if (entityManager.isAffectedProjectile(ent)) {
-                shouldBeAffected = true;
+                shouldBeAffected = configManager.isInfinityBlockProjectiles();
             } else if (ent instanceof LivingEntity || ent instanceof TNTPrimed) {
                 shouldBeAffected = true;
             }
@@ -146,10 +147,11 @@ public class InfinityAbility {
                 continue;
 
             if (entity instanceof LivingEntity || entity instanceof TNTPrimed
-                    || entityManager.isAffectedProjectile(entity)
+                    || (configManager.isInfinityBlockProjectiles()
+                    && entityManager.isAffectedProjectile(entity))
                     || (configManager.isInfinityBlockFallingBlocks()
-                            && entity instanceof org.bukkit.entity.FallingBlock
-                            && entityManager.isAffectedFallingBlock(entity))) {
+                    && entity instanceof org.bukkit.entity.FallingBlock
+                    && entityManager.isAffectedFallingBlock(entity))) {
                 double distance = entity.getLocation().distance(player.getLocation());
                 UUID entityId = entity.getUniqueId();
                 Vector currentVel = entity.getVelocity();

@@ -42,6 +42,7 @@ public class InfinityEntityManager {
         loadProjectilesConfig(blocksFolder);
     }
 
+
     private void loadBlocksConfig(File folder) {
         blocksFile = new File(folder, "blocks.yml");
         if (!blocksFile.exists()) {
@@ -101,8 +102,7 @@ public class InfinityEntityManager {
                 plugin.getLogger().warning("Invalid material in blocks.yml: " + blockName);
             }
         }
-        plugin.getLogger().info(
-                "Loaded " + affectedFallingBlocks.size() + " falling blocks");
+        plugin.getLogger().info("Loaded " + affectedFallingBlocks.size() + " falling blocks");
     }
 
     private void loadProjectiles() {
@@ -116,8 +116,7 @@ public class InfinityEntityManager {
                 plugin.getLogger().warning("Invalid entity type in projectiles.yml: " + projectileName);
             }
         }
-        plugin.getLogger()
-                .info("Loaded " + affectedProjectiles.size() + " projectiles");
+        plugin.getLogger().info("Loaded " + affectedProjectiles.size() + " projectiles");
     }
 
     public void reload() {
