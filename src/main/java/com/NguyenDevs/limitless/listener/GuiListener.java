@@ -44,6 +44,12 @@ public class GuiListener implements Listener {
 
             abilityToToggle = "infinity";
         }
+        else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 6)) {
+            abilityToToggle = "blue";
+        }
+        else if (slot == configManager.getGuiConfig().getInt("items.red.slot", 8)) {
+            abilityToToggle = "red";
+        }
 
         if (abilityToToggle != null) {
             String permission = "limitless.use." + abilityToToggle;

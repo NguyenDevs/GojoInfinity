@@ -16,7 +16,6 @@ items:
       - "&7Status: %status%"
       - ""
       - "&eClick to toggle"
-
   infinity:
     slot: 2
     material: NETHER_STAR
@@ -30,6 +29,31 @@ items:
       - "&7Status: %status%"
       - ""
       - "&eClick to toggle"
-
+  blue:
+    slot: 6
+    material: LIGHT_BLUE_DYE
+    name: "&bBlue (Ao)"
+    lore:
+      - "&7Attraction Technique"
+      - ""
+      - "&7Pulls entities to a point"
+      - "&7or holds them in place."
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
+    red:
+      slot: 8
+      material: RED_DYE
+      name: "&cRed (Aka)"
+      lore:
+        - "&7Repulsion Technique"
+        - ""
+        - "&7Pushes entities away from"
+        - "&7you or a specific target."
+        - ""
+        - "&7Status: %status%"
+        - ""
+        - "&eClick to toggle"
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"

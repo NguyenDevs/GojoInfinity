@@ -1,7 +1,9 @@
 package com.NguyenDevs.limitless;
 
+import com.NguyenDevs.limitless.ability.BlueAbility;
 import com.NguyenDevs.limitless.ability.PurpleAbility;
 import com.NguyenDevs.limitless.ability.InfinityAbility;
+import com.NguyenDevs.limitless.ability.RedAbility;
 import com.NguyenDevs.limitless.command.LimitlessCommand;
 import com.NguyenDevs.limitless.gui.LimitlessGUI;
 import com.NguyenDevs.limitless.listener.LimitlessListener;
@@ -28,6 +30,8 @@ public final class Limitless extends JavaPlugin {
         private AbilityToggleManager toggleManager;
         private LimitlessGUI limitlessGUI;
         private PurpleAbility purpleAbility;
+        private BlueAbility blueAbility;
+        private RedAbility redAbility;
         private InfinityAbility infinityAbility;
         private InfinityEntityManager infinityEntityManager;
 
@@ -44,6 +48,8 @@ public final class Limitless extends JavaPlugin {
 
                 this.purpleAbility = new PurpleAbility(this, configManager, toggleManager);
                 this.infinityAbility = new InfinityAbility(this, configManager, toggleManager, infinityEntityManager);
+                this.blueAbility = new BlueAbility(this, configManager, toggleManager);
+                this.redAbility = new RedAbility(this, configManager, toggleManager);
                 infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
@@ -54,19 +60,19 @@ public final class Limitless extends JavaPlugin {
                 }
 
                 getServer().getPluginManager()
-                                .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility),
-                                                this);
+                        .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility, blueAbility, redAbility),
+                                this);
                 getServer().getPluginManager().registerEvents(
                                 new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility).register();
+                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility, blueAbility, redAbility).register();
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
-                                        "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
+                                "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
                 } else {
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
-                                        "&d[&5Limitless&d] &ePlaceholderAPI not found, placeholders disabled."));
+                                "&d[&5Limitless&d] &ePlaceholderAPI not found, placeholders disabled."));
                 }
 
                 printLogo();
@@ -123,5 +129,12 @@ public final class Limitless extends JavaPlugin {
 
         public InfinityEntityManager getInfinityEntityManager() {
                 return infinityEntityManager;
+        }
+        public BlueAbility getBlueAbility() {
+                return blueAbility;
+        }
+
+        public RedAbility getRedAbility() {
+                return redAbility;
         }
 }

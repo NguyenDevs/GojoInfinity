@@ -1,6 +1,8 @@
 package com.NguyenDevs.limitless.listener;
 
+import com.NguyenDevs.limitless.ability.BlueAbility;
 import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.ability.RedAbility;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Material;
@@ -19,13 +21,18 @@ public class LimitlessListener implements Listener {
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
     private final PurpleAbility purpleAbility;
+    private final BlueAbility blueAbility;
+    private final RedAbility redAbility;
 
     public LimitlessListener(ConfigManager configManager, AbilityToggleManager toggleManager,
-            PurpleAbility purpleAbility) {
+                             PurpleAbility purpleAbility, BlueAbility blueAbility, RedAbility redAbility) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
         this.purpleAbility = purpleAbility;
+        this.blueAbility = blueAbility;
+        this.redAbility = redAbility;
     }
+
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -42,6 +49,17 @@ public class LimitlessListener implements Listener {
         if (player.hasPermission("limitless.ability.infinity")) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "infinity")) {
                 player.sendMessage(configManager.getMessage("infinity-enabled"));
+            }
+        }
+        if (player.hasPermission("limitless.ability.blue")) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "blue")) {
+                player.sendMessage(configManager.getMessage("blue-enabled"));
+            }
+        }
+
+        if (player.hasPermission("limitless.ability.red")) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")) {
+                player.sendMessage(configManager.getMessage("red-enabled"));
             }
         }
     }
@@ -73,10 +91,27 @@ public class LimitlessListener implements Listener {
     }
 
     private void checkAndActivate(Player player, String trigger) {
+        // Purple
         if (configManager.getPurpleTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")
                     && player.hasPermission("limitless.ability.purple")) {
                 purpleAbility.activate(player);
+            }
+        }
+
+        // Blue
+        if (configManager.getBlueTrigger().equalsIgnoreCase(trigger)) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "blue")
+                    && player.hasPermission("limitless.ability.blue")) {
+                blueAbility.activate(player);
+            }
+        }
+
+        // Red
+        if (configManager.getRedTrigger().equalsIgnoreCase(trigger)) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")
+                    && player.hasPermission("limitless.ability.red")) {
+                redAbility.activate(player);
             }
         }
     }
