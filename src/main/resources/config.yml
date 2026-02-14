@@ -48,7 +48,7 @@ blue:
   pull-strength: 1.5          # Velocity strength pulling entities
   cooldown: 8.0               # Cooldown in seconds
   drain-saturation: true      # Drain saturation while active
-  saturation-cost: 5.0        # Saturation cost per second
+  saturation-cost: 0.5        # Saturation cost per second
 
 # Red (Repulsion/Aka) - Pushes entities away
 red:
