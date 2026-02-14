@@ -1,5 +1,7 @@
 # Limitless Configuration
 
+update-notify: true
+
 # Worlds where abilities are disabled
 disabled-worlds:
   - example
