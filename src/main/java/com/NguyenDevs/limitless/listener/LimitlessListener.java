@@ -12,9 +12,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EquipmentSlot;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class LimitlessListener implements Listener {
 
@@ -23,6 +28,9 @@ public class LimitlessListener implements Listener {
     private final PurpleAbility purpleAbility;
     private final BlueAbility blueAbility;
     private final RedAbility redAbility;
+
+    private final Map<UUID, Long> lastShiftTime = new HashMap<>();
+    private static final long DOUBLE_SHIFT_THRESHOLD = 300;
 
     public LimitlessListener(ConfigManager configManager, AbilityToggleManager toggleManager,
                              PurpleAbility purpleAbility, BlueAbility blueAbility, RedAbility redAbility) {
@@ -65,6 +73,44 @@ public class LimitlessListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        Player player = event.getPlayer();
+
+        if (!canUseAbilities(player))
+            return;
+
+        if (!event.isSneaking())
+            return;
+
+        UUID playerId = player.getUniqueId();
+        long currentTime = System.currentTimeMillis();
+
+        if (lastShiftTime.containsKey(playerId)) {
+            long timeSinceLastShift = currentTime - lastShiftTime.get(playerId);
+
+            if (timeSinceLastShift <= DOUBLE_SHIFT_THRESHOLD) {
+                checkAndActivate(player, "DOUBLE_SHIFT");
+                lastShiftTime.remove(playerId);
+                return;
+            }
+        }
+
+        lastShiftTime.put(playerId, currentTime);
+
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+                org.bukkit.plugin.java.JavaPlugin.getProvidingPlugin(getClass()),
+                () -> {
+                    if (lastShiftTime.containsKey(playerId) &&
+                            lastShiftTime.get(playerId) == currentTime) {
+                        checkAndActivate(player, "SHIFT");
+                        lastShiftTime.remove(playerId);
+                    }
+                },
+                6L
+        );
+    }
+
+    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (!canUseAbilities(player))
@@ -79,10 +125,8 @@ public class LimitlessListener implements Listener {
         boolean isShift = player.isSneaking();
         String trigger = "";
 
-        if (action == Action.LEFT_CLICK_AIR) {
+        if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
             trigger = isShift ? "SHIFT_LEFT" : "LEFT_CLICK";
-        } else if (action == Action.RIGHT_CLICK_AIR) {
-            trigger = isShift ? "SHIFT_RIGHT" : "RIGHT_CLICK";
         }
 
         if (!trigger.isEmpty()) {
@@ -91,23 +135,23 @@ public class LimitlessListener implements Listener {
     }
 
     private void checkAndActivate(Player player, String trigger) {
-        // Purple
+
         if (configManager.getPurpleTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")
                     && player.hasPermission("limitless.ability.purple")) {
                 purpleAbility.activate(player);
+                return;
             }
         }
 
-        // Blue
         if (configManager.getBlueTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "blue")
                     && player.hasPermission("limitless.ability.blue")) {
                 blueAbility.activate(player);
+                return;
             }
         }
 
-        // Red
         if (configManager.getRedTrigger().equalsIgnoreCase(trigger)) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")
                     && player.hasPermission("limitless.ability.red")) {
