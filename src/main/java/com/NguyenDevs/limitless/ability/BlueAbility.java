@@ -87,8 +87,6 @@ public class BlueAbility {
                     String.format("%.1f", timeLeft / 1000.0)));
             return;
         }
-
-        // Kiểm tra saturation
         final boolean drainSaturation = configManager.isBlueDrainSaturation();
         final boolean canBypassSaturation = player.isOp()
                 || player.hasPermission("limitless.ability.blue.bypasssaturation")
@@ -105,7 +103,6 @@ public class BlueAbility {
             }
         }
 
-        // Kiểm tra xem player có đang nhìn vào entity không
         double maxDistance = configManager.getBlueMaxDistance();
         RayTraceResult rayTrace = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
@@ -115,10 +112,8 @@ public class BlueAbility {
         );
 
         if (rayTrace != null && rayTrace.getHitEntity() != null) {
-            // Mode: Attract specific entity
             attractEntity(player, rayTrace.getHitEntity());
         } else {
-            // Mode: Attract to point
             Location targetLoc = getTargetLocation(player, maxDistance);
             if (targetLoc != null) {
                 attractToPoint(player, targetLoc);
@@ -137,10 +132,10 @@ public class BlueAbility {
         );
 
         if (rayTrace != null && rayTrace.getHitBlock() != null) {
-            return rayTrace.getHitPosition().toLocation(player.getWorld());
+            Location blockLoc = rayTrace.getHitBlock().getLocation();
+            return blockLoc.add(0.5, 1.5, 0.5);
         }
 
-        // Nếu không có block, lấy điểm xa nhất theo hướng nhìn
         return player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(maxDistance));
     }
 
@@ -170,7 +165,6 @@ public class BlueAbility {
                     return;
                 }
 
-                // Drain saturation
                 if (drainSaturation && !canBypassSaturation && ticks % 20 == 0) {
                     float currentSat = player.getSaturation();
                     int currentFood = player.getFoodLevel();
@@ -194,21 +188,17 @@ public class BlueAbility {
                         }
                     }
                 }
-
-                // Spawn particles
-                spawnBlueSphere(targetLoc, radius);
+                spawnBlueSphere(targetLoc, 0.8);
 
                 if (ticks % 10 == 0) {
                     targetLoc.getWorld().playSound(targetLoc, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.5f, 1.8f);
                 }
 
-                // Attract entities
                 for (Entity entity : targetLoc.getWorld().getNearbyEntities(targetLoc, radius * 2, radius * 2, radius * 2)) {
                     if (entity instanceof LivingEntity && entity != player) {
                         double distance = entity.getLocation().distance(targetLoc);
 
                         if (distance <= radius) {
-                            // Gây damage mỗi giây
                             if (ticks % 20 == 0) {
                                 ((LivingEntity) entity).damage(damage, player);
                                 entity.getWorld().spawnParticle(
@@ -216,7 +206,7 @@ public class BlueAbility {
                                         entity.getLocation().add(0, 1, 0),
                                         15,
                                         0.3, 0.5, 0.3,
-                                        new Particle.DustOptions(Color.AQUA, 1.2f)
+                                        new Particle.DustOptions(Color.fromRGB(0, 0, 255), 1.2f)
                                 );
                             }
                         }
@@ -274,8 +264,6 @@ public class BlueAbility {
                     cleanup();
                     return;
                 }
-
-                // Drain saturation
                 if (drainSaturation && !canBypassSaturation && ticks % 20 == 0) {
                     float currentSat = player.getSaturation();
                     int currentFood = player.getFoodLevel();
@@ -300,17 +288,13 @@ public class BlueAbility {
                     }
                 }
 
-                // Tính vị trí cố định trước mặt player
                 Location targetLoc = player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(2.5));
 
-                // Giữ entity tại vị trí
                 target.teleport(targetLoc);
                 target.setVelocity(new Vector(0, 0, 0));
 
-                // Spawn particles xung quanh entity
                 spawnBlueSphere(targetLoc, 1.0);
 
-                // Gây damage mỗi giây
                 if (ticks % 20 == 0 && target instanceof LivingEntity) {
                     ((LivingEntity) target).damage(damage, player);
                 }
@@ -336,9 +320,10 @@ public class BlueAbility {
     }
 
     private void spawnBlueSphere(Location center, double radius) {
-        Particle.DustOptions blueOptions = new Particle.DustOptions(Color.AQUA, 1.5f);
+        Color blueColor = Color.fromRGB(0, 0, 255);
+        Particle.DustOptions blueOptions = new Particle.DustOptions(blueColor, 1.5f);
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 50; i++) {
             double r = radius * Math.cbrt(random.nextDouble());
             double theta = Math.acos(1 - 2 * random.nextDouble());
             double phi = 2 * Math.PI * random.nextDouble();
@@ -356,13 +341,12 @@ public class BlueAbility {
             );
         }
 
-        // Thêm particles xanh sáng
         center.getWorld().spawnParticle(
                 Particle.DOLPHIN,
                 center,
-                5,
+                3,
                 radius / 2, radius / 2, radius / 2,
-                0.1
+                0.05
         );
     }
 
@@ -373,6 +357,7 @@ public class BlueAbility {
         }
         activePlayers.remove(player.getUniqueId());
         pinnedEntities.remove(player.getUniqueId());
+        setCooldown(player);
     }
 
     private void setCooldown(Player player) {
