@@ -1,5 +1,5 @@
 name: Limitless
-version: '1.0.0'
+version: '1.0.1'
 main: com.NguyenDevs.limitless.Limitless
 api-version: '1.21'
 authors: [NguyenDevs]
