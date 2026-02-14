@@ -7,7 +7,7 @@ gui-size: 9
 
 items:
   purple:
-    slot: 4
+    slot: 3
     material: PURPLE_DYE
     name: "&5Hollow Purple (Murasaki)"
     lore:
@@ -17,7 +17,7 @@ items:
       - ""
       - "&eClick to toggle"
   infinity:
-    slot: 2
+    slot: 1
     material: NETHER_STAR
     name: "&bInfinity (Mugen)"
     lore:
@@ -30,7 +30,7 @@ items:
       - ""
       - "&eClick to toggle"
   blue:
-    slot: 6
+    slot: 5
     material: LIGHT_BLUE_DYE
     name: "&bBlue (Ao)"
     lore:
@@ -42,18 +42,18 @@ items:
       - "&7Status: %status%"
       - ""
       - "&eClick to toggle"
-    red:
-      slot: 8
-      material: RED_DYE
-      name: "&cRed (Aka)"
-      lore:
-        - "&7Repulsion Technique"
-        - ""
-        - "&7Pushes entities away from"
-        - "&7you or a specific target."
-        - ""
-        - "&7Status: %status%"
-        - ""
-        - "&eClick to toggle"
+  red:
+    slot: 7
+    material: RED_DYE
+    name: "&cRed (Aka)"
+    lore:
+      - "&7Repulsion Technique"
+      - ""
+      - "&7Pushes entities away from"
+      - "&7you or a specific target."
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"
