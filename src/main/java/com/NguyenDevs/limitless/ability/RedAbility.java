@@ -5,7 +5,6 @@ import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -88,7 +87,6 @@ public class RedAbility {
             return;
         }
 
-        // Kiểm tra saturation
         final boolean drainSaturation = configManager.isRedDrainSaturation();
         final boolean canBypassSaturation = player.isOp()
                 || player.hasPermission("limitless.ability.red.bypasssaturation")
@@ -106,7 +104,6 @@ public class RedAbility {
                 return;
             }
 
-            // Trừ saturation ngay lập tức
             if (currentSaturation >= requiredCost) {
                 player.setSaturation((float) (currentSaturation - requiredCost));
             } else {
@@ -116,7 +113,6 @@ public class RedAbility {
             }
         }
 
-        // Kiểm tra xem player có đang nhìn vào entity không
         double maxDistance = configManager.getRedMaxDistance();
         RayTraceResult rayTrace = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
@@ -126,10 +122,8 @@ public class RedAbility {
         );
 
         if (rayTrace != null && rayTrace.getHitEntity() != null) {
-            // Mode: Repel specific entity
             repelEntity(player, rayTrace.getHitEntity());
         } else {
-            // Mode: Repel area
             repelArea(player);
         }
     }
@@ -139,15 +133,14 @@ public class RedAbility {
 
         final double radius = configManager.getRedRadius();
         final double pushStrength = configManager.getRedPushStrength();
-        final Location center = player.getLocation();
+        final Location center = player.getLocation().clone();
 
         player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 2.0f, 0.5f);
         player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 0.8f);
 
-        // Tạo hiệu ứng nổ đẩy lùi
         new BukkitRunnable() {
             int ticks = 0;
-            final int duration = 10; // 0.5 giây
+            final int duration = 10;
 
             @Override
             public void run() {
@@ -158,24 +151,22 @@ public class RedAbility {
                     return;
                 }
 
-                double currentRadius = radius * ((double) ticks / duration);
+                double progress = (double) ticks / duration;
+                double currentSphereRadius = 2.0 * progress;
 
-                // Spawn particles dạng sóng lan tỏa
-                spawnRedWave(center, currentRadius);
+                spawnRedSphere(center, currentSphereRadius);
 
-                // Đẩy entities
                 for (Entity entity : center.getWorld().getNearbyEntities(center, radius, radius, radius)) {
                     if (entity instanceof LivingEntity && entity != player) {
                         double distance = entity.getLocation().distance(center);
 
-                        if (distance <= currentRadius && distance > 0) {
+                        if (distance <= radius && distance > 0) {
                             Vector direction = entity.getLocation().toVector().subtract(center.toVector()).normalize();
                             double actualPush = pushStrength * (1 - (distance / radius));
                             Vector velocity = direction.multiply(actualPush);
 
                             entity.setVelocity(entity.getVelocity().add(velocity));
 
-                            // Hiệu ứng particles trên entity
                             entity.getWorld().spawnParticle(
                                     Particle.DUST,
                                     entity.getLocation().add(0, 1, 0),
@@ -205,25 +196,21 @@ public class RedAbility {
 
         final double pushStrength = configManager.getRedEntityPushStrength();
         final double impactDamage = configManager.getRedImpactDamage();
-        final Location startLoc = target.getLocation().clone();
 
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 2.0f, 0.8f);
         player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.5f, 0.5f);
 
-        // Đẩy entity
-        Vector direction = target.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
-        Vector velocity = direction.multiply(pushStrength);
-        target.setVelocity(velocity);
+        // Tính hướng đẩy và lưu lại
+        final Vector direction = target.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
-        // Spawn particles ban đầu
         spawnRedBurst(target.getLocation(), 1.5);
 
-        // Track entity để kiểm tra va chạm
         new BukkitRunnable() {
             int ticks = 0;
-            final int maxTicks = 60; // 3 giây
+            final int maxTicks = 60;
             Location lastLoc = target.getLocation().clone();
             double totalDistance = 0;
+            double spiralAngle = 0;
 
             @Override
             public void run() {
@@ -234,24 +221,25 @@ public class RedAbility {
 
                 Location currentLoc = target.getLocation();
 
-                // Spawn trail particles
-                if (ticks % 2 == 0) {
-                    target.getWorld().spawnParticle(
-                            Particle.DUST,
-                            currentLoc.clone().add(0, 1, 0),
-                            5,
-                            0.2, 0.2, 0.2,
-                            new Particle.DustOptions(Color.RED, 1.0f)
-                    );
+                // Đẩy entity theo đường thẳng với lực mạnh hơn
+                target.setVelocity(direction.clone().multiply(pushStrength));
+
+                // Vô hiệu hóa gravity tạm thời để entity bay thẳng
+                if (target instanceof LivingEntity) {
+                    ((LivingEntity) target).setGravity(false);
                 }
 
-                // Kiểm tra va chạm với block
-                Block block = currentLoc.getBlock();
-                Block blockAbove = currentLoc.clone().add(0, 1, 0).getBlock();
+                // Spawn trail particles tại vị trí hiện tại của entity mỗi 2 tick
+                if (ticks % 2 == 0) {
+                    spawnEntityTrail(currentLoc);
+                }
 
+                // Spawn spiral particles xung quanh entity
+                spawnTrailWithSpiral(currentLoc, spiralAngle);
+                spiralAngle += Math.PI / 4;
+
+                // Kiểm tra va chạm với tường
                 boolean hitWall = false;
-
-                // Kiểm tra xung quanh
                 for (int x = -1; x <= 1; x++) {
                     for (int y = -1; y <= 1; y++) {
                         for (int z = -1; z <= 1; z++) {
@@ -266,25 +254,19 @@ public class RedAbility {
                     if (hitWall) break;
                 }
 
-                // Kiểm tra giảm tốc độ đáng kể
                 double distanceMoved = currentLoc.distance(lastLoc);
                 totalDistance += distanceMoved;
 
                 if (hitWall || (ticks > 10 && distanceMoved < 0.1)) {
-                    // Va chạm - gây damage
+                    // Bật lại gravity
                     if (target instanceof LivingEntity) {
+                        ((LivingEntity) target).setGravity(true);
+
+                        // Gây damage dựa trên khoảng cách bay
                         double damageAmount = impactDamage * Math.min(totalDistance / 10.0, 1.5);
                         ((LivingEntity) target).damage(damageAmount, player);
 
                         // Hiệu ứng va chạm
-                        currentLoc.getWorld().spawnParticle(
-                                Particle.EXPLOSION,
-                                currentLoc.clone().add(0, 1, 0),
-                                3,
-                                0.5, 0.5, 0.5,
-                                0.1
-                        );
-
                         currentLoc.getWorld().spawnParticle(
                                 Particle.DUST,
                                 currentLoc.clone().add(0, 1, 0),
@@ -305,6 +287,9 @@ public class RedAbility {
             }
 
             private void cleanup() {
+                if (target.isValid() && target instanceof LivingEntity) {
+                    ((LivingEntity) target).setGravity(true);
+                }
                 trackedEntities.remove(player.getUniqueId());
                 setCooldown(player);
                 this.cancel();
@@ -312,34 +297,88 @@ public class RedAbility {
         }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    private void spawnRedWave(Location center, double radius) {
+    private void spawnRedSphere(Location center, double radius) {
         Particle.DustOptions redOptions = new Particle.DustOptions(Color.RED, 1.5f);
 
-        // Tạo vòng tròn nằm ngang
-        int particles = (int) (radius * 20);
-        for (int i = 0; i < particles; i++) {
-            double angle = (2 * Math.PI * i) / particles;
-            double x = radius * Math.cos(angle);
-            double z = radius * Math.sin(angle);
+        for (int i = 0; i < 100; i++) {
+            double r = radius * Math.cbrt(random.nextDouble());
+            double theta = Math.acos(1 - 2 * random.nextDouble());
+            double phi = 2 * Math.PI * random.nextDouble();
 
-            Location particleLoc = center.clone().add(x, 0.5, z);
+            double x = r * Math.sin(theta) * Math.cos(phi);
+            double y = r * Math.sin(theta) * Math.sin(phi);
+            double z = r * Math.cos(theta);
+
             center.getWorld().spawnParticle(
                     Particle.DUST,
-                    particleLoc,
+                    center.clone().add(x, y, z),
                     1,
                     0, 0, 0,
                     redOptions
             );
+        }
+    }
 
-            // Thêm particles bay lên
-            center.getWorld().spawnParticle(
-                    Particle.FLAME,
-                    particleLoc,
+    private void spawnEntityTrail(Location location) {
+        Particle.DustOptions redOptions = new Particle.DustOptions(Color.RED, 1.2f);
+
+        // Spawn particles tại vị trí cũ của entity để tạo trail
+        location.getWorld().spawnParticle(
+                Particle.DUST,
+                location.clone().add(0, 1, 0),
+                5,
+                0.1, 0.1, 0.1,
+                redOptions
+        );
+
+        // Thêm particles nhỏ xung quanh để trail đẹp hơn
+        for (int i = 0; i < 3; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 0.4;
+            double offsetY = (random.nextDouble() - 0.5) * 0.4;
+            double offsetZ = (random.nextDouble() - 0.5) * 0.4;
+
+            location.getWorld().spawnParticle(
+                    Particle.DUST,
+                    location.clone().add(offsetX, 1 + offsetY, offsetZ),
                     1,
-                    0.1, 0.3, 0.1,
-                    0.05
+                    0, 0, 0,
+                    redOptions
             );
         }
+    }
+
+    private void spawnTrailWithSpiral(Location center, double angle) {
+        Particle.DustOptions redOptions = new Particle.DustOptions(Color.RED, 1.5f);
+
+        center.getWorld().spawnParticle(
+                Particle.DUST,
+                center.clone().add(0, 1, 0),
+                3,
+                0.05, 0.05, 0.05,
+                redOptions
+        );
+
+        double spiralRadius = 0.6;
+
+        double x1 = spiralRadius * Math.cos(angle);
+        double z1 = spiralRadius * Math.sin(angle);
+        center.getWorld().spawnParticle(
+                Particle.DUST,
+                center.clone().add(x1, 1, z1),
+                2,
+                0.02, 0.02, 0.02,
+                redOptions
+        );
+
+        double x2 = spiralRadius * Math.cos(angle + Math.PI);
+        double z2 = spiralRadius * Math.sin(angle + Math.PI);
+        center.getWorld().spawnParticle(
+                Particle.DUST,
+                center.clone().add(x2, 1, z2),
+                2,
+                0.02, 0.02, 0.02,
+                redOptions
+        );
     }
 
     private void spawnRedBurst(Location center, double radius) {
@@ -362,14 +401,6 @@ public class RedAbility {
                     redOptions
             );
         }
-
-        center.getWorld().spawnParticle(
-                Particle.FLAME,
-                center,
-                20,
-                radius / 2, radius / 2, radius / 2,
-                0.1
-        );
     }
 
     private void setCooldown(Player player) {
