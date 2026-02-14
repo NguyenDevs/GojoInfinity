@@ -12,6 +12,7 @@ import com.NguyenDevs.limitless.manager.InfinityEntityManager;
 
 import com.NguyenDevs.limitless.placeholder.LimitlessExpansion;
 import com.NguyenDevs.limitless.util.ColorUtils;
+import com.NguyenDevs.limitless.util.SpigotPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -69,6 +70,7 @@ public final class Limitless extends JavaPlugin {
                 }
 
                 printLogo();
+                new SpigotPlugin(717363, this).checkForUpdate();
 
                 Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
