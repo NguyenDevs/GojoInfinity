@@ -76,7 +76,7 @@ public final class Limitless extends JavaPlugin {
                 }
 
                 printLogo();
-                new SpigotPlugin(717363, this).checkForUpdate();
+                new SpigotPlugin(132493, this).checkForUpdate();
 
                 Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                 "&d[&5Limitless&d] &aLimitless plugin enabled successfully!"));
