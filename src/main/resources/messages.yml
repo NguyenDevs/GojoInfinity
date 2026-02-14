@@ -14,10 +14,26 @@ world-disabled: "&cGojo's abilities are disabled in this world."
 
 # Cooldown messages
 cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
+cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
+cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
 
 # Ability toggle messages
 infinity-enabled: "&bInfinity has been enabled."
 infinity-disabled: "&cInfinity has been disabled."
 
-# Purple ability messages
-purple-saturation-empty: "&cKhông đủ saturation để hoàn thành Purple!"
+purple-enabled: "&5Purple (Murasaki) has been enabled."
+purple-disabled: "&7Purple (Murasaki) has been disabled."
+
+blue-enabled: "&bBlue (Ao) has been enabled."
+blue-disabled: "&cBlue (Ao) has been disabled."
+
+red-enabled: "&cRed (Aka) has been enabled."
+red-disabled: "&7Red (Aka) has been disabled."
+
+# Saturation messages
+purple-saturation-empty: "&cNot enough saturation to complete Purple!"
+blue-saturation-empty: "&cNot enough saturation to use Blue!"
+red-saturation-empty: "&cNot enough saturation to use Red!"
+
+# Other messages
+blue-no-target: "&cNo target found!"

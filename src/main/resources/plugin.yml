@@ -1,5 +1,5 @@
 name: Limitless
-version: '1.0.0'
+version: '1.0.1'
 main: com.NguyenDevs.limitless.Limitless
 api-version: '1.21'
 authors: [NguyenDevs]
@@ -26,15 +26,29 @@ permissions:
     children:
       limitless.ability.purple: true
       limitless.ability.infinity: true
+      limitless.ability.blue: true
+      limitless.ability.red: true
   limitless.ability.purple:
     description: Allows usage of Purple ability
     default: op
   limitless.ability.infinity:
     description: Allows usage of Infinity ability
     default: op
+  limitless.ability.blue:
+    description: Allows usage of Blue ability
+    default: op
+  limitless.ability.red:
+    description: Allows usage of Red ability
+    default: op
   limitless.ability.purple.bypasssaturation:
     description: Bypass saturation cost for Purple ability
     default: op
   limitless.ability.infinity.bypasssaturation:
     description: Bypass saturation cost for Infinity ability
+    default: op
+  limitless.ability.blue.bypasssaturation:
+    description: Bypass saturation cost for Blue ability
+    default: op
+  limitless.ability.red.bypasssaturation:
+    description: Bypass saturation cost for Red ability
     default: op

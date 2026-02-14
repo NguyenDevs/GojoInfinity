@@ -199,6 +199,93 @@ public class ConfigManager {
         return plugin.getConfig().getInt("infinity.saturation-threshold", 5);
     }
 
+    public String getBlueTrigger() {
+        return plugin.getConfig().getString("blue.trigger", "SHIFT_RIGHT");
+    }
+
+    public double getBlueMaxDistance() {
+        return plugin.getConfig().getDouble("blue.max-distance", 300.0);
+    }
+
+    public double getBlueRadius() {
+        return plugin.getConfig().getDouble("blue.radius", 8.0);
+    }
+
+    public double getBlueDamage() {
+        return plugin.getConfig().getDouble("blue.damage", 2.0);
+    }
+
+    public int getBlueDuration() {
+        return (int) (plugin.getConfig().getDouble("blue.duration", 10.0) * 20);
+    }
+
+    public double getBluePullStrength() {
+        return plugin.getConfig().getDouble("blue.pull-strength", 1.5);
+    }
+
+    public long getBlueCooldown() {
+        return (long) (plugin.getConfig().getDouble("blue.cooldown", 8.0) * 1000);
+    }
+
+    public boolean isBlueDrainSaturation() {
+        return plugin.getConfig().getBoolean("blue.drain-saturation", true);
+    }
+
+    public double getBlueSaturationCost() {
+        return plugin.getConfig().getDouble("blue.saturation-cost", 5.0);
+    }
+
+    // ============ RED ABILITY CONFIGURATION ============
+
+    public String getRedTrigger() {
+        return plugin.getConfig().getString("red.trigger", "RIGHT_CLICK");
+    }
+
+    public double getRedMaxDistance() {
+        return plugin.getConfig().getDouble("red.max-distance", 30.0);
+    }
+
+    public double getRedRadius() {
+        return plugin.getConfig().getDouble("red.radius", 10.0);
+    }
+
+    public double getRedPushStrength() {
+        return plugin.getConfig().getDouble("red.push-strength", 3.0);
+    }
+
+    public double getRedEntityPushStrength() {
+        return plugin.getConfig().getDouble("red.entity-push-strength", 5.0);
+    }
+
+    public double getRedImpactDamage() {
+        return plugin.getConfig().getDouble("red.impact-damage", 20.0);
+    }
+
+    public long getRedCooldown() {
+        return (long) (plugin.getConfig().getDouble("red.cooldown", 5.0) * 1000);
+    }
+
+    public boolean isRedDrainSaturation() {
+        return plugin.getConfig().getBoolean("red.drain-saturation", true);
+    }
+
+    public double getRedSaturationCost() {
+        return plugin.getConfig().getDouble("red.saturation-cost", 3.0);
+    }
+
+    // ============ PLACEHOLDERS ============
+
+    public String getPlaceholderBlueState(String state) {
+        String text = plugin.getConfig().getString("placeholders.blue." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
+    public String getPlaceholderRedState(String state) {
+        String text = plugin.getConfig().getString("placeholders.red." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
+
     public String getPlaceholderInfinityState(String state) {
         String text = plugin.getConfig().getString("placeholders.infinity." + state, "&7Unknown");
         return ColorUtils.colorize(text);

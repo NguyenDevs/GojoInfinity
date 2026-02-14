@@ -8,9 +8,22 @@ disabled-worlds:
   - example_nether
   - example_the_end
 
+# Infinity - Slows entities/projectiles approaching the user
+infinity:
+  radius: 10.0               # Effect radius
+  min-speed: 0.0             # Speed at closest distance (0 = stop)
+  min-distance: 2.5          # Distance where entities stop
+  block-explosion: true      # Block explosion damage
+  block-fall-damage: true    # Block fall damage
+  block-falling-blocks: true # Stop falling blocks
+  block-projectiles: true    # Stop projectiles
+  drain-saturation: true     # Drain saturation when active
+  saturation-cost: 0.2       # Saturation cost per second
+  saturation-threshold: 6    # Disable if hunger below this
+
 # Hollow Purple - Destructive projectile combining Red and Blue
 purple:
-  trigger: SHIFT_LEFT        # SHIFT_LEFT, SHIFT_RIGHT, LEFT, RIGHT
+  trigger: SHIFT_LEFT        # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
   charge-time: 3.5           # Seconds to charge
   speed: 2.0                 # Projectile speed
   radius: 8.0                # Destruction radius
@@ -25,21 +38,32 @@ purple:
   drain-saturation: true     # Drain saturation during charge
   saturation-cost: 8         # Total saturation cost for full charge
 
-# Infinity - Slows entities/projectiles approaching the user
-infinity:
-  radius: 10.0               # Effect radius
-  min-speed: 0.0             # Speed at closest distance (0 = stop)
-  min-distance: 2.5          # Distance where entities stop
-  block-explosion: true      # Block explosion damage
-  block-fall-damage: true    # Block fall damage
-  block-falling-blocks: true # Stop falling blocks
-  block-projectiles: true    # Stop projectiles
-  drain-saturation: true     # Drain saturation when active
-  saturation-cost: 0.2       # Saturation cost per second
-  saturation-threshold: 6    # Disable if hunger below this
+# Blue (Attraction/Ao) - Pulls entities to a point or holds them in place
+blue:
+  trigger: LEFT_CLICK        # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
+  max-distance: 300.0        # Max raycast distance for target location
+  radius: 8.0                # Attraction radius (for point mode)
+  damage: 2.0                # Damage per second to entities
+  duration: 10.0             # Duration in seconds
+  pull-strength: 1.5         # Velocity strength pulling entities
+  cooldown: 8.0              # Cooldown in seconds
+  drain-saturation: true     # Drain saturation while active
+  saturation-cost: 0.5       # Saturation cost per second
+
+# Red (Repulsion/Aka) - Pushes entities away
+red:
+  trigger: SHIFT             # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
+  max-distance: 30.0         # Max distance to target specific entity
+  radius: 10.0               # Area repulsion radius
+  push-strength: 6.0         # Push strength for area mode
+  entity-push-strength: 8.0  # Push strength for single entity
+  impact-damage: 20.0        # Damage when entity hits wall
+  cooldown: 5.0              # Cooldown in seconds
+  drain-saturation: true     # Drain saturation on use
+  saturation-cost: 3.0       # Saturation cost per use
 
 # PlaceholderAPI - Customize state display text
-# Placeholders: %limitless_infinity_state%, %limitless_purple_state%
+# Placeholders: %limitless_infinity_state%, %limitless_purple_state%, %limitless_blue_state%, %limitless_red_state%
 placeholders:
   infinity:
     disabled: "&c⬤ Disabled"
@@ -52,4 +76,16 @@ placeholders:
     charging: "&b⬤ Charging"
     holding: "&d⬤ Holding"
     discharge: "&5⬤ Discharge"
+    cooldown: "&7⬤ Cooldown"
+  blue:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    attracting_point: "&b⬤ Attracting (Point)"
+    attracting_entity: "&3⬤ Attracting (Entity)"
+    cooldown: "&7⬤ Cooldown"
+  red:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    repelling_area: "&c⬤ Repelling (Area)"
+    repelling_entity: "&4⬤ Repelling (Entity)"
     cooldown: "&7⬤ Cooldown"
