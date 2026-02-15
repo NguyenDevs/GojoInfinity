@@ -133,7 +133,8 @@ public class BlueAbility {
 
         if (rayTrace != null && rayTrace.getHitBlock() != null) {
             Location blockLoc = rayTrace.getHitBlock().getLocation();
-            return blockLoc.add(0.5, 1.5, 0.5);
+
+            return blockLoc.add(0.5, 1.0, 0.5);
         }
 
         return player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(maxDistance));
@@ -188,7 +189,7 @@ public class BlueAbility {
                         }
                     }
                 }
-                spawnBlueSphere(targetLoc, 0.8);
+                spawnBlueSphere(targetLoc, 0.6);
 
                 if (ticks % 10 == 0) {
                     targetLoc.getWorld().playSound(targetLoc, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.5f, 1.8f);
