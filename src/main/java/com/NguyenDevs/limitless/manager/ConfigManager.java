@@ -94,13 +94,16 @@ public class ConfigManager {
         return ColorUtils.colorize(prefix + msg);
     }
 
+    public String getRawMessage(String key) {
+        String msg = messagesConfig.getString(key);
+        if (msg == null)
+            return key;
+        return ColorUtils.colorize(msg);
+    }
+
     public boolean isWorldEnabled(String worldName) {
         List<String> disabledWorlds = plugin.getConfig().getStringList("disabled-worlds");
         return !disabledWorlds.contains(worldName);
-    }
-
-    public String getPurpleTrigger() {
-        return plugin.getConfig().getString("purple.trigger", "SHIFT_LEFT");
     }
 
     public int getPurpleChargeTime() {
@@ -199,10 +202,6 @@ public class ConfigManager {
         return plugin.getConfig().getInt("infinity.saturation-threshold", 5);
     }
 
-    public String getBlueTrigger() {
-        return plugin.getConfig().getString("blue.trigger", "SHIFT_RIGHT");
-    }
-
     public double getBlueMaxDistance() {
         return plugin.getConfig().getDouble("blue.max-distance", 300.0);
     }
@@ -233,10 +232,6 @@ public class ConfigManager {
 
     public double getBlueSaturationCost() {
         return plugin.getConfig().getDouble("blue.saturation-cost", 5.0);
-    }
-
-    public String getRedTrigger() {
-        return plugin.getConfig().getString("red.trigger", "RIGHT_CLICK");
     }
 
     public double getRedMaxDistance() {
