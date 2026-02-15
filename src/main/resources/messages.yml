@@ -18,6 +18,9 @@ cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
 cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
 cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
 
+# Ability Switch Messages
+ability-switch-blocked: "&cYou cannot switch abilities while using another ability!"
+
 # Ability toggle messages
 infinity-enabled: "&bInfinity has been enabled."
 infinity-disabled: "&cInfinity has been disabled."
@@ -37,14 +40,14 @@ blue-saturation-empty: "&cNot enough saturation to use Blue!"
 red-saturation-empty: "&cNot enough saturation to use Red!"
 
 # Ability Selection Messages
-ability-select-title-red: "&c&lRED"
-ability-select-subtitle-red: "&7Cursed Technique Reversal"
+ability-select-title-red: "<gradient:#FF0000:#FF6666>RED</gradient>"
+ability-select-subtitle-red: "<gradient:#FF4444:#FFAAAA>Cursed Technique Reversal</gradient>"
 
-ability-select-title-blue: "&9&lBLUE"
-ability-select-subtitle-blue: "&7Cursed Technique Lapse"
+ability-select-title-blue: "<gradient:#0080FF:#66B3FF>BLUE</gradient>"
+ability-select-subtitle-blue: "<gradient:#3399FF:#99CCFF>Cursed Technique Lapse</gradient>"
 
-ability-select-title-purple: "&5&lPURPLE"
-ability-select-subtitle-purple: "&7Hollow Technique"
+ability-select-title-purple: "<gradient:#63009E:#B366FF>PURPLE</gradient>"
+ability-select-subtitle-purple: "<gradient:#8800CC:#CC66FF>Hollow Technique</gradient>"
 
 # Other messages
 blue-no-target: "&cNo target found!"

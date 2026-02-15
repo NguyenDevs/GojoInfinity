@@ -117,11 +117,12 @@ public class PurpleAbility {
         final int mergeDuration = configManager.getPurpleChargeTime();
         final boolean hold = configManager.isPurpleHold();
         final int holdTime = configManager.getPurpleHoldTime();
-        final int totalDuration = mergeDuration + holdTime;
 
         chargingPlayers.add(player.getUniqueId());
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, totalDuration, 3, false, false, false));
+        if (mergeDuration > 0) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, mergeDuration, 0, false, false, false));
+        }
 
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
@@ -364,6 +365,7 @@ public class PurpleAbility {
 
     private void startHolding(Player player, Location location, int holdTime) {
         holdingPlayers.add(player.getUniqueId());
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, holdTime, 1, false, false, false));
 
         BukkitRunnable holdTask = new BukkitRunnable() {
             int ticks = 0;
