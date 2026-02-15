@@ -18,6 +18,9 @@ cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
 cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
 cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
 
+# Ability Switch Messages
+ability-switch-blocked: "&cYou cannot switch abilities while using one!"
+
 # Ability toggle messages
 infinity-enabled: "&bInfinity has been enabled."
 infinity-disabled: "&cInfinity has been disabled."

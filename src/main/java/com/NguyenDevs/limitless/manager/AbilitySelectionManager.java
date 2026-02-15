@@ -1,6 +1,9 @@
 package com.NguyenDevs.limitless.manager;
 
 import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.ability.BlueAbility;
+import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.ability.RedAbility;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -27,6 +30,25 @@ public class AbilitySelectionManager {
 
     public void cycleAbility(Player player, boolean forward) {
         UUID playerId = player.getUniqueId();
+
+        // Check if any ability is active
+        PurpleAbility purple = plugin.getPurpleAbility();
+        BlueAbility blue = plugin.getBlueAbility();
+        RedAbility red = plugin.getRedAbility();
+
+        boolean isPurpleActive = purple != null && (purple.getState(playerId) == PurpleAbility.PurpleState.CHARGING
+                || purple.getState(playerId) == PurpleAbility.PurpleState.HOLDING);
+        boolean isBlueActive = blue != null && (blue.getState(playerId) == BlueAbility.BlueState.ATTRACTING_POINT
+                || blue.getState(playerId) == BlueAbility.BlueState.ATTRACTING_ENTITY);
+        boolean isRedActive = red != null && (red.getState(playerId) == RedAbility.RedState.REPELLING_AREA
+                || red.getState(playerId) == RedAbility.RedState.REPELLING_ENTITY);
+
+        if (isPurpleActive || isBlueActive || isRedActive) {
+            player.sendMessage(configManager.getMessage("ability-switch-blocked"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.5f);
+            return;
+        }
+
         List<String> enabledAbilities = new ArrayList<>();
 
         for (String ability : availableAbilities) {
