@@ -65,9 +65,9 @@ public class AbilitySelectionManager {
         sendSelectionMessage(player, newAbility);
     }
 
-    private void sendSelectionMessage(Player player, String ability) {
-        String title = configManager.getMessage("ability-select-title-" + ability);
-        String subtitle = configManager.getMessage("ability-select-subtitle-" + ability);
+    public void sendSelectionMessage(Player player, String ability) {
+        String title = configManager.getRawMessage("ability-select-title-" + ability);
+        String subtitle = configManager.getRawMessage("ability-select-subtitle-" + ability);
 
         if (title == null)
             title = "&fSelected Ability";
