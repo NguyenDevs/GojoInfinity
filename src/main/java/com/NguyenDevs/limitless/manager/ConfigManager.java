@@ -235,8 +235,6 @@ public class ConfigManager {
         return plugin.getConfig().getDouble("blue.saturation-cost", 5.0);
     }
 
-    // ============ RED ABILITY CONFIGURATION ============
-
     public String getRedTrigger() {
         return plugin.getConfig().getString("red.trigger", "RIGHT_CLICK");
     }
@@ -273,8 +271,6 @@ public class ConfigManager {
         return plugin.getConfig().getDouble("red.saturation-cost", 3.0);
     }
 
-    // ============ PLACEHOLDERS ============
-
     public String getPlaceholderBlueState(String state) {
         String text = plugin.getConfig().getString("placeholders.blue." + state, "&7Unknown");
         return ColorUtils.colorize(text);
@@ -284,7 +280,6 @@ public class ConfigManager {
         String text = plugin.getConfig().getString("placeholders.red." + state, "&7Unknown");
         return ColorUtils.colorize(text);
     }
-
 
     public String getPlaceholderInfinityState(String state) {
         String text = plugin.getConfig().getString("placeholders.infinity." + state, "&7Unknown");
