@@ -134,7 +134,7 @@ public class BlueAbility {
         if (rayTrace != null && rayTrace.getHitBlock() != null) {
             Location blockLoc = rayTrace.getHitBlock().getLocation();
 
-            return blockLoc.add(0.5, 1.0, 0.5);
+            return blockLoc.add(0.5, 2.0, 0.5);
         }
 
         return player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(maxDistance));
@@ -152,8 +152,8 @@ public class BlueAbility {
                 || player.hasPermission("limitless.ability.blue.bypasssaturation")
                 || player.getGameMode() == org.bukkit.GameMode.CREATIVE;
 
-        player.playSound(targetLoc, Sound.BLOCK_BEACON_ACTIVATE, 2.0f, 1.5f);
-        player.playSound(targetLoc, Sound.ENTITY_WITHER_SPAWN, 1.0f, 2.0f);
+        player.playSound(targetLoc, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT, 2.0f, 0.5f);
+        player.playSound(targetLoc, Sound.BLOCK_CONDUIT_ACTIVATE, 2.0f, 0.5f);
 
         BukkitRunnable blueTask = new BukkitRunnable() {
             int ticks = 0;
@@ -228,7 +228,7 @@ public class BlueAbility {
                 activePlayers.remove(player.getUniqueId());
                 activeEffects.remove(player.getUniqueId());
                 setCooldown(player);
-                targetLoc.getWorld().playSound(targetLoc, Sound.BLOCK_BEACON_DEACTIVATE, 1.5f, 1.5f);
+                targetLoc.getWorld().playSound(targetLoc, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1.5f, 0.5f);
                 this.cancel();
             }
         };
@@ -311,7 +311,7 @@ public class BlueAbility {
                 pinnedEntities.remove(player.getUniqueId());
                 activeEffects.remove(player.getUniqueId());
                 setCooldown(player);
-                target.getWorld().playSound(target.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.5f, 1.5f);
+                target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1.5f, 0.5f);
                 this.cancel();
             }
         };
