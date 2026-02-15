@@ -19,7 +19,7 @@ cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
 cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
 
 # Ability Switch Messages
-ability-switch-blocked: "&cYou cannot switch abilities while using one!"
+ability-switch-blocked: "&cYou cannot switch abilities while using another ability!"
 
 # Ability toggle messages
 infinity-enabled: "&bInfinity has been enabled."
