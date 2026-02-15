@@ -120,6 +120,8 @@ public class PurpleAbility {
 
         chargingPlayers.add(player.getUniqueId());
 
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 60, 3, false, false, false));
+
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
         final boolean canBypassSaturation = player.isOp()
@@ -132,6 +134,7 @@ public class PurpleAbility {
             double totalAvailable = currentSaturation + currentFood;
             if (totalAvailable < 1) {
                 chargingPlayers.remove(player.getUniqueId());
+                player.removePotionEffect(PotionEffectType.SLOW);
                 player.sendMessage(configManager.getMessage("purple-saturation-empty"));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
                 return;
@@ -183,6 +186,7 @@ public class PurpleAbility {
             } else {
                 launchProjectile(player, mergeLocation, eyeLoc.getDirection().normalize());
                 setCooldown(player);
+                player.removePotionEffect(PotionEffectType.SLOW);
             }
             return;
         }
@@ -196,6 +200,7 @@ public class PurpleAbility {
             public void run() {
                 if (!player.isOnline()) {
                     chargingPlayers.remove(player.getUniqueId());
+                    player.removePotionEffect(PotionEffectType.SLOW);
                     this.cancel();
                     return;
                 }
@@ -213,6 +218,7 @@ public class PurpleAbility {
                         partialHunger.remove(player.getUniqueId());
                         player.sendMessage(configManager.getMessage("purple-saturation-empty"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
+                        player.removePotionEffect(PotionEffectType.SLOW);
                         player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 60, 0, false, false, false));
                         currentTarget.getWorld().playSound(currentTarget, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 0.5f);
                         createChargeFailureEffect(player, currentTarget);
@@ -244,6 +250,7 @@ public class PurpleAbility {
                     } else {
                         launchProjectile(player, currentTarget, player.getEyeLocation().getDirection().normalize());
                         setCooldown(player);
+                        player.removePotionEffect(PotionEffectType.SLOW);
                     }
                     this.cancel();
                     return;
@@ -365,6 +372,7 @@ public class PurpleAbility {
                 if (!player.isOnline()) {
                     holdingPlayers.remove(player.getUniqueId());
                     holdTasks.remove(player.getUniqueId());
+                    player.removePotionEffect(PotionEffectType.SLOW);
                     this.cancel();
                     return;
                 }
@@ -376,6 +384,7 @@ public class PurpleAbility {
 
                 if (ticks >= holdTime) {
                     timeoutHolding(player);
+                    player.removePotionEffect(PotionEffectType.SLOW);
                     this.cancel();
                     return;
                 }
@@ -400,6 +409,7 @@ public class PurpleAbility {
             holdTasks.get(player.getUniqueId()).cancel();
             holdTasks.remove(player.getUniqueId());
         }
+        player.removePotionEffect(PotionEffectType.SLOW);
 
         Location currentTarget = player.getEyeLocation()
                 .add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
@@ -412,6 +422,7 @@ public class PurpleAbility {
         if (holdTasks.containsKey(player.getUniqueId())) {
             holdTasks.remove(player.getUniqueId());
         }
+        player.removePotionEffect(PotionEffectType.SLOW);
 
         Location loc = player.getEyeLocation().add(player.getEyeLocation().getDirection().normalize().multiply(2.5));
         loc.getWorld().playSound(loc, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 0.5f);
@@ -717,15 +728,6 @@ public class PurpleAbility {
                 0.2);
 
         location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.8f);
-    }
-
-    private boolean isOnCooldown(Player player) {
-        if (cooldowns.containsKey(player.getUniqueId())) {
-            long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown())
-                    - System.currentTimeMillis();
-            return timeLeft > 0;
-        }
-        return false;
     }
 
     private void setCooldown(Player player) {

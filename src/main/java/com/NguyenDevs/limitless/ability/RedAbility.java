@@ -118,8 +118,7 @@ public class RedAbility {
                 player.getEyeLocation(),
                 player.getEyeLocation().getDirection(),
                 maxDistance,
-                entity -> entity instanceof LivingEntity && entity != player
-        );
+                entity -> entity instanceof LivingEntity && entity != player);
 
         if (rayTrace != null && rayTrace.getHitEntity() != null) {
             repelEntity(player, rayTrace.getHitEntity());
@@ -172,8 +171,7 @@ public class RedAbility {
                                     entity.getLocation().add(0, 1, 0),
                                     10,
                                     0.3, 0.5, 0.3,
-                                    new Particle.DustOptions(Color.RED, 1.2f)
-                            );
+                                    new Particle.DustOptions(Color.RED, 1.2f));
                         }
                     }
                 }
@@ -200,7 +198,6 @@ public class RedAbility {
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 2.0f, 0.8f);
         player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.5f, 0.5f);
 
-        // Tính hướng đẩy và lưu lại
         final Vector direction = target.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
         spawnRedBurst(target.getLocation(), 1.5);
@@ -221,24 +218,19 @@ public class RedAbility {
 
                 Location currentLoc = target.getLocation();
 
-                // Đẩy entity theo đường thẳng với lực mạnh hơn
                 target.setVelocity(direction.clone().multiply(pushStrength));
 
-                // Vô hiệu hóa gravity tạm thời để entity bay thẳng
                 if (target instanceof LivingEntity) {
                     ((LivingEntity) target).setGravity(false);
                 }
 
-                // Spawn trail particles tại vị trí hiện tại của entity mỗi 2 tick
                 if (ticks % 2 == 0) {
                     spawnEntityTrail(currentLoc);
                 }
 
-                // Spawn spiral particles xung quanh entity
                 spawnTrailWithSpiral(currentLoc, spiralAngle);
                 spiralAngle += Math.PI / 4;
 
-                // Kiểm tra va chạm với tường
                 boolean hitWall = false;
                 for (int x = -1; x <= 1; x++) {
                     for (int y = -1; y <= 1; y++) {
@@ -249,31 +241,29 @@ public class RedAbility {
                                 break;
                             }
                         }
-                        if (hitWall) break;
+                        if (hitWall)
+                            break;
                     }
-                    if (hitWall) break;
+                    if (hitWall)
+                        break;
                 }
 
                 double distanceMoved = currentLoc.distance(lastLoc);
                 totalDistance += distanceMoved;
 
                 if (hitWall || (ticks > 10 && distanceMoved < 0.1)) {
-                    // Bật lại gravity
                     if (target instanceof LivingEntity) {
                         ((LivingEntity) target).setGravity(true);
 
-                        // Gây damage dựa trên khoảng cách bay
                         double damageAmount = impactDamage * Math.min(totalDistance / 10.0, 1.5);
                         ((LivingEntity) target).damage(damageAmount, player);
 
-                        // Hiệu ứng va chạm
                         currentLoc.getWorld().spawnParticle(
                                 Particle.DUST,
                                 currentLoc.clone().add(0, 1, 0),
                                 30,
                                 0.5, 0.5, 0.5,
-                                new Particle.DustOptions(Color.RED, 2.0f)
-                        );
+                                new Particle.DustOptions(Color.RED, 2.0f));
 
                         currentLoc.getWorld().playSound(currentLoc, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 1.0f);
                         currentLoc.getWorld().playSound(currentLoc, Sound.BLOCK_ANVIL_LAND, 1.0f, 0.8f);
@@ -314,24 +304,20 @@ public class RedAbility {
                     center.clone().add(x, y, z),
                     1,
                     0, 0, 0,
-                    redOptions
-            );
+                    redOptions);
         }
     }
 
     private void spawnEntityTrail(Location location) {
         Particle.DustOptions redOptions = new Particle.DustOptions(Color.RED, 1.2f);
 
-        // Spawn particles tại vị trí cũ của entity để tạo trail
         location.getWorld().spawnParticle(
                 Particle.DUST,
                 location.clone().add(0, 1, 0),
                 5,
                 0.1, 0.1, 0.1,
-                redOptions
-        );
+                redOptions);
 
-        // Thêm particles nhỏ xung quanh để trail đẹp hơn
         for (int i = 0; i < 3; i++) {
             double offsetX = (random.nextDouble() - 0.5) * 0.4;
             double offsetY = (random.nextDouble() - 0.5) * 0.4;
@@ -342,8 +328,7 @@ public class RedAbility {
                     location.clone().add(offsetX, 1 + offsetY, offsetZ),
                     1,
                     0, 0, 0,
-                    redOptions
-            );
+                    redOptions);
         }
     }
 
@@ -355,8 +340,7 @@ public class RedAbility {
                 center.clone().add(0, 1, 0),
                 3,
                 0.05, 0.05, 0.05,
-                redOptions
-        );
+                redOptions);
 
         double spiralRadius = 0.6;
 
@@ -367,8 +351,7 @@ public class RedAbility {
                 center.clone().add(x1, 1, z1),
                 2,
                 0.02, 0.02, 0.02,
-                redOptions
-        );
+                redOptions);
 
         double x2 = spiralRadius * Math.cos(angle + Math.PI);
         double z2 = spiralRadius * Math.sin(angle + Math.PI);
@@ -377,8 +360,7 @@ public class RedAbility {
                 center.clone().add(x2, 1, z2),
                 2,
                 0.02, 0.02, 0.02,
-                redOptions
-        );
+                redOptions);
     }
 
     private void spawnRedBurst(Location center, double radius) {
@@ -398,8 +380,7 @@ public class RedAbility {
                     center.clone().add(x, y, z),
                     1,
                     0, 0, 0,
-                    redOptions
-            );
+                    redOptions);
         }
     }
 

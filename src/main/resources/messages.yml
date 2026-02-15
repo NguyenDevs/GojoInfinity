@@ -1,3 +1,4 @@
+
 # ==============================================================================
 #                        GojoInfinity Messages
 # ==============================================================================
@@ -34,6 +35,16 @@ red-disabled: "&7Red (Aka) has been disabled."
 purple-saturation-empty: "&cNot enough saturation to complete Purple!"
 blue-saturation-empty: "&cNot enough saturation to use Blue!"
 red-saturation-empty: "&cNot enough saturation to use Red!"
+
+# Ability Selection Messages
+ability-select-title-red: "&c&lRED"
+ability-select-subtitle-red: "&7Cursed Technique Reversal"
+
+ability-select-title-blue: "&9&lBLUE"
+ability-select-subtitle-blue: "&7Cursed Technique Lapse"
+
+ability-select-title-purple: "&5&lPURPLE"
+ability-select-subtitle-purple: "&7Hollow Technique"
 
 # Other messages
 blue-no-target: "&cNo target found!"

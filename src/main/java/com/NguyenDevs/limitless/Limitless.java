@@ -59,20 +59,25 @@ public final class Limitless extends JavaPlugin {
                         getLogger().severe("Command 'limitless' not found in plugin.yml!");
                 }
 
+                com.NguyenDevs.limitless.manager.AbilitySelectionManager selectionManager = new com.NguyenDevs.limitless.manager.AbilitySelectionManager(
+                                this, configManager, toggleManager);
+
                 getServer().getPluginManager()
-                        .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility, blueAbility, redAbility),
-                                this);
+                                .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility,
+                                                blueAbility, redAbility, selectionManager),
+                                                this);
                 getServer().getPluginManager().registerEvents(
                                 new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility, blueAbility, redAbility).register();
+                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility, blueAbility,
+                                        redAbility).register();
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
-                                "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
+                                        "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
                 } else {
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
-                                "&d[&5Limitless&d] &ePlaceholderAPI not found, placeholders disabled."));
+                                        "&d[&5Limitless&d] &ePlaceholderAPI not found, placeholders disabled."));
                 }
 
                 printLogo();
@@ -130,6 +135,7 @@ public final class Limitless extends JavaPlugin {
         public InfinityEntityManager getInfinityEntityManager() {
                 return infinityEntityManager;
         }
+
         public BlueAbility getBlueAbility() {
                 return blueAbility;
         }
