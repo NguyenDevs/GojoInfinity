@@ -104,7 +104,7 @@ public class PurpleAbility {
             return;
         }
 
-        if (isOnCooldown(player)) {
+        if (isOnCooldown(player.getUniqueId())) {
             long timeLeft = (cooldowns.get(player.getUniqueId()) + configManager.getPurpleCooldown())
                     - System.currentTimeMillis();
             player.sendMessage(configManager.getMessage("cooldown-purple").replace("%time%",
@@ -117,10 +117,11 @@ public class PurpleAbility {
         final int mergeDuration = configManager.getPurpleChargeTime();
         final boolean hold = configManager.isPurpleHold();
         final int holdTime = configManager.getPurpleHoldTime();
+        final int totalDuration = mergeDuration + holdTime;
 
         chargingPlayers.add(player.getUniqueId());
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 60, 3, false, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, totalDuration, 3, false, false, false));
 
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
@@ -132,7 +133,9 @@ public class PurpleAbility {
             float currentSaturation = player.getSaturation();
             int currentFood = player.getFoodLevel();
             double totalAvailable = currentSaturation + currentFood;
-            if (totalAvailable < 1) {
+            // configManager.getPurpleSaturationCost() is double, but we compare with
+            // totalAvailable
+            if (totalAvailable < 1) { // 1 is just a safe lower bound check
                 chargingPlayers.remove(player.getUniqueId());
                 player.removePotionEffect(PotionEffectType.SLOWNESS);
                 player.sendMessage(configManager.getMessage("purple-saturation-empty"));
