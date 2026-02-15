@@ -133,9 +133,7 @@ public class PurpleAbility {
             float currentSaturation = player.getSaturation();
             int currentFood = player.getFoodLevel();
             double totalAvailable = currentSaturation + currentFood;
-            // configManager.getPurpleSaturationCost() is double, but we compare with
-            // totalAvailable
-            if (totalAvailable < 1) { // 1 is just a safe lower bound check
+            if (totalAvailable < 1) {
                 chargingPlayers.remove(player.getUniqueId());
                 player.removePotionEffect(PotionEffectType.SLOWNESS);
                 player.sendMessage(configManager.getMessage("purple-saturation-empty"));
