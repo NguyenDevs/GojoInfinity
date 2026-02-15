@@ -23,7 +23,6 @@ infinity:
 
 # Hollow Purple - Destructive projectile combining Red and Blue
 purple:
-  trigger: SHIFT_LEFT        # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
   charge-time: 3.5           # Seconds to charge
   speed: 2.0                 # Projectile speed
   radius: 8.0                # Destruction radius
@@ -34,13 +33,12 @@ purple:
   hold: true                 # Allow holding charge before firing
   hold-time: 10.0            # Max hold duration (seconds)
   cooldown: 15.0             # Cooldown after use (seconds)
-  recoil: 0.5                # Knockback when firing
+  recoil: 0.75               # Knockback when firing
   drain-saturation: true     # Drain saturation during charge
   saturation-cost: 8         # Total saturation cost for full charge
 
 # Blue (Attraction/Ao) - Pulls entities to a point or holds them in place
 blue:
-  trigger: LEFT_CLICK        # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
   max-distance: 300.0        # Max raycast distance for target location
   radius: 8.0                # Attraction radius (for point mode)
   damage: 2.0                # Damage per second to entities
@@ -52,7 +50,6 @@ blue:
 
 # Red (Repulsion/Aka) - Pushes entities away
 red:
-  trigger: SHIFT             # SHIFT, SHIFT_LEFT, LEFT_CLICK, DOUBLE_SHIFT
   max-distance: 30.0         # Max distance to target specific entity
   radius: 10.0               # Area repulsion radius
   push-strength: 6.0         # Push strength for area mode
