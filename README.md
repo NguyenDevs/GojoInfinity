@@ -10,7 +10,7 @@ Ever dreamed of becoming the strongest like Satoru Gojo from Jujutsu Kaisen? Thi
 ## How to Use:
 - All abilities are triggered with `SHIFT + LEFT CLICK` (after enabling them).
 - Switch between abilities with `SHIFT + MIDDLE MOUSE BUTTON` (scroll wheel click).
-- Open the GUI to toggle abilities on/off: /limitless or /lm → Opens the Limitless GUI. Click any ability icon to enable/disable it.
+- Open the GUI to toggle abilities on/off: `/limitless` or `/lm` → Opens the Limitless GUI. Click any ability icon to enable/disable it.
 - Reload config: `/limitless reload` (admin only).
 
 ## Placeholders API Support:
