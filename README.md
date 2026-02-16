@@ -25,41 +25,14 @@ Ever dreamed of becoming the strongest like Satoru Gojo from Jujutsu Kaisen? Thi
 - `/limitless reload` Reload configurations
 
 ## Permissions
-- limitless.admin:
-    description: Allows administration of the plugin (reload)
-    default: op
-- limitless.use:
-    description: Allows opening the Limitless GUI
-    default: true
-- limitless.ability.*:
-    description: Allows usage of all Limitless abilities
-    default: op
-    children:
-      limitless.ability.purple: true
-      limitless.ability.infinity: true
-      limitless.ability.blue: true
-      limitless.ability.red: true
-- limitless.ability.purple:
-    description: Allows usage of Purple ability
-    default: op
-- limitless.ability.infinity:
-    description: Allows usage of Infinity ability
-    default: op
-- limitless.ability.blue:
-    description: Allows usage of Blue ability
-    default: op
-- limitless.ability.red:
-    description: Allows usage of Red ability
-    default: op
-- limitless.ability.purple.bypasssaturation:
-    description: Bypass saturation cost for Purple ability
-    default: op
-- limitless.ability.infinity.bypasssaturation:
-    description: Bypass saturation cost for Infinity ability
-    default: op
-- limitless.ability.blue.bypasssaturation:
-    description: Bypass saturation cost for Blue ability
-    default: op
-- limitless.ability.red.bypasssaturation:
-    description: Bypass saturation cost for Red ability
-    default: op
+- `limitless.admin`: Allows administration of the plugin (reload)
+- `limitless.use`: Allows opening the Limitless GUI
+- `limitless.ability.*`: Allows usage of all Limitless abilities
+- `limitless.ability.purple`: Allows usage of Purple ability
+- `limitless.ability.infinity`: Allows usage of Infinity ability
+- `limitless.ability.blue`: Allows usage of Blue ability
+- `limitless.ability.red`: Allows usage of Red ability
+- `limitless.ability.purple.bypasssaturation`: Bypass saturation cost for Purple ability
+- `limitless.ability.infinity.bypasssaturation`: Bypass saturation cost for Infinity ability
+- `limitless.ability.blue.bypasssaturation`: Bypass saturation cost for Blue ability
+- `limitless.ability.red.bypasssaturation`: Bypass saturation cost for Red ability
