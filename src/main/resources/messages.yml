@@ -39,6 +39,13 @@ purple-saturation-empty: "&cNot enough saturation to complete Purple!"
 blue-saturation-empty: "&cNot enough saturation to use Blue!"
 red-saturation-empty: "&cNot enough saturation to use Red!"
 
+# RCT Messages
+rct-enabled: "&aReverse Cursed Technique activated."
+rct-disabled: "&cReverse Cursed Technique deactivated."
+rct-expired: "&eReverse Cursed Technique expired."
+rct-saturation-empty: "&cNot enough saturation to use Reverse Cursed Technique!"
+cooldown-rct: "&aReverse Cursed Technique &7is on cooldown! Wait &c%time%s"
+
 # Ability Selection Messages
 ability-select-title-red: "<gradient:#FF0000:#FF6666>RED</gradient>"
 ability-select-subtitle-red: "<gradient:#FF4444:#FFAAAA>Cursed Technique Reversal</gradient>"
@@ -48,6 +55,9 @@ ability-select-subtitle-blue: "<gradient:#3399FF:#99CCFF>Cursed Technique Lapse<
 
 ability-select-title-purple: "<gradient:#63009E:#B366FF>PURPLE</gradient>"
 ability-select-subtitle-purple: "<gradient:#8800CC:#CC66FF>Hollow Technique</gradient>"
+
+ability-select-title-rct: "<gradient:#FFFFFF:#AAFFAA>RCT</gradient>"
+ability-select-subtitle-rct: "<gradient:#DDFFDD:#FFFFFF>Reverse Cursed Technique</gradient>"
 
 # Other messages
 blue-no-target: "&cNo target found!"

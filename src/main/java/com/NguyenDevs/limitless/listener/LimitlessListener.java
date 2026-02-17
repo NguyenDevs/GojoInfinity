@@ -1,8 +1,9 @@
 package com.NguyenDevs.limitless.listener;
 
-import com.NguyenDevs.limitless.ability.BlueAbility;
-import com.NguyenDevs.limitless.ability.PurpleAbility;
-import com.NguyenDevs.limitless.ability.RedAbility;
+import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
+import com.NguyenDevs.limitless.ability.HollowTechnique;
+import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.manager.AbilitySelectionManager;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
@@ -22,19 +23,22 @@ public class LimitlessListener implements Listener {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
-    private final PurpleAbility purpleAbility;
-    private final BlueAbility blueAbility;
-    private final RedAbility redAbility;
+    private final HollowTechnique hollowTechnique;
+    private final LapseCursedTechnique lapseCursedTechnique;
+    private final ReversalCursedTechnique reversalCursedTechnique;
+    private final ReverseCursedTechnique reverseCursedTechnique;
     private final AbilitySelectionManager selectionManager;
 
     public LimitlessListener(ConfigManager configManager, AbilityToggleManager toggleManager,
-            PurpleAbility purpleAbility, BlueAbility blueAbility, RedAbility redAbility,
-            AbilitySelectionManager selectionManager) {
+                             HollowTechnique hollowTechnique, LapseCursedTechnique lapseCursedTechnique, ReversalCursedTechnique reversalCursedTechnique,
+                             ReverseCursedTechnique reverseCursedTechnique,
+                             AbilitySelectionManager selectionManager) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
-        this.purpleAbility = purpleAbility;
-        this.blueAbility = blueAbility;
-        this.redAbility = redAbility;
+        this.hollowTechnique = hollowTechnique;
+        this.lapseCursedTechnique = lapseCursedTechnique;
+        this.reversalCursedTechnique = reversalCursedTechnique;
+        this.reverseCursedTechnique = reverseCursedTechnique;
         this.selectionManager = selectionManager;
     }
 
@@ -64,6 +68,12 @@ public class LimitlessListener implements Listener {
         if (player.hasPermission("limitless.ability.red")) {
             if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")) {
                 player.sendMessage(configManager.getMessage("red-enabled"));
+            }
+        }
+
+        if (player.hasPermission("limitless.ability.rct")) {
+            if (toggleManager.isAbilityEnabled(player.getUniqueId(), "rct")) {
+                player.sendMessage(configManager.getMessage("rct-enabled"));
             }
         }
     }
@@ -122,19 +132,25 @@ public class LimitlessListener implements Listener {
             case "purple":
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "purple")
                         && player.hasPermission("limitless.ability.purple")) {
-                    purpleAbility.activate(player);
+                    hollowTechnique.activate(player);
                 }
                 break;
             case "blue":
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "blue")
                         && player.hasPermission("limitless.ability.blue")) {
-                    blueAbility.activate(player);
+                    lapseCursedTechnique.activate(player);
                 }
                 break;
             case "red":
                 if (toggleManager.isAbilityEnabled(player.getUniqueId(), "red")
                         && player.hasPermission("limitless.ability.red")) {
-                    redAbility.activate(player);
+                    reversalCursedTechnique.activate(player);
+                }
+                break;
+            case "rct":
+                if (toggleManager.isAbilityEnabled(player.getUniqueId(), "rct")
+                        && player.hasPermission("limitless.ability.rct")) {
+                    reverseCursedTechnique.activate(player);
                 }
                 break;
         }

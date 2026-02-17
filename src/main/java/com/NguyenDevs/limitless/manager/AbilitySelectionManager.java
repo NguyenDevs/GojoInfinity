@@ -1,9 +1,9 @@
 package com.NguyenDevs.limitless.manager;
 
 import com.NguyenDevs.limitless.Limitless;
-import com.NguyenDevs.limitless.ability.BlueAbility;
-import com.NguyenDevs.limitless.ability.PurpleAbility;
-import com.NguyenDevs.limitless.ability.RedAbility;
+import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
+import com.NguyenDevs.limitless.ability.HollowTechnique;
+import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -16,7 +16,7 @@ public class AbilitySelectionManager {
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
     private final Map<UUID, String> selectedAbilities = new HashMap<>();
-    private final List<String> availableAbilities = Arrays.asList("red", "blue", "purple");
+    private final List<String> availableAbilities = Arrays.asList("red", "blue", "purple", "rct");
 
     public AbilitySelectionManager(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
@@ -32,16 +32,16 @@ public class AbilitySelectionManager {
         UUID playerId = player.getUniqueId();
 
         // Check if any ability is active
-        PurpleAbility purple = plugin.getPurpleAbility();
-        BlueAbility blue = plugin.getBlueAbility();
-        RedAbility red = plugin.getRedAbility();
+        HollowTechnique purple = plugin.getPurpleAbility();
+        LapseCursedTechnique blue = plugin.getBlueAbility();
+        ReversalCursedTechnique red = plugin.getRedAbility();
 
-        boolean isPurpleActive = purple != null && (purple.getState(playerId) == PurpleAbility.PurpleState.CHARGING
-                || purple.getState(playerId) == PurpleAbility.PurpleState.HOLDING);
-        boolean isBlueActive = blue != null && (blue.getState(playerId) == BlueAbility.BlueState.ATTRACTING_POINT
-                || blue.getState(playerId) == BlueAbility.BlueState.ATTRACTING_ENTITY);
-        boolean isRedActive = red != null && (red.getState(playerId) == RedAbility.RedState.REPELLING_AREA
-                || red.getState(playerId) == RedAbility.RedState.REPELLING_ENTITY);
+        boolean isPurpleActive = purple != null && (purple.getState(playerId) == HollowTechnique.PurpleState.CHARGING
+                || purple.getState(playerId) == HollowTechnique.PurpleState.HOLDING);
+        boolean isBlueActive = blue != null && (blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_POINT
+                || blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_ENTITY);
+        boolean isRedActive = red != null && (red.getState(playerId) == ReversalCursedTechnique.RedState.REPELLING_AREA
+                || red.getState(playerId) == ReversalCursedTechnique.RedState.REPELLING_ENTITY);
 
         if (isPurpleActive || isBlueActive || isRedActive) {
             player.sendMessage(configManager.getMessage("ability-switch-blocked"));
