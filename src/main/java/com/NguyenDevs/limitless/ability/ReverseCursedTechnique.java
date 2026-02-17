@@ -21,7 +21,8 @@ public class ReverseCursedTechnique {
         DISABLED,
         IDLE,
         ACTIVE,
-        COOLDOWN
+        COOLDOWN,
+        PASSIVE
     }
 
     private final Limitless plugin;
@@ -29,16 +30,37 @@ public class ReverseCursedTechnique {
     private final AbilityToggleManager toggleManager;
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Map<UUID, BukkitRunnable> activeTasks = new HashMap<>();
+    private final Map<UUID, Boolean> passiveStates = new HashMap<>();
+    private final java.util.Set<UUID> healingPlayers = new java.util.HashSet<>();
 
     public ReverseCursedTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
+        startPassiveScanner();
+    }
+
+    private void startPassiveScanner() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    if (isPassive(player.getUniqueId())) {
+                        processPassiveLogic(player);
+                    } else {
+                        healingPlayers.remove(player.getUniqueId());
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
     }
 
     public RctState getState(UUID playerId) {
         if (!toggleManager.isAbilityEnabled(playerId, "rct")) {
             return RctState.DISABLED;
+        }
+        if (isPassive(playerId)) {
+            return RctState.PASSIVE;
         }
         if (activeTasks.containsKey(playerId)) {
             return RctState.ACTIVE;
@@ -51,6 +73,10 @@ public class ReverseCursedTechnique {
 
     public void activate(Player player) {
         UUID playerId = player.getUniqueId();
+
+        if (isPassive(playerId)) {
+            return;
+        }
 
         if (activeTasks.containsKey(playerId)) {
             activeTasks.get(playerId).cancel();
@@ -73,13 +99,13 @@ public class ReverseCursedTechnique {
 
         player.sendMessage(configManager.getMessage("rct-enabled"));
 
-        double saturationPerSec = configManager.getRctSaturationPerSec();
-        double saturationCostPerTick = saturationPerSec * 2.0;
-        double healPerUnit = configManager.getRctHealPerUnit();
-        double healPerTick = saturationCostPerTick * healPerUnit;
-        int maxDurationTicks = (int) (configManager.getRctDuration() * 20);
+        final double saturationPerSec = configManager.getRctSaturationPerSec();
+        final double saturationCostPerTick = saturationPerSec / 2.0;
+        final double healPerUnit = configManager.getRctHealPerUnit();
+        final double healPerTick = saturationCostPerTick * healPerUnit;
+        final int maxDurationTicks = (int) (configManager.getRctDuration() * 20);
 
-        List<String> effects = configManager.getRctEffects();
+        final List<String> effects = configManager.getRctEffects();
 
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
@@ -99,6 +125,7 @@ public class ReverseCursedTechnique {
 
                 double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
                 double currentHealth = player.getHealth();
+
                 if (currentHealth >= maxHealth) {
                     player.sendMessage(configManager.getMessage("rct-full-health"));
                     cancelTask(playerId);
@@ -132,20 +159,91 @@ public class ReverseCursedTechnique {
                         PotionEffectType type = PotionEffectType.getByName(parts[0]);
                         int amplifier = parts.length > 1 ? Integer.parseInt(parts[1]) - 1 : 0;
                         if (type != null) {
-                            player.addPotionEffect(new PotionEffect(type, 40, amplifier, false, false, true));
+                            player.addPotionEffect(new PotionEffect(type, 20, amplifier, false, false, true));
                         }
                     } catch (Exception ignored) {
                     }
                 }
 
-                player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
+                if (ticks % 40 == 0) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
+                }
 
-                ticks += 40;
+                ticks += 10;
             }
         };
 
-        task.runTaskTimer(plugin, 0L, 40L);
+        task.runTaskTimer(plugin, 0L, 10L);
         activeTasks.put(playerId, task);
+    }
+
+    public boolean isPassive(UUID playerId) {
+        if (!toggleManager.isAbilityEnabled(playerId, "rct")) {
+            return false;
+        }
+        return passiveStates.getOrDefault(playerId, configManager.getRctPassiveDefault());
+    }
+
+    public void setPassive(Player player, boolean passive) {
+        UUID playerId = player.getUniqueId();
+        passiveStates.put(playerId, passive);
+
+        if (passive) {
+            cancelTask(playerId);
+            player.sendMessage(configManager.getMessage("rct-passive-enabled"));
+        } else {
+            player.sendMessage(configManager.getMessage("rct-passive-disabled"));
+        }
+    }
+
+    public void processPassiveLogic(Player player) {
+        UUID playerId = player.getUniqueId();
+        double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        double currentHealth = player.getHealth();
+        double threshold = configManager.getRctPassiveThreshold();
+
+        if (healingPlayers.contains(playerId)) {
+            if (currentHealth >= maxHealth) {
+                healingPlayers.remove(playerId);
+                return;
+            }
+            performPassiveHeal(player, maxHealth, currentHealth);
+        } else {
+            if (currentHealth < threshold) {
+                healingPlayers.add(playerId);
+                performPassiveHeal(player, maxHealth, currentHealth);
+            }
+        }
+    }
+
+    private void performPassiveHeal(Player player, double maxHealth, double currentHealth) {
+        if (player.getFoodLevel() + player.getSaturation() <= 0) {
+            healingPlayers.remove(player.getUniqueId());
+            return;
+        }
+
+        double healPerUnit = configManager.getRctHealPerUnit();
+        double saturationCost = 1.0 / healPerUnit;
+
+        float currentSaturation = player.getSaturation();
+        int currentFood = player.getFoodLevel();
+        double availableSaturation = currentSaturation + currentFood;
+
+        if (availableSaturation < saturationCost) {
+            healingPlayers.remove(player.getUniqueId());
+            return;
+        }
+
+        if (currentSaturation >= saturationCost) {
+            player.setSaturation((float) (currentSaturation - saturationCost));
+        } else {
+            player.setSaturation(0);
+            saturationCost -= currentSaturation;
+            player.setFoodLevel(Math.max(0, currentFood - (int) Math.ceil(saturationCost)));
+        }
+
+        player.setHealth(Math.min(maxHealth, currentHealth + 1.0));
+        player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f, 1.5f);
     }
 
     private void cancelTask(UUID playerId) {
