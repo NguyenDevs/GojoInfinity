@@ -250,8 +250,6 @@ public class ReverseCursedTechnique {
             double z = Math.sin(a) * radius;
             base.getWorld().spawnParticle(Particle.DUST, base.clone().add(x, 0, z), 1, 0, 0, 0, 0, DUST);
         }
-
-        // Offset xoay mỗi tick tạo cảm giác vòng tròn đang quay
         particleAngles.put(playerId, (offset + Math.PI / 8) % (2 * Math.PI));
     }
 
