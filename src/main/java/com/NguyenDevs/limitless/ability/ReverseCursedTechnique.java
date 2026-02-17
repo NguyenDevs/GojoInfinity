@@ -11,8 +11,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ReverseCursedTechnique {
@@ -31,15 +33,13 @@ public class ReverseCursedTechnique {
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Map<UUID, BukkitRunnable> activeTasks = new HashMap<>();
     private final Map<UUID, Boolean> passiveStates = new HashMap<>();
-    private final java.util.Set<UUID> healingPlayers = new java.util.HashSet<>();
-
+    private final Set<UUID> healingPlayers = new HashSet<>();
     public ReverseCursedTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
         startPassiveScanner();
     }
-
     private void startPassiveScanner() {
         new BukkitRunnable() {
             @Override
@@ -52,7 +52,7 @@ public class ReverseCursedTechnique {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L);
+        }.runTaskTimer(plugin, 10L, 10L);
     }
 
     public RctState getState(UUID playerId) {
@@ -99,13 +99,12 @@ public class ReverseCursedTechnique {
 
         player.sendMessage(configManager.getMessage("rct-enabled"));
 
-        final double saturationPerSec = configManager.getRctSaturationPerSec();
+        final double saturationPerSec    = configManager.getRctSaturationPerSec();
         final double saturationCostPerTick = saturationPerSec / 2.0;
-        final double healPerUnit = configManager.getRctHealPerUnit();
-        final double healPerTick = saturationCostPerTick * healPerUnit;
-        final int maxDurationTicks = (int) (configManager.getRctDuration() * 20);
-
-        final List<String> effects = configManager.getRctEffects();
+        final double healPerUnit           = configManager.getRctHealPerUnit();
+        final double healPerTick           = saturationCostPerTick * healPerUnit;
+        final int    maxDurationTicks      = (int) (configManager.getRctDuration() * 20);
+        final List<String> effects         = configManager.getRctEffects();
 
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
@@ -123,7 +122,7 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
-                double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double maxHealth    = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
                 double currentHealth = player.getHealth();
 
                 if (currentHealth >= maxHealth) {
@@ -132,8 +131,8 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
-                float currentSaturation = player.getSaturation();
-                int currentFood = player.getFoodLevel();
+                float currentSaturation  = player.getSaturation();
+                int   currentFood        = player.getFoodLevel();
                 double availableSaturation = currentSaturation + currentFood;
 
                 if (availableSaturation <= 0) {
@@ -141,15 +140,7 @@ public class ReverseCursedTechnique {
                     cancelTask(playerId);
                     return;
                 }
-
-                double remainingCost = saturationCostPerTick;
-                if (currentSaturation >= remainingCost) {
-                    player.setSaturation((float) (currentSaturation - remainingCost));
-                } else {
-                    player.setSaturation(0);
-                    remainingCost -= currentSaturation;
-                    player.setFoodLevel(Math.max(0, currentFood - (int) Math.ceil(remainingCost)));
-                }
+                drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
 
                 player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
 
@@ -164,7 +155,6 @@ public class ReverseCursedTechnique {
                     } catch (Exception ignored) {
                     }
                 }
-
                 if (ticks % 40 == 0) {
                     player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
                 }
@@ -176,7 +166,6 @@ public class ReverseCursedTechnique {
         task.runTaskTimer(plugin, 0L, 10L);
         activeTasks.put(playerId, task);
     }
-
     public boolean isPassive(UUID playerId) {
         if (!toggleManager.isAbilityEnabled(playerId, "rct")) {
             return false;
@@ -197,7 +186,7 @@ public class ReverseCursedTechnique {
     }
 
     public void processPassiveLogic(Player player) {
-        UUID playerId = player.getUniqueId();
+        UUID playerId    = player.getUniqueId();
         double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
         double currentHealth = player.getHealth();
         double threshold = configManager.getRctPassiveThreshold();
@@ -221,29 +210,36 @@ public class ReverseCursedTechnique {
             healingPlayers.remove(player.getUniqueId());
             return;
         }
+        //   saturationCostPerTick = saturationPerSec / 2.0
+        //   healPerTick           = saturationCostPerTick * healPerUnit
+        double saturationPerSec     = configManager.getRctSaturationPerSec();
+        double saturationCostPerTick = saturationPerSec / 2.0;
+        double healPerUnit           = configManager.getRctHealPerUnit();
+        double healPerTick           = saturationCostPerTick * healPerUnit;
 
-        double healPerUnit = configManager.getRctHealPerUnit();
-        double saturationCost = 1.0 / healPerUnit;
-
-        float currentSaturation = player.getSaturation();
-        int currentFood = player.getFoodLevel();
+        float  currentSaturation   = player.getSaturation();
+        int    currentFood         = player.getFoodLevel();
         double availableSaturation = currentSaturation + currentFood;
 
-        if (availableSaturation < saturationCost) {
+        if (availableSaturation < saturationCostPerTick) {
             healingPlayers.remove(player.getUniqueId());
             return;
         }
 
-        if (currentSaturation >= saturationCost) {
-            player.setSaturation((float) (currentSaturation - saturationCost));
-        } else {
-            player.setSaturation(0);
-            saturationCost -= currentSaturation;
-            player.setFoodLevel(Math.max(0, currentFood - (int) Math.ceil(saturationCost)));
-        }
+        drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
 
-        player.setHealth(Math.min(maxHealth, currentHealth + 1.0));
+        player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
         player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f, 1.5f);
+    }
+
+    private void drainSaturation(Player player, float currentSaturation, int currentFood, double cost) {
+        if (currentSaturation >= cost) {
+            player.setSaturation((float) (currentSaturation - cost));
+        } else {
+            double remaining = cost - currentSaturation;
+            player.setSaturation(0);
+            player.setFoodLevel(Math.max(0, currentFood - (int) Math.ceil(remaining)));
+        }
     }
 
     private void cancelTask(UUID playerId) {
