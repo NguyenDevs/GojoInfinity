@@ -6,20 +6,26 @@ gui-title: "&8Gojo Satoru Abilities"
 gui-size: 9
 
 items:
-  purple:
-    slot: 3
-    material: PURPLE_DYE
-    name: "&5Hollow Purple (Murasaki)"
+  rct:
+    slot: 0
+    material: GHAST_TEAR
+    name: "&aReverse Technique"
     lore:
-      - "&7Hollow Technique"
+      - "&7Positive Energy"
+      - ""
+      - "&7Heals wounds and"
+      - "&7regenerates health."
       - ""
       - "&7Status: %status%"
+      - "&7Mode: %mode%"
       - ""
-      - "&eClick to toggle"
+      - "&e&oLeft Click &7to toggle"
+      - "&e&oRight Click &7to switch mode"
+
   infinity:
-    slot: 1
+    slot: 2
     material: NETHER_STAR
-    name: "&bInfinity (Mugen)"
+    name: "&bInfinity"
     lore:
       - "&7Neutral Limitless"
       - ""
@@ -28,11 +34,12 @@ items:
       - ""
       - "&7Status: %status%"
       - ""
-      - "&eClick to toggle"
+      - "&e&oClick to toggle"
+
   blue:
-    slot: 5
+    slot: 4
     material: LIGHT_BLUE_DYE
-    name: "&bBlue (Ao)"
+    name: "&bAttraction Technique: Blue"
     lore:
       - "&7Attraction Technique"
       - ""
@@ -41,11 +48,12 @@ items:
       - ""
       - "&7Status: %status%"
       - ""
-      - "&eClick to toggle"
+      - "&e&oClick to toggle"
+
   red:
-    slot: 7
+    slot: 6
     material: RED_DYE
-    name: "&cRed (Aka)"
+    name: "&cRepulsion Technique: Red"
     lore:
       - "&7Repulsion Technique"
       - ""
@@ -54,19 +62,23 @@ items:
       - ""
       - "&7Status: %status%"
       - ""
-      - "&eClick to toggle"
-  rct:
-    slot: 0
-    material: GHAST_TEAR
-    name: "&aReverse Cursed Technique"
+      - "&e&oClick to toggle"
+
+  purple:
+    slot: 8
+    material: PURPLE_DYE
+    name: "&5Hollow Technique: Purple"
     lore:
-      - "&7Positive Energy"
+      - "&7Hollow Technique"
       - ""
-      - "&7Heals wounds and"
-      - "&7regenerates health."
+      - "&7Combines Blue and Red"
+      - "&7into a destructive blast."
       - ""
       - "&7Status: %status%"
       - ""
-      - "&eClick to toggle"
+      - "&e&oClick to toggle"
+
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"
+mode-passive: "&bPassive"
+mode-active: "&aActive"

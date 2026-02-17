@@ -1,5 +1,6 @@
 package com.NguyenDevs.limitless.gui;
 
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import com.NguyenDevs.limitless.util.ColorUtils;
@@ -18,10 +19,12 @@ public class LimitlessGUI {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
+    private final ReverseCursedTechnique rct;
 
-    public LimitlessGUI(ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public LimitlessGUI(ConfigManager configManager, AbilityToggleManager toggleManager, ReverseCursedTechnique rct) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
+        this.rct = rct;
     }
 
     public void openGUI(Player player) {
@@ -54,9 +57,16 @@ public class LimitlessGUI {
         String statusText = isEnabled ? ColorUtils.colorize(config.getString("status-enabled", "&aEnabled"))
                 : ColorUtils.colorize(config.getString("status-disabled", "&cDisabled"));
 
+        String modeText = "";
+        if (abilityKey.equals("rct")) {
+            boolean isPassive = rct.isPassive(player.getUniqueId());
+            modeText = isPassive ? ColorUtils.colorize(config.getString("mode-passive", "&bPassive"))
+                    : ColorUtils.colorize(config.getString("mode-active", "&aActive"));
+        }
+
         List<String> finalLore = new ArrayList<>();
         for (String line : lore) {
-            finalLore.add(ColorUtils.colorize(line.replace("%status%", statusText)));
+            finalLore.add(ColorUtils.colorize(line.replace("%status%", statusText).replace("%mode%", modeText)));
         }
 
         ItemStack item = new ItemStack(mat);

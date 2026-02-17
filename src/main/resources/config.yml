@@ -1,87 +1,104 @@
-# Limitless Configuration
+# ==============================================================================
+#                         Limitless Configuration
+# ==============================================================================
 
 update-notify: true
 
-# Worlds where abilities are disabled
+# Worlds where all abilities are disabled
 disabled-worlds:
   - example
   - example_nether
   - example_the_end
 
-# Infinity - Slows entities/projectiles approaching the user
+# ==============================================================================
+# Infinity — Slows/stops everything approaching the user
+# ==============================================================================
 infinity:
-  radius: 10.0               # Effect radius
-  min-speed: 0.0             # Speed at closest distance (0 = stop)
-  min-distance: 2.5          # Distance where entities stop
-  block-explosion: true      # Block explosion damage
-  block-fall-damage: true    # Block fall damage
+  radius: 10.0               # Detection radius (blocks)
+  min-speed: 0.0             # Speed at closest point (0 = full stop)
+  min-distance: 2.5          # Distance at which entities halt
+  block-explosion: true      # Negate explosion damage
+  block-fall-damage: true    # Negate fall damage
   block-falling-blocks: true # Stop falling blocks
-  block-projectiles: true    # Stop projectiles
-  drain-saturation: true     # Drain saturation when active
-  saturation-cost: 0.2       # Saturation cost per second
-  saturation-threshold: 6    # Disable if hunger below this
+  block-projectiles: true    # Stop incoming projectiles
+  drain-saturation: true     # Drain hunger while active
+  saturation-cost: 0.2       # Saturation drained per second
+  saturation-threshold: 6    # Auto-disable below this hunger level
 
-# Hollow Purple - Destructive projectile combining Red and Blue
+# ==============================================================================
+# Blue (Ao) — Pulls entities toward a point
+# ==============================================================================
+blue:
+  max-distance: 300.0        # Max raycast range (blocks)
+  radius: 8.0                # Pull radius around target point
+  damage: 2.0                # Damage per second to caught entities
+  duration: 10.0             # Active duration (seconds)
+  pull-strength: 1.5         # Pull velocity strength
+  cooldown: 8.0              # Cooldown (seconds)
+  drain-saturation: true
+  saturation-cost: 0.5       # Saturation per second
+
+# ==============================================================================
+# Red (Aka) — Repels entities away
+# ==============================================================================
+red:
+  max-distance: 30.0         # Max range to target a specific entity
+  radius: 10.0               # Radius for area repulsion
+  push-strength: 6.0         # Push force (area mode)
+  entity-push-strength: 8.0  # Push force (single target)
+  impact-damage: 20.0        # Damage when entity hits a wall
+  cooldown: 5.0              # Cooldown (seconds)
+  drain-saturation: true
+  saturation-cost: 3.0       # Saturation per use
+
+# ==============================================================================
+# Purple (Murasaki) — Destructive blast combining Blue + Red
+# ==============================================================================
 purple:
-  charge-time: 3.5           # Seconds to charge
-  speed: 2.0                 # Projectile speed
-  radius: 8.0                # Destruction radius
-  range: 150.0               # Max travel distance
+  charge-time: 3.5           # Charge duration (seconds)
+  speed: 3.0                 # Projectile speed
+  radius: 9.0                # Destruction radius on impact
+  range: 150.0               # Max travel distance (blocks)
   damage: 1000.0             # Damage to entities
   drop-blocks: false         # Drop destroyed blocks as items
-  impact-melt: true          # Melt blocks in the hole
+  impact-melt: true          # Melt blocks inside the crater
   hold: true                 # Allow holding charge before firing
   hold-time: 10.0            # Max hold duration (seconds)
-  cooldown: 15.0             # Cooldown after use (seconds)
-  recoil: 0.75               # Knockback when firing
-  drain-saturation: true     # Drain saturation during charge
-  saturation-cost: 8         # Total saturation cost for full charge
+  cooldown: 15.0             # Cooldown (seconds)
+  recoil: 0.75               # Knockback on the user when fired
+  drain-saturation: true
+  saturation-cost: 8         # Total saturation cost for a full charge
 
-# Blue (Attraction/Ao) - Pulls entities to a point or holds them in place
-blue:
-  max-distance: 300.0        # Max raycast distance for target location
-  radius: 8.0                # Attraction radius (for point mode)
-  damage: 2.0                # Damage per second to entities
-  duration: 10.0             # Duration in seconds
-  pull-strength: 1.5         # Velocity strength pulling entities
-  cooldown: 8.0              # Cooldown in seconds
-  drain-saturation: true     # Drain saturation while active
-  saturation-cost: 0.5       # Saturation cost per second
-
-# Reverse Cursed Technique - Drains saturation to heal
+# ==============================================================================
+# RCT — Reverse Cursed Technique
+# Drains saturation to heal. Formula per 0.5s tick:
+#   cost = saturation-per-sec / 2
+#   heal = cost × heal-per-unit
+# Example: saturation-per-sec=1, heal-per-unit=2 → 0.5 sat → +1 HP per tick
+# ==============================================================================
 rct:
-  heal-per-unit: 1.0         # HP healed per 1 saturation unit
-  saturation-per-sec: 2.0    # Saturation drained per second
-  duration: 10.0             # Duration in seconds
-  cooldown: 20.0             # Cooldown in seconds
-  effects:                   # Effects to apply while active (Format: EFFECT:LEVEL)
+  heal-per-unit: 4.0         # HP healed per 1 saturation drained
+  saturation-per-sec: 1.0    # Saturation drained per second
+  duration: 10.0             # Max active duration (seconds)
+  cooldown: 20.0             # Cooldown after use (seconds)
+  effects:                   # Potion effects while active (EFFECT:LEVEL)
     - "REGENERATION:1"
+    - "RESISTANCE:3"
+    - "NIGHT_VISION:1"
+  passive-default: false     # Start in passive mode by default
+  passive-threshold: 10.0    # HP threshold to trigger passive healing
 
-# Red (Repulsion/Aka) - Pushes entities away
-red:
-  max-distance: 30.0         # Max distance to target specific entity
-  radius: 10.0               # Area repulsion radius
-  push-strength: 6.0         # Push strength for area mode
-  entity-push-strength: 8.0  # Push strength for single entity
-  impact-damage: 20.0        # Damage when entity hits wall
-  cooldown: 5.0              # Cooldown in seconds
-  drain-saturation: true     # Drain saturation on use
-  saturation-cost: 3.0       # Saturation cost per use
-
-# PlaceholderAPI - Customize state display text
-# Placeholders: %limitless_infinity_state%, %limitless_purple_state%, %limitless_blue_state%, %limitless_red_state%
+# ==============================================================================
+# PlaceholderAPI — State display text
+# Available: %limitless_infinity_state%  %limitless_blue_state%
+#            %limitless_red_state%       %limitless_purple_state%
+#            %limitless_rct_state%
+# ==============================================================================
 placeholders:
   infinity:
     disabled: "&c⬤ Disabled"
     idle: "&e⬤ Idle"
     activated: "&a⬤ Activated"
-    cooldown: "&7⬤ Cooldown"
-  purple:
-    disabled: "&c⬤ Disabled"
-    idle: "&e⬤ Idle"
-    charging: "&b⬤ Charging"
-    holding: "&d⬤ Holding"
-    discharge: "&5⬤ Discharge"
     cooldown: "&7⬤ Cooldown"
   blue:
     disabled: "&c⬤ Disabled"
@@ -95,8 +112,16 @@ placeholders:
     repelling_area: "&c⬤ Repelling (Area)"
     repelling_entity: "&4⬤ Repelling (Entity)"
     cooldown: "&7⬤ Cooldown"
+  purple:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    charging: "&b⬤ Charging"
+    holding: "&d⬤ Holding"
+    discharge: "&5⬤ Discharge"
+    cooldown: "&7⬤ Cooldown"
   rct:
     disabled: "&c⬤ Disabled"
     idle: "&e⬤ Idle"
     active: "&a⬤ Active"
+    passive: "&b⬤ Passive"
     cooldown: "&7⬤ Cooldown"

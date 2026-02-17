@@ -1,5 +1,7 @@
 package com.NguyenDevs.limitless.listener;
 
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
+
 import com.NguyenDevs.limitless.gui.LimitlessGUI;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
@@ -9,17 +11,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.ClickType;
 
 public class GuiListener implements Listener {
 
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
     private final LimitlessGUI limitlessGUI;
+    private final ReverseCursedTechnique rct;
 
-    public GuiListener(ConfigManager configManager, AbilityToggleManager toggleManager, LimitlessGUI limitlessGUI) {
+    public GuiListener(ConfigManager configManager, AbilityToggleManager toggleManager, LimitlessGUI limitlessGUI,
+            ReverseCursedTechnique rct) {
         this.configManager = configManager;
         this.toggleManager = toggleManager;
         this.limitlessGUI = limitlessGUI;
+        this.rct = rct;
     }
 
     @EventHandler
@@ -55,7 +61,16 @@ public class GuiListener implements Listener {
             String permission = "limitless.use." + abilityToToggle;
             if (!player.hasPermission(permission) && !player.hasPermission("limitless.use.*") && !player.isOp()) {
                 player.sendMessage(configManager.getMessage("no-permission"));
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
+                return;
+            }
+
+            if (abilityToToggle.equals("rct")
+                    && (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.SHIFT_RIGHT)) {
+                boolean currentPassive = rct.isPassive(player.getUniqueId());
+                rct.setPassive(player, !currentPassive);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+                limitlessGUI.openGUI(player);
                 return;
             }
 

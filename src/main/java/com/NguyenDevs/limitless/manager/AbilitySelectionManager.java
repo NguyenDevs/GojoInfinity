@@ -1,6 +1,7 @@
 package com.NguyenDevs.limitless.manager;
 
 import com.NguyenDevs.limitless.Limitless;
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
 import com.NguyenDevs.limitless.ability.HollowTechnique;
 import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
@@ -38,8 +39,9 @@ public class AbilitySelectionManager {
 
         boolean isPurpleActive = purple != null && (purple.getState(playerId) == HollowTechnique.PurpleState.CHARGING
                 || purple.getState(playerId) == HollowTechnique.PurpleState.HOLDING);
-        boolean isBlueActive = blue != null && (blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_POINT
-                || blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_ENTITY);
+        boolean isBlueActive = blue != null
+                && (blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_POINT
+                        || blue.getState(playerId) == LapseCursedTechnique.BlueState.ATTRACTING_ENTITY);
         boolean isRedActive = red != null && (red.getState(playerId) == ReversalCursedTechnique.RedState.REPELLING_AREA
                 || red.getState(playerId) == ReversalCursedTechnique.RedState.REPELLING_ENTITY);
 
@@ -54,6 +56,14 @@ public class AbilitySelectionManager {
         for (String ability : availableAbilities) {
             if (toggleManager.isAbilityEnabled(playerId, ability)
                     && player.hasPermission("limitless.ability." + ability)) {
+
+                if (ability.equals("rct")) {
+                    ReverseCursedTechnique rct = plugin.getReverseCursedTechnique();
+                    if (rct != null && rct.isPassive(playerId)) {
+                        continue;
+                    }
+                }
+
                 enabledAbilities.add(ability);
             }
         }

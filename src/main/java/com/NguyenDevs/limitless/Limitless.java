@@ -43,7 +43,7 @@ public final class Limitless extends JavaPlugin {
                 this.configManager.loadConfigs();
 
                 this.toggleManager = new AbilityToggleManager(this);
-                this.limitlessGUI = new LimitlessGUI(configManager, toggleManager);
+                this.toggleManager = new AbilityToggleManager(this);
 
                 this.infinityEntityManager = new InfinityEntityManager(this);
                 this.infinityEntityManager.loadConfigs();
@@ -53,6 +53,7 @@ public final class Limitless extends JavaPlugin {
                 this.lapseCursedTechnique = new LapseCursedTechnique(this, configManager, toggleManager);
                 this.reversalCursedTechnique = new ReversalCursedTechnique(this, configManager, toggleManager);
                 this.reverseCursedTechnique = new ReverseCursedTechnique(this, configManager, toggleManager);
+                this.limitlessGUI = new LimitlessGUI(configManager, toggleManager, reverseCursedTechnique);
                 infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
@@ -71,7 +72,7 @@ public final class Limitless extends JavaPlugin {
                                                 selectionManager),
                                                 this);
                 getServer().getPluginManager().registerEvents(
-                                new GuiListener(configManager, toggleManager, limitlessGUI),
+                                new GuiListener(configManager, toggleManager, limitlessGUI, reverseCursedTechnique),
                                 this);
 
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
