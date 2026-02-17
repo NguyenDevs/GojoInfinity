@@ -5,6 +5,7 @@ import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
 import com.NguyenDevs.limitless.ability.InfinityAbility;
 import com.NguyenDevs.limitless.ability.HollowTechnique;
 import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -19,16 +20,19 @@ public class LimitlessExpansion extends PlaceholderExpansion {
     private final HollowTechnique hollowTechnique;
     private final LapseCursedTechnique lapseCursedTechnique;
     private final ReversalCursedTechnique reversalCursedTechnique;
+    private final ReverseCursedTechnique reverseCursedTechnique;
 
     public LimitlessExpansion(Limitless plugin, ConfigManager configManager,
-                              InfinityAbility infinityAbility, HollowTechnique hollowTechnique,
-                              LapseCursedTechnique lapseCursedTechnique, ReversalCursedTechnique reversalCursedTechnique) {
+            InfinityAbility infinityAbility, HollowTechnique hollowTechnique,
+            LapseCursedTechnique lapseCursedTechnique, ReversalCursedTechnique reversalCursedTechnique,
+            ReverseCursedTechnique reverseCursedTechnique) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.infinityAbility = infinityAbility;
         this.hollowTechnique = hollowTechnique;
         this.lapseCursedTechnique = lapseCursedTechnique;
         this.reversalCursedTechnique = reversalCursedTechnique;
+        this.reverseCursedTechnique = reverseCursedTechnique;
     }
 
     @Override
@@ -74,6 +78,11 @@ public class LimitlessExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("red_state")) {
             ReversalCursedTechnique.RedState state = reversalCursedTechnique.getState(player.getUniqueId());
             return configManager.getPlaceholderRedState(state.name().toLowerCase());
+        }
+
+        if (params.equalsIgnoreCase("rct_state")) {
+            ReverseCursedTechnique.RctState state = reverseCursedTechnique.getState(player.getUniqueId());
+            return configManager.getPlaceholderRctState(state.name().toLowerCase());
         }
         return null;
     }

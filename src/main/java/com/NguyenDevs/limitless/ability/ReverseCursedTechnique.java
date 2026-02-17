@@ -17,6 +17,13 @@ import java.util.UUID;
 
 public class ReverseCursedTechnique {
 
+    public enum RctState {
+        DISABLED,
+        IDLE,
+        ACTIVE,
+        COOLDOWN
+    }
+
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
@@ -27,6 +34,19 @@ public class ReverseCursedTechnique {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
+    }
+
+    public RctState getState(UUID playerId) {
+        if (!toggleManager.isAbilityEnabled(playerId, "rct")) {
+            return RctState.DISABLED;
+        }
+        if (activeTasks.containsKey(playerId)) {
+            return RctState.ACTIVE;
+        }
+        if (isOnCooldown(playerId)) {
+            return RctState.COOLDOWN;
+        }
+        return RctState.IDLE;
     }
 
     public void activate(Player player) {

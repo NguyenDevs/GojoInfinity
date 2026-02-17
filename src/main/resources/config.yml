@@ -95,3 +95,8 @@ placeholders:
     repelling_area: "&c⬤ Repelling (Area)"
     repelling_entity: "&4⬤ Repelling (Entity)"
     cooldown: "&7⬤ Cooldown"
+  rct:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    active: "&a⬤ Active"
+    cooldown: "&7⬤ Cooldown"

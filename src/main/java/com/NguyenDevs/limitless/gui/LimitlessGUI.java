@@ -35,6 +35,7 @@ public class LimitlessGUI {
         inv.setItem(guiConfig.getInt("items.purple.slot", 4), createItem(player, "purple", "items.purple"));
         inv.setItem(guiConfig.getInt("items.blue.slot", 6), createItem(player, "blue", "items.blue"));
         inv.setItem(guiConfig.getInt("items.red.slot", 8), createItem(player, "red", "items.red"));
+        inv.setItem(guiConfig.getInt("items.rct.slot", 0), createItem(player, "rct", "items.rct"));
 
         ItemStack infinityItem = createItem(player, "infinity", "items.infinity");
 

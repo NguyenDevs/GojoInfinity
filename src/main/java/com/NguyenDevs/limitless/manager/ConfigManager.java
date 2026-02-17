@@ -286,6 +286,11 @@ public class ConfigManager {
         return ColorUtils.colorize(text);
     }
 
+    public String getPlaceholderRctState(String state) {
+        String text = plugin.getConfig().getString("placeholders.rct." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
     public double getRctHealPerUnit() {
         return plugin.getConfig().getDouble("rct.heal-per-unit", 1.0);
     }

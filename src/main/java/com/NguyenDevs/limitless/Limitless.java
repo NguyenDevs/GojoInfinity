@@ -67,15 +67,17 @@ public final class Limitless extends JavaPlugin {
 
                 getServer().getPluginManager()
                                 .registerEvents(new LimitlessListener(configManager, toggleManager, hollowTechnique,
-                                                lapseCursedTechnique, reversalCursedTechnique, reverseCursedTechnique, selectionManager),
+                                                lapseCursedTechnique, reversalCursedTechnique, reverseCursedTechnique,
+                                                selectionManager),
                                                 this);
                 getServer().getPluginManager().registerEvents(
                                 new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                        new LimitlessExpansion(this, configManager, infinityAbility, hollowTechnique, lapseCursedTechnique,
-                                reversalCursedTechnique).register();
+                        new LimitlessExpansion(this, configManager, infinityAbility, hollowTechnique,
+                                        lapseCursedTechnique,
+                                        reversalCursedTechnique, reverseCursedTechnique).register();
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                         "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
                 } else {
