@@ -13,6 +13,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,28 @@ public class ReverseCursedTechnique {
     }
 
     private static final Particle.DustOptions DUST = new Particle.DustOptions(Color.fromRGB(0xAAFF88), 1.2f);
+
+    private static final Set<PotionEffectType> DEBUFFS = new HashSet<>();
+
+    static {
+        DEBUFFS.add(PotionEffectType.WITHER);
+        DEBUFFS.add(PotionEffectType.WEAKNESS);
+        DEBUFFS.add(PotionEffectType.SLOWNESS);
+        DEBUFFS.add(PotionEffectType.POISON);
+        DEBUFFS.add(PotionEffectType.NAUSEA);
+        DEBUFFS.add(PotionEffectType.MINING_FATIGUE);
+        DEBUFFS.add(PotionEffectType.LEVITATION);
+        DEBUFFS.add(PotionEffectType.INSTANT_DAMAGE);
+        DEBUFFS.add(PotionEffectType.HUNGER);
+        DEBUFFS.add(PotionEffectType.DARKNESS);
+        DEBUFFS.add(PotionEffectType.BLINDNESS);
+        DEBUFFS.add(PotionEffectType.UNLUCK);
+
+        DEBUFFS.add(PotionEffectType.WIND_CHARGED);
+        DEBUFFS.add(PotionEffectType.WEAVING);
+        DEBUFFS.add(PotionEffectType.OOZING);
+        DEBUFFS.add(PotionEffectType.INFESTED);
+    }
 
     private final Limitless plugin;
     private final ConfigManager configManager;
@@ -136,6 +159,7 @@ public class ReverseCursedTechnique {
                 double currentHealth = player.getHealth();
 
                 if (currentHealth >= maxHealth) {
+                    removeBadEffects(player);
                     player.sendMessage(configManager.getMessage("rct-full-health"));
                     cancelTask(playerId);
                     return;
@@ -153,6 +177,7 @@ public class ReverseCursedTechnique {
 
                 drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
                 player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
+                removeBadEffects(player);
                 applyEffects(player, effects);
                 spawnOrbitParticles(player, playerId);
 
@@ -233,9 +258,20 @@ public class ReverseCursedTechnique {
 
         drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
         player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
+        removeBadEffects(player);
         applyEffects(player, configManager.getRctEffects());
         spawnOrbitParticles(player, player.getUniqueId());
         player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f, 1.5f);
+    }
+
+    private void removeBadEffects(Player player) {
+
+        for (PotionEffectType type : DEBUFFS) {
+            if (player.hasPotionEffect(type)) {
+                player.removePotionEffect(type);
+            }
+        }
+
     }
 
     private void spawnOrbitParticles(Player player, UUID playerId) {
