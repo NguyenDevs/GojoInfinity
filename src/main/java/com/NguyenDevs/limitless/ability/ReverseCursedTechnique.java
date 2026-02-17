@@ -74,7 +74,7 @@ public class ReverseCursedTechnique {
         player.sendMessage(configManager.getMessage("rct-enabled"));
 
         double saturationPerSec = configManager.getRctSaturationPerSec();
-        double saturationCostPerTick = saturationPerSec / 2.0;
+        double saturationCostPerTick = saturationPerSec * 2.0;
         double healPerUnit = configManager.getRctHealPerUnit();
         double healPerTick = saturationCostPerTick * healPerUnit;
         int maxDurationTicks = (int) (configManager.getRctDuration() * 20);
@@ -97,6 +97,14 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
+                double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double currentHealth = player.getHealth();
+                if (currentHealth >= maxHealth) {
+                    player.sendMessage(configManager.getMessage("rct-full-health"));
+                    cancelTask(playerId);
+                    return;
+                }
+
                 float currentSaturation = player.getSaturation();
                 int currentFood = player.getFoodLevel();
                 double availableSaturation = currentSaturation + currentFood;
@@ -107,7 +115,6 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
-                // Drain saturation/food
                 double remainingCost = saturationCostPerTick;
                 if (currentSaturation >= remainingCost) {
                     player.setSaturation((float) (currentSaturation - remainingCost));
@@ -117,34 +124,27 @@ public class ReverseCursedTechnique {
                     player.setFoodLevel(Math.max(0, currentFood - (int) Math.ceil(remainingCost)));
                 }
 
-                // Heal
-                double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                double currentHealth = player.getHealth();
-                if (currentHealth < maxHealth) {
-                    player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
-                }
+                player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
 
-                // Apply effects
                 for (String effectStr : effects) {
                     try {
                         String[] parts = effectStr.split(":");
                         PotionEffectType type = PotionEffectType.getByName(parts[0]);
-                        int amplifier = parts.length > 1 ? Integer.parseInt(parts[1]) - 1 : 0; // Level 1 is amplifier 0
+                        int amplifier = parts.length > 1 ? Integer.parseInt(parts[1]) - 1 : 0;
                         if (type != null) {
-                            player.addPotionEffect(new PotionEffect(type, 20, amplifier, false, false, true));
+                            player.addPotionEffect(new PotionEffect(type, 40, amplifier, false, false, true));
                         }
                     } catch (Exception ignored) {
                     }
                 }
 
-                // Play sound
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
 
-                ticks += 10;
+                ticks += 40;
             }
         };
 
-        task.runTaskTimer(plugin, 0L, 10L);
+        task.runTaskTimer(plugin, 0L, 40L);
         activeTasks.put(playerId, task);
     }
 

@@ -1,4 +1,3 @@
-
 # ==============================================================================
 #                        GojoInfinity Messages
 # ==============================================================================
@@ -8,56 +7,64 @@
 
 prefix: "<gradient:#FE0002:#0302FC>[Limitless]</gradient> &r"
 
+# ------------------------------------------------------------------------------
+# General
+# ------------------------------------------------------------------------------
 reload-success: "&aConfiguration reloaded successfully!"
 no-permission: "&cYou do not have permission to use this command."
 only-players: "&cOnly players can use this command."
 world-disabled: "&cGojo's abilities are disabled in this world."
-
-# Cooldown messages
-cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
-cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
-cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
-
-# Ability Switch Messages
 ability-switch-blocked: "&cYou cannot switch abilities while using another ability!"
 
-# Ability toggle messages
+# ------------------------------------------------------------------------------
+# Infinity
+# ------------------------------------------------------------------------------
 infinity-enabled: "&bInfinity has been enabled."
 infinity-disabled: "&cInfinity has been disabled."
 
-purple-enabled: "&5Purple (Murasaki) has been enabled."
-purple-disabled: "&7Purple (Murasaki) has been disabled."
-
+# ------------------------------------------------------------------------------
+# Blue (Ao) - Cursed Technique Lapse
+# ------------------------------------------------------------------------------
 blue-enabled: "&bBlue (Ao) has been enabled."
 blue-disabled: "&7Blue (Ao) has been disabled."
-
-red-enabled: "&cRed (Aka) has been enabled."
-red-disabled: "&7Red (Aka) has been disabled."
-
-# Saturation messages
-purple-saturation-empty: "&cNot enough saturation to complete Purple!"
 blue-saturation-empty: "&cNot enough saturation to use Blue!"
-red-saturation-empty: "&cNot enough saturation to use Red!"
-
-# RCT Messages
-rct-enabled: "&aReverse Cursed Technique activated."
-rct-disabled: "&cReverse Cursed Technique deactivated."
-rct-expired: "&eReverse Cursed Technique expired."
-rct-saturation-empty: "&cNot enough saturation to use Reverse Cursed Technique!"
-cooldown-rct: "&aReverse Cursed Technique &7is on cooldown! Wait &c%time%s"
-
-# Ability Selection Messages
-ability-select-title-red: "<gradient:#FF0000:#FF6666>RED</gradient>"
-ability-select-subtitle-red: "<gradient:#FF4444:#FFAAAA>Cursed Technique Reversal</gradient>"
+blue-no-target: "&cNo target found!"
+cooldown-blue: "&#0080FFBlue &7is on cooldown! Wait &c%time%s"
 
 ability-select-title-blue: "<gradient:#0080FF:#66B3FF>BLUE</gradient>"
 ability-select-subtitle-blue: "<gradient:#3399FF:#99CCFF>Cursed Technique Lapse</gradient>"
 
+# ------------------------------------------------------------------------------
+# Red (Aka) - Cursed Technique Reversal
+# ------------------------------------------------------------------------------
+red-enabled: "&cRed (Aka) has been enabled."
+red-disabled: "&7Red (Aka) has been disabled."
+red-saturation-empty: "&cNot enough saturation to use Red!"
+cooldown-red: "&#FF0000Red &7is on cooldown! Wait &c%time%s"
+
+ability-select-title-red: "<gradient:#FF0000:#FF6666>RED</gradient>"
+ability-select-subtitle-red: "<gradient:#FF4444:#FFAAAA>Cursed Technique Reversal</gradient>"
+
+# ------------------------------------------------------------------------------
+# Purple (Murasaki) - Hollow Technique
+# ------------------------------------------------------------------------------
+purple-enabled: "&5Purple (Murasaki) has been enabled."
+purple-disabled: "&7Purple (Murasaki) has been disabled."
+purple-saturation-empty: "&cNot enough saturation to complete Purple!"
+cooldown-purple: "&#63009EPurple &7is on cooldown! Wait &c%time%s"
+
 ability-select-title-purple: "<gradient:#63009E:#B366FF>PURPLE</gradient>"
 ability-select-subtitle-purple: "<gradient:#8800CC:#CC66FF>Hollow Technique</gradient>"
 
+# ------------------------------------------------------------------------------
+# RCT - Reverse Cursed Technique
+# ------------------------------------------------------------------------------
+rct-enabled: "&aReverse Cursed Technique activated."
+rct-disabled: "&cReverse Cursed Technique deactivated."
+rct-expired: "&eReverse Cursed Technique expired."
+rct-full-health: "&7Your HP is full, RCT will automatically inactive."
+rct-saturation-empty: "&cNot enough saturation to use Reverse Cursed Technique!"
+cooldown-rct: "&aReverse Cursed Technique &7is on cooldown! Wait &c%time%s"
+
 ability-select-title-rct: "<gradient:#FFFFFF:#AAFFAA>RCT</gradient>"
 ability-select-subtitle-rct: "<gradient:#DDFFDD:#FFFFFF>Reverse Cursed Technique</gradient>"
-
-# Other messages
-blue-no-target: "&cNo target found!"
