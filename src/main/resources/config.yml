@@ -50,8 +50,8 @@ blue:
 
 # Reverse Cursed Technique - Drains saturation to heal
 rct:
-  heal-per-unit: 1.0         # HP healed per 1 saturation unit
-  saturation-per-sec: 2.0    # Saturation drained per second
+  heal-per-unit: 2.0         # HP healed per 1 saturation unit
+  saturation-per-sec: 1.0    # Saturation drained per second
   duration: 10.0             # Duration in seconds
   cooldown: 20.0             # Cooldown in seconds
   effects:                   # Effects to apply while active (Format: EFFECT:LEVEL)
