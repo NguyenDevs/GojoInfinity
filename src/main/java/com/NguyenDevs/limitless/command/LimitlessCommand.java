@@ -7,12 +7,15 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class LimitlessCommand implements CommandExecutor {
+public class LimitlessCommand implements CommandExecutor, TabCompleter {
 
     private final Limitless plugin;
     private final ConfigManager configManager;
@@ -20,7 +23,7 @@ public class LimitlessCommand implements CommandExecutor {
     private final LimitlessGUI limitlessGUI;
 
     public LimitlessCommand(Limitless plugin, ConfigManager configManager, Set<UUID> infinityUsers,
-            LimitlessGUI limitlessGUI) {
+                            LimitlessGUI limitlessGUI) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.infinityUsers = infinityUsers;
@@ -29,49 +32,62 @@ public class LimitlessCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("limitless")) {
-            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-                if (!sender.hasPermission("limitless.admin")) {
-                    sender.sendMessage(configManager.getMessage("no-permission"));
-                    if (sender instanceof Player) {
-                        ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f,
-                                0.5f);
-                    }
-                    return true;
-                }
-                configManager.loadConfigs();
-                plugin.getInfinityEntityManager().reload();
-                plugin.getInfinityAbility().onConfigReload();
-                sender.sendMessage(configManager.getMessage("reload-success"));
+        if (!command.getName().equalsIgnoreCase("limitless")) {
+            return false;
+        }
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("limitless.admin")) {
+                sender.sendMessage(configManager.getMessage("no-permission"));
                 if (sender instanceof Player) {
-                    ((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE,
-                            1.0f, 1.5f);
+                    Player player = (Player) sender;
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
                 }
                 return true;
             }
-
+            configManager.loadConfigs();
+            plugin.getInfinityEntityManager().reload();
+            plugin.getInfinityAbility().onConfigReload();
+            sender.sendMessage(configManager.getMessage("reload-success"));
             if (sender instanceof Player) {
                 Player player = (Player) sender;
-                if (!player.hasPermission("limitless.use")) {
-                    player.sendMessage(configManager.getMessage("no-permission"));
-                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
-                    return true;
-                }
+                player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 1.5f);
+            }
+            return true;
+        }
 
-                if (!configManager.isWorldEnabled(player.getWorld().getName())) {
-                    player.sendMessage(configManager.getMessage("world-disabled"));
-                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
-                    return true;
-                }
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(configManager.getMessage("only-players"));
+            return true;
+        }
 
-                infinityUsers.add(player.getUniqueId());
-                limitlessGUI.openGUI(player);
-                return true;
-            } else {
-                sender.sendMessage(configManager.getMessage("only-players"));
-                return true;
+        Player player = (Player) sender;
+
+        if (!player.hasPermission("limitless.use")) {
+            player.sendMessage(configManager.getMessage("no-permission"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+            return true;
+        }
+
+        if (!configManager.isWorldEnabled(player.getWorld().getName())) {
+            player.sendMessage(configManager.getMessage("world-disabled"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 0.5f);
+            return true;
+        }
+
+        infinityUsers.add(player.getUniqueId());
+        limitlessGUI.openGUI(player);
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 1 && sender.hasPermission("limitless.admin")) {
+            String input = args[0].toLowerCase();
+            if ("reload".startsWith(input)) {
+                return List.of("reload");
             }
         }
-        return false;
+        return Collections.emptyList();
     }
 }
