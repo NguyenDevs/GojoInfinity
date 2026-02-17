@@ -3,6 +3,9 @@ package com.NguyenDevs.limitless.ability;
 import com.NguyenDevs.limitless.Limitless;
 import com.NguyenDevs.limitless.manager.AbilityToggleManager;
 import com.NguyenDevs.limitless.manager.ConfigManager;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -27,6 +30,8 @@ public class ReverseCursedTechnique {
         PASSIVE
     }
 
+    private static final Particle.DustOptions DUST = new Particle.DustOptions(Color.fromRGB(0xAAFF88), 1.2f);
+
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final AbilityToggleManager toggleManager;
@@ -34,12 +39,15 @@ public class ReverseCursedTechnique {
     private final Map<UUID, BukkitRunnable> activeTasks = new HashMap<>();
     private final Map<UUID, Boolean> passiveStates = new HashMap<>();
     private final Set<UUID> healingPlayers = new HashSet<>();
+    private final Map<UUID, Double> particleAngles = new HashMap<>();
+
     public ReverseCursedTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
         startPassiveScanner();
     }
+
     private void startPassiveScanner() {
         new BukkitRunnable() {
             @Override
@@ -81,6 +89,7 @@ public class ReverseCursedTechnique {
         if (activeTasks.containsKey(playerId)) {
             activeTasks.get(playerId).cancel();
             activeTasks.remove(playerId);
+            particleAngles.remove(playerId);
             player.sendMessage(configManager.getMessage("rct-disabled"));
             return;
         }
@@ -98,8 +107,9 @@ public class ReverseCursedTechnique {
         }
 
         player.sendMessage(configManager.getMessage("rct-enabled"));
+        particleAngles.put(playerId, 0.0);
 
-        final double saturationPerSec    = configManager.getRctSaturationPerSec();
+        final double saturationPerSec      = configManager.getRctSaturationPerSec();
         final double saturationCostPerTick = saturationPerSec / 2.0;
         final double healPerUnit           = configManager.getRctHealPerUnit();
         final double healPerTick           = saturationCostPerTick * healPerUnit;
@@ -122,7 +132,7 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
-                double maxHealth    = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                double maxHealth     = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
                 double currentHealth = player.getHealth();
 
                 if (currentHealth >= maxHealth) {
@@ -131,8 +141,8 @@ public class ReverseCursedTechnique {
                     return;
                 }
 
-                float currentSaturation  = player.getSaturation();
-                int   currentFood        = player.getFoodLevel();
+                float  currentSaturation   = player.getSaturation();
+                int    currentFood         = player.getFoodLevel();
                 double availableSaturation = currentSaturation + currentFood;
 
                 if (availableSaturation <= 0) {
@@ -140,21 +150,12 @@ public class ReverseCursedTechnique {
                     cancelTask(playerId);
                     return;
                 }
+
                 drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
-
                 player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
+                applyEffects(player, effects);
+                spawnOrbitParticles(player, playerId);
 
-                for (String effectStr : effects) {
-                    try {
-                        String[] parts = effectStr.split(":");
-                        PotionEffectType type = PotionEffectType.getByName(parts[0]);
-                        int amplifier = parts.length > 1 ? Integer.parseInt(parts[1]) - 1 : 0;
-                        if (type != null) {
-                            player.addPotionEffect(new PotionEffect(type, 20, amplifier, false, false, true));
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
                 if (ticks % 40 == 0) {
                     player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1.0f, 1.0f);
                 }
@@ -166,6 +167,7 @@ public class ReverseCursedTechnique {
         task.runTaskTimer(plugin, 0L, 10L);
         activeTasks.put(playerId, task);
     }
+
     public boolean isPassive(UUID playerId) {
         if (!toggleManager.isAbilityEnabled(playerId, "rct")) {
             return false;
@@ -186,20 +188,22 @@ public class ReverseCursedTechnique {
     }
 
     public void processPassiveLogic(Player player) {
-        UUID playerId    = player.getUniqueId();
-        double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        UUID   playerId      = player.getUniqueId();
+        double maxHealth     = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
         double currentHealth = player.getHealth();
-        double threshold = configManager.getRctPassiveThreshold();
+        double threshold     = configManager.getRctPassiveThreshold();
 
         if (healingPlayers.contains(playerId)) {
             if (currentHealth >= maxHealth) {
                 healingPlayers.remove(playerId);
+                particleAngles.remove(playerId);
                 return;
             }
             performPassiveHeal(player, maxHealth, currentHealth);
         } else {
             if (currentHealth < threshold) {
                 healingPlayers.add(playerId);
+                particleAngles.put(playerId, 0.0);
                 performPassiveHeal(player, maxHealth, currentHealth);
             }
         }
@@ -208,11 +212,11 @@ public class ReverseCursedTechnique {
     private void performPassiveHeal(Player player, double maxHealth, double currentHealth) {
         if (player.getFoodLevel() + player.getSaturation() <= 0) {
             healingPlayers.remove(player.getUniqueId());
+            particleAngles.remove(player.getUniqueId());
             return;
         }
-        //   saturationCostPerTick = saturationPerSec / 2.0
-        //   healPerTick           = saturationCostPerTick * healPerUnit
-        double saturationPerSec     = configManager.getRctSaturationPerSec();
+
+        double saturationPerSec      = configManager.getRctSaturationPerSec();
         double saturationCostPerTick = saturationPerSec / 2.0;
         double healPerUnit           = configManager.getRctHealPerUnit();
         double healPerTick           = saturationCostPerTick * healPerUnit;
@@ -223,13 +227,46 @@ public class ReverseCursedTechnique {
 
         if (availableSaturation < saturationCostPerTick) {
             healingPlayers.remove(player.getUniqueId());
+            particleAngles.remove(player.getUniqueId());
             return;
         }
 
         drainSaturation(player, currentSaturation, currentFood, saturationCostPerTick);
-
         player.setHealth(Math.min(maxHealth, currentHealth + healPerTick));
+        applyEffects(player, configManager.getRctEffects());
+        spawnOrbitParticles(player, player.getUniqueId());
         player.playSound(player.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 0.5f, 1.5f);
+    }
+
+    private void spawnOrbitParticles(Player player, UUID playerId) {
+        double offset = particleAngles.getOrDefault(playerId, 0.0);
+        Location base = player.getLocation().add(0, 1.0, 0);
+        double radius = 0.6;
+        int points = 24;
+
+        for (int i = 0; i < points; i++) {
+            double a = offset + (2 * Math.PI / points) * i;
+            double x = Math.cos(a) * radius;
+            double z = Math.sin(a) * radius;
+            base.getWorld().spawnParticle(Particle.DUST, base.clone().add(x, 0, z), 1, 0, 0, 0, 0, DUST);
+        }
+
+        // Offset xoay mỗi tick tạo cảm giác vòng tròn đang quay
+        particleAngles.put(playerId, (offset + Math.PI / 8) % (2 * Math.PI));
+    }
+
+    private void applyEffects(Player player, List<String> effects) {
+        for (String effectStr : effects) {
+            try {
+                String[] parts = effectStr.split(":");
+                PotionEffectType type = PotionEffectType.getByName(parts[0]);
+                int amplifier = parts.length > 1 ? Integer.parseInt(parts[1]) - 1 : 0;
+                if (type != null) {
+                    player.addPotionEffect(new PotionEffect(type, 20, amplifier, false, false, true));
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private void drainSaturation(Player player, float currentSaturation, int currentFood, double cost) {
@@ -246,6 +283,7 @@ public class ReverseCursedTechnique {
         if (activeTasks.containsKey(playerId)) {
             activeTasks.get(playerId).cancel();
             activeTasks.remove(playerId);
+            particleAngles.remove(playerId);
             cooldowns.put(playerId, System.currentTimeMillis());
         }
     }

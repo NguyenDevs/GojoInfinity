@@ -28,6 +28,7 @@ permissions:
       limitless.ability.infinity: true
       limitless.ability.blue: true
       limitless.ability.red: true
+      limitless.ability.rct: true
   limitless.ability.purple:
     description: Allows usage of Purple ability
     default: op
@@ -39,6 +40,9 @@ permissions:
     default: op
   limitless.ability.red:
     description: Allows usage of Red ability
+    default: op
+  limitless.ability.rct:
+    description: Allows usage of Rct ability
     default: op
   limitless.ability.purple.bypasssaturation:
     description: Bypass saturation cost for Purple ability

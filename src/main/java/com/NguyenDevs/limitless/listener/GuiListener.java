@@ -61,7 +61,7 @@ public class GuiListener implements Listener {
             String permission = "limitless.use." + abilityToToggle;
             if (!player.hasPermission(permission) && !player.hasPermission("limitless.use.*") && !player.isOp()) {
                 player.sendMessage(configManager.getMessage("no-permission"));
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
                 return;
             }
 
