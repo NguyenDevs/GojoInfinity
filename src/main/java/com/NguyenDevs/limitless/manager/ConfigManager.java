@@ -310,4 +310,13 @@ public class ConfigManager {
     public List<String> getRctEffects() {
         return plugin.getConfig().getStringList("rct.effects");
     }
+
+    public double getRctPassiveThreshold() {
+        return plugin.getConfig().getDouble("rct.passive-threshold", 10.0);
+    }
+
+    public boolean getRctPassiveDefault() {
+        return plugin.getConfig().getBoolean("rct.passive-default", false);
+    }
+
 }
