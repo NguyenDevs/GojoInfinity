@@ -56,6 +56,8 @@ rct:
   cooldown: 20.0             # Cooldown in seconds
   effects:                   # Effects to apply while active (Format: EFFECT:LEVEL)
     - "REGENERATION:1"
+  passive-default: false
+  passive-threshold: 10.0
 
 # Red (Repulsion/Aka) - Pushes entities away
 red:
@@ -69,7 +71,7 @@ red:
   saturation-cost: 3.0       # Saturation cost per use
 
 # PlaceholderAPI - Customize state display text
-# Placeholders: %limitless_infinity_state%, %limitless_purple_state%, %limitless_blue_state%, %limitless_red_state%
+# Placeholders: %limitless_infinity_state%, %limitless_purple_state%, %limitless_blue_state%, %limitless_red_state%, %limitless_rct_state%
 placeholders:
   infinity:
     disabled: "&c⬤ Disabled"
@@ -99,4 +101,5 @@ placeholders:
     disabled: "&c⬤ Disabled"
     idle: "&e⬤ Idle"
     active: "&a⬤ Active"
+    passive: "&b⬤ Passive Mode"
     cooldown: "&7⬤ Cooldown"
