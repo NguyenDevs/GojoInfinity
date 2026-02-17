@@ -120,9 +120,6 @@ public class HollowTechnique {
 
         chargingPlayers.add(player.getUniqueId());
 
-        if (mergeDuration > 0) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, mergeDuration, 0, false, false, false));
-        }
 
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
@@ -242,6 +239,11 @@ public class HollowTechnique {
                         }
                         partialHunger.put(player.getUniqueId(), accumulated);
                     }
+                }
+
+                if (ticks == mergeDuration / 2) {
+                    int remainingTicks = mergeDuration - ticks;
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, remainingTicks, 0, false, false, false));
                 }
 
                 if (ticks >= mergeDuration) {
