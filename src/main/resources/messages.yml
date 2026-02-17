@@ -65,6 +65,8 @@ rct-expired: "&eReverse Cursed Technique expired."
 rct-full-health: "&7Your HP is full, RCT will automatically inactive."
 rct-saturation-empty: "&cNot enough saturation to use Reverse Cursed Technique!"
 cooldown-rct: "&aReverse Cursed Technique &7is on cooldown! Wait &c%time%s"
+rct-passive-enabled: "&aRCT Passive Mode Enabled."
+rct-passive-disabled: "&cRCT Passive Mode Disabled."
 
 ability-select-title-rct: "<gradient:#FFFFFF:#AAFFAA>RCT</gradient>"
 ability-select-subtitle-rct: "<gradient:#DDFFDD:#FFFFFF>Reverse Cursed Technique</gradient>"
