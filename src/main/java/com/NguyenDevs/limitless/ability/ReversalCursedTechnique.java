@@ -22,7 +22,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class RedAbility {
+public class ReversalCursedTechnique {
 
     public enum RedState {
         DISABLED,
@@ -40,7 +40,7 @@ public class RedAbility {
     private final Set<UUID> activePlayers = new HashSet<>();
     private final Map<UUID, Entity> trackedEntities = new HashMap<>();
 
-    public RedAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public ReversalCursedTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;

@@ -1,9 +1,10 @@
 package com.NguyenDevs.limitless;
 
-import com.NguyenDevs.limitless.ability.BlueAbility;
-import com.NguyenDevs.limitless.ability.PurpleAbility;
+import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
+import com.NguyenDevs.limitless.ability.HollowTechnique;
 import com.NguyenDevs.limitless.ability.InfinityAbility;
-import com.NguyenDevs.limitless.ability.RedAbility;
+import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.command.LimitlessCommand;
 import com.NguyenDevs.limitless.gui.LimitlessGUI;
 import com.NguyenDevs.limitless.listener.LimitlessListener;
@@ -29,9 +30,10 @@ public final class Limitless extends JavaPlugin {
         private ConfigManager configManager;
         private AbilityToggleManager toggleManager;
         private LimitlessGUI limitlessGUI;
-        private PurpleAbility purpleAbility;
-        private BlueAbility blueAbility;
-        private RedAbility redAbility;
+        private HollowTechnique hollowTechnique;
+        private LapseCursedTechnique lapseCursedTechnique;
+        private ReversalCursedTechnique reversalCursedTechnique;
+        private ReverseCursedTechnique reverseCursedTechnique;
         private InfinityAbility infinityAbility;
         private InfinityEntityManager infinityEntityManager;
 
@@ -46,10 +48,11 @@ public final class Limitless extends JavaPlugin {
                 this.infinityEntityManager = new InfinityEntityManager(this);
                 this.infinityEntityManager.loadConfigs();
 
-                this.purpleAbility = new PurpleAbility(this, configManager, toggleManager);
+                this.hollowTechnique = new HollowTechnique(this, configManager, toggleManager);
                 this.infinityAbility = new InfinityAbility(this, configManager, toggleManager, infinityEntityManager);
-                this.blueAbility = new BlueAbility(this, configManager, toggleManager);
-                this.redAbility = new RedAbility(this, configManager, toggleManager);
+                this.lapseCursedTechnique = new LapseCursedTechnique(this, configManager, toggleManager);
+                this.reversalCursedTechnique = new ReversalCursedTechnique(this, configManager, toggleManager);
+                this.reverseCursedTechnique = new ReverseCursedTechnique(this, configManager, toggleManager);
                 infinityAbility.startTask();
 
                 PluginCommand command = getCommand("limitless");
@@ -63,16 +66,18 @@ public final class Limitless extends JavaPlugin {
                                 this, configManager, toggleManager);
 
                 getServer().getPluginManager()
-                                .registerEvents(new LimitlessListener(configManager, toggleManager, purpleAbility,
-                                                blueAbility, redAbility, selectionManager),
+                                .registerEvents(new LimitlessListener(configManager, toggleManager, hollowTechnique,
+                                                lapseCursedTechnique, reversalCursedTechnique, reverseCursedTechnique,
+                                                selectionManager),
                                                 this);
                 getServer().getPluginManager().registerEvents(
                                 new GuiListener(configManager, toggleManager, limitlessGUI),
                                 this);
 
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                        new LimitlessExpansion(this, configManager, infinityAbility, purpleAbility, blueAbility,
-                                        redAbility).register();
+                        new LimitlessExpansion(this, configManager, infinityAbility, hollowTechnique,
+                                        lapseCursedTechnique,
+                                        reversalCursedTechnique, reverseCursedTechnique).register();
                         Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize(
                                         "&d[&5Limitless&d] &aPlaceholderAPI hooked successfully!"));
                 } else {
@@ -128,19 +133,24 @@ public final class Limitless extends JavaPlugin {
                 return infinityAbility;
         }
 
-        public PurpleAbility getPurpleAbility() {
-                return purpleAbility;
+        public HollowTechnique getPurpleAbility() {
+                return hollowTechnique;
         }
 
         public InfinityEntityManager getInfinityEntityManager() {
                 return infinityEntityManager;
         }
 
-        public BlueAbility getBlueAbility() {
-                return blueAbility;
+        public LapseCursedTechnique getBlueAbility() {
+                return lapseCursedTechnique;
         }
 
-        public RedAbility getRedAbility() {
-                return redAbility;
+        public ReversalCursedTechnique getRedAbility() {
+                return reversalCursedTechnique;
         }
+
+        public ReverseCursedTechnique getReverseCursedTechnique() {
+                return reverseCursedTechnique;
+        }
+
 }

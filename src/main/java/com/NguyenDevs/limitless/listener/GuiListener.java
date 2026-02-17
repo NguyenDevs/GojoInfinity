@@ -43,12 +43,12 @@ public class GuiListener implements Listener {
         else if (slot == configManager.getGuiConfig().getInt("items.infinity.slot", 2)) {
 
             abilityToToggle = "infinity";
-        }
-        else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 6)) {
+        } else if (slot == configManager.getGuiConfig().getInt("items.blue.slot", 6)) {
             abilityToToggle = "blue";
-        }
-        else if (slot == configManager.getGuiConfig().getInt("items.red.slot", 8)) {
+        } else if (slot == configManager.getGuiConfig().getInt("items.red.slot", 8)) {
             abilityToToggle = "red";
+        } else if (slot == configManager.getGuiConfig().getInt("items.rct.slot", 0)) {
+            abilityToToggle = "rct";
         }
 
         if (abilityToToggle != null) {

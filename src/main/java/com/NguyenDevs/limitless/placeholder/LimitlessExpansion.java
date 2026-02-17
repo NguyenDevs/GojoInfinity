@@ -1,10 +1,11 @@
 package com.NguyenDevs.limitless.placeholder;
 
 import com.NguyenDevs.limitless.Limitless;
-import com.NguyenDevs.limitless.ability.BlueAbility;
+import com.NguyenDevs.limitless.ability.LapseCursedTechnique;
 import com.NguyenDevs.limitless.ability.InfinityAbility;
-import com.NguyenDevs.limitless.ability.PurpleAbility;
-import com.NguyenDevs.limitless.ability.RedAbility;
+import com.NguyenDevs.limitless.ability.HollowTechnique;
+import com.NguyenDevs.limitless.ability.ReversalCursedTechnique;
+import com.NguyenDevs.limitless.ability.ReverseCursedTechnique;
 import com.NguyenDevs.limitless.manager.ConfigManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -16,19 +17,22 @@ public class LimitlessExpansion extends PlaceholderExpansion {
     private final Limitless plugin;
     private final ConfigManager configManager;
     private final InfinityAbility infinityAbility;
-    private final PurpleAbility purpleAbility;
-    private final BlueAbility blueAbility;
-    private final RedAbility redAbility;
+    private final HollowTechnique hollowTechnique;
+    private final LapseCursedTechnique lapseCursedTechnique;
+    private final ReversalCursedTechnique reversalCursedTechnique;
+    private final ReverseCursedTechnique reverseCursedTechnique;
 
     public LimitlessExpansion(Limitless plugin, ConfigManager configManager,
-                              InfinityAbility infinityAbility, PurpleAbility purpleAbility,
-                              BlueAbility blueAbility, RedAbility redAbility) {
+            InfinityAbility infinityAbility, HollowTechnique hollowTechnique,
+            LapseCursedTechnique lapseCursedTechnique, ReversalCursedTechnique reversalCursedTechnique,
+            ReverseCursedTechnique reverseCursedTechnique) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.infinityAbility = infinityAbility;
-        this.purpleAbility = purpleAbility;
-        this.blueAbility = blueAbility;
-        this.redAbility = redAbility;
+        this.hollowTechnique = hollowTechnique;
+        this.lapseCursedTechnique = lapseCursedTechnique;
+        this.reversalCursedTechnique = reversalCursedTechnique;
+        this.reverseCursedTechnique = reverseCursedTechnique;
     }
 
     @Override
@@ -63,17 +67,22 @@ public class LimitlessExpansion extends PlaceholderExpansion {
         }
 
         if (params.equalsIgnoreCase("purple_state")) {
-            PurpleAbility.PurpleState state = purpleAbility.getState(player.getUniqueId());
+            HollowTechnique.PurpleState state = hollowTechnique.getState(player.getUniqueId());
             return configManager.getPlaceholderPurpleState(state.name().toLowerCase());
         }
         if (params.equalsIgnoreCase("blue_state")) {
-            BlueAbility.BlueState state = blueAbility.getState(player.getUniqueId());
+            LapseCursedTechnique.BlueState state = lapseCursedTechnique.getState(player.getUniqueId());
             return configManager.getPlaceholderBlueState(state.name().toLowerCase());
         }
 
         if (params.equalsIgnoreCase("red_state")) {
-            RedAbility.RedState state = redAbility.getState(player.getUniqueId());
+            ReversalCursedTechnique.RedState state = reversalCursedTechnique.getState(player.getUniqueId());
             return configManager.getPlaceholderRedState(state.name().toLowerCase());
+        }
+
+        if (params.equalsIgnoreCase("rct_state")) {
+            ReverseCursedTechnique.RctState state = reverseCursedTechnique.getState(player.getUniqueId());
+            return configManager.getPlaceholderRctState(state.name().toLowerCase());
         }
         return null;
     }

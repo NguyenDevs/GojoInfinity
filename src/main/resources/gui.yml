@@ -55,5 +55,18 @@ items:
       - "&7Status: %status%"
       - ""
       - "&eClick to toggle"
+  rct:
+    slot: 0
+    material: GHAST_TEAR
+    name: "&aReverse Cursed Technique"
+    lore:
+      - "&7Positive Energy"
+      - ""
+      - "&7Heals wounds and"
+      - "&7regenerates health."
+      - ""
+      - "&7Status: %status%"
+      - ""
+      - "&eClick to toggle"
 status-enabled: "&aEnabled"
 status-disabled: "&cDisabled"

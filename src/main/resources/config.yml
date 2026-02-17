@@ -48,6 +48,15 @@ blue:
   drain-saturation: true     # Drain saturation while active
   saturation-cost: 0.5       # Saturation cost per second
 
+# Reverse Cursed Technique - Drains saturation to heal
+rct:
+  heal-per-unit: 1.0         # HP healed per 1 saturation unit
+  saturation-per-sec: 2.0    # Saturation drained per second
+  duration: 10.0             # Duration in seconds
+  cooldown: 20.0             # Cooldown in seconds
+  effects:                   # Effects to apply while active (Format: EFFECT:LEVEL)
+    - "REGENERATION:1"
+
 # Red (Repulsion/Aka) - Pushes entities away
 red:
   max-distance: 30.0         # Max distance to target specific entity
@@ -85,4 +94,9 @@ placeholders:
     idle: "&e⬤ Idle"
     repelling_area: "&c⬤ Repelling (Area)"
     repelling_entity: "&4⬤ Repelling (Entity)"
+    cooldown: "&7⬤ Cooldown"
+  rct:
+    disabled: "&c⬤ Disabled"
+    idle: "&e⬤ Idle"
+    active: "&a⬤ Active"
     cooldown: "&7⬤ Cooldown"

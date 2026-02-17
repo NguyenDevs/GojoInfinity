@@ -286,4 +286,28 @@ public class ConfigManager {
         return ColorUtils.colorize(text);
     }
 
+    public String getPlaceholderRctState(String state) {
+        String text = plugin.getConfig().getString("placeholders.rct." + state, "&7Unknown");
+        return ColorUtils.colorize(text);
+    }
+
+    public double getRctHealPerUnit() {
+        return plugin.getConfig().getDouble("rct.heal-per-unit", 1.0);
+    }
+
+    public double getRctSaturationPerSec() {
+        return plugin.getConfig().getDouble("rct.saturation-per-sec", 2.0);
+    }
+
+    public double getRctDuration() {
+        return plugin.getConfig().getDouble("rct.duration", 10.0);
+    }
+
+    public long getRctCooldown() {
+        return (long) (plugin.getConfig().getDouble("rct.cooldown", 20.0) * 1000);
+    }
+
+    public List<String> getRctEffects() {
+        return plugin.getConfig().getStringList("rct.effects");
+    }
 }

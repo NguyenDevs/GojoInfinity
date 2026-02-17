@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class PurpleAbility {
+public class HollowTechnique {
 
     public enum PurpleState {
         DISABLED,
@@ -56,7 +56,7 @@ public class PurpleAbility {
     private static final double MAGMA_CHANCE = 0.12;
     private static final double LAVA_CHANCE = 0.015;
 
-    public PurpleAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public HollowTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
@@ -120,9 +120,6 @@ public class PurpleAbility {
 
         chargingPlayers.add(player.getUniqueId());
 
-        if (mergeDuration > 0) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, mergeDuration, 0, false, false, false));
-        }
 
         final boolean drainSaturation = configManager.isPurpleDrainSaturation();
         final double saturationCost = configManager.getPurpleSaturationCost();
@@ -242,6 +239,11 @@ public class PurpleAbility {
                         }
                         partialHunger.put(player.getUniqueId(), accumulated);
                     }
+                }
+
+                if (ticks == mergeDuration / 2) {
+                    int remainingTicks = mergeDuration - ticks;
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, remainingTicks, 0, false, false, false));
                 }
 
                 if (ticks >= mergeDuration) {
