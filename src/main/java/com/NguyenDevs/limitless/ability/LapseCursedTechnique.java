@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class BlueAbility {
+public class LapseCursedTechnique {
 
     public enum BlueState {
         DISABLED,
@@ -40,7 +40,7 @@ public class BlueAbility {
     private final Map<UUID, BukkitRunnable> activeEffects = new HashMap<>();
     private final Map<UUID, Entity> pinnedEntities = new HashMap<>();
 
-    public BlueAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public LapseCursedTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;

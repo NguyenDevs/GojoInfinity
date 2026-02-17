@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class PurpleAbility {
+public class HollowTechnique {
 
     public enum PurpleState {
         DISABLED,
@@ -56,7 +56,7 @@ public class PurpleAbility {
     private static final double MAGMA_CHANCE = 0.12;
     private static final double LAVA_CHANCE = 0.015;
 
-    public PurpleAbility(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
+    public HollowTechnique(Limitless plugin, ConfigManager configManager, AbilityToggleManager toggleManager) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.toggleManager = toggleManager;
